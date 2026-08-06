@@ -7,10 +7,10 @@
 
         <!-- Replace your server icon by uploading an image file named "list_icon.png"-->
         <link rel="icon" href="/list_icon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://googleapis.com" />
+        <link rel="preconnect" href="https://gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@500;700&display=swap"
+            href="https://googleapis.com/css2?family=Lexend+Deca:wght@500;700&display=swap"
             rel="stylesheet"
         />
         <link rel="stylesheet" type="text/css" href="/css/reset.css" />
@@ -30,8 +30,8 @@
             type="text/css"
             href="/css/components/tabs.css"
         />
-        <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
-        <script src="https://unpkg.com/vue-router@4.0.14/dist/vue-router.global.prod.js"></script>
+        <script src="https://unpkg.com"></script>
+        <script src="https://unpkg.com"></script>
         <script type="module" src="/js/main.js"></script>
     </head>
     <body id="app">
@@ -64,11 +64,11 @@
                     <a class="nav__icon" href="#">
                         <img src="/assets/discord.svg" alt="Discord Logo" />
                     </a>
-                    <!-- List record submission form, add a link to replace the '#' when putting a link to your list submission form-->
+                    <!-- Принудительное открытие формы через JS в обход роутера -->
                     <a
                         class="nav__cta type-label-lg"
-                        href="https://google.com"
-                        target="_blank"
+                        href="javascript:void(0)"
+                        onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLScy0NvBQBtNa-Yrssm3f7JGjpy0EtNvrDPuuMxzh4a7IvFB8g/viewform?usp=header', '_blank')"
                         >Submit Record</a
                     >
                 </div>
