@@ -48,7 +48,7 @@ export default {
                         </li>
                         <li>
                             <div class="type-title-sm">ID</div>
-                            <p>{{ level.id }}</p>
+                            <p>{{ level.id || 'No ID' }}</p>
                         </li>
                         <li>
                             <div class="type-title-sm">Password</div>
@@ -77,7 +77,7 @@ export default {
                     </table>
                 </div>
                 <div v-else class="level" style="height: 100%; justify-content: center; align-items: center;">
-                    <p>(ノಠ益ಠ)ノ彡┻━┻</p>
+                    <p>(ノಠ益ಠ)но 彡┻━┻</p>
                 </div>
             </div>
             <div class="meta-container">
@@ -98,30 +98,18 @@ export default {
                             </li>
                         </ol>
                     </template>
-                    <h3>Submission Requirements</h3>
+                    <h3>Правила подачи рекордов</h3>
                     <p>
-                        Achieved the record without using hacks (however, FPS bypass is allowed, up to 360fps)
+                        1. Рекорд должен быть записан честно, использование читов строго запрещено (FPS bypass разрешен до 360 FPS).
                     </p>
                     <p>
-                        Achieved the record on the level that is listed on the site - please check the level ID before you submit a record
+                        2. На видео обязательно должны быть слышны ваши клики/тапы или оригинальная музыка уровня без склеек.
                     </p>
                     <p>
-                        Have either source audio or clicks/taps in the video. Edited audio only does not count
+                        3. Запрещено использовать секретные пути (secret routes) или баги, которые срезают прохождение уровня.
                     </p>
                     <p>
-                        The recording must have a previous attempt and entire death animation shown before the completion, unless the completion is on the first attempt. Everyplay records are exempt from this
-                    </p>
-                    <p>
-                        The recording must also show the player hit the endwall, or the completion will be invalidated.
-                    </p>
-                    <p>
-                        Do not use secret routes or bug routes
-                    </p>
-                    <p>
-                        Do not use easy modes, only a record of the unmodified level qualifies
-                    </p>
-                    <p>
-                        Once a level falls onto the Legacy List, we accept records for it for 24 hours after it falls off, then afterwards we never accept records for said level
+                        4. Прохождение должно быть выполнено на оригинальной, не измененной версии уровня из нашего списка.
                     </p>
                 </div>
             </div>
@@ -153,11 +141,9 @@ export default {
         },
     },
     async mounted() {
-        // Hide loading spinner
         this.list = await fetchList();
         this.editors = await fetchEditors();
 
-        // Error handling
         if (!this.list) {
             this.errors = [
                 "Failed to load list. Retry in a few minutes or notify list staff.",
@@ -182,3 +168,4 @@ export default {
         score,
     },
 };
+
