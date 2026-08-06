@@ -1,0 +1,17 @@
+{
+    "name": "ORDINARY",
+    "author": "Dassh",
+    "creators": ["Dassh", "Millefox"],
+    "verifier": "",
+    "verification": "https://www.youtube.com/watch?v=4QiHP3jpGnk",
+    "percentToQualify": 100,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "nar1",
+            "link": "https://www.youtube.com/watch?v=4QiHP3jpGnk",
+            "percent": 100,
+            "hz": 60
+        }
+    ]
+}
