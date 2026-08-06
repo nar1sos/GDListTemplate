@@ -1,6 +1,12 @@
 [
     {
+        "name": "nar1",
         "role": "owner",
-        "name": "NaR1",
         "link": "https://www.youtube.com/@muvicrevenge"
+    },
+    {
+        "name": "BODIA",
+        "role": "admin",
+        "link": ""
     }
+]
