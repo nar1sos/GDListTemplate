@@ -9,8 +9,9 @@
     "records": [
         {
             "user": "nar1",
-            "link": "https://youtube.com...",
+            "link": "https://youtube.com",
             "percent": 100,
             "hz": 60
         }
     ]
+}
