@@ -1,0 +1,24 @@
+{
+    "name": "Sakupen Circles",
+    "author": "Nick2",
+    "creators": ["Nick24"],
+    "verifier": "🇷🇺 neru",
+    "verification": "https://www.youtube.com/watch?v=AdrmZsy52EY",
+    "percentToQualify": 100,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "🇺🇦 nar1",
+            "link": "https://youtube.com",
+            "percent": 100,
+            "hz": 60
+        },
+        {
+            "user": "🇷🇺 neru",
+            "link": "https://youtube.com",
+            "percent": 100,
+            "hz": 60
+        },
+
+    ]
+}
