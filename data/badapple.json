@@ -1,0 +1,17 @@
+{
+    "name": "Bad apple",
+    "author": "Pryemishi Team",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "verification": "https://youtu.be/TaFpNLy8ZBU",
+    "percentToQualify": 100,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "nar1",
+            "link": "https://youtu.be/TaFpNLy8ZBU",
+            "percent": 100,
+            "hz": 60
+        }
+    ]
+}
