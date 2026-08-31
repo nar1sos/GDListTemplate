@@ -1,1 +1,13 @@
-
+{
+    "name": "Kawai",
+    "author": "Pryemishi Team",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "verification": "https://youtu.be/6HR_Coo2IRo",
+    "percentToQualify": 100,
+    "password": "Free Copy",
+    "records": [
+        {
+        }
+    ]
+}
