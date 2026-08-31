@@ -45,8 +45,8 @@ export default {
                     <div class="player">
                         <h1>#{{ selected + 1 }} {{ entry.user }}</h1>
                         <h3>{{ entry.total }}</h3>
-                        <h2 v-if="entry.verified && entry.verified.length > 0">Verified ({{ entry.verified.length }})</h2>
-                        <table class="table" v-if="entry.verified && entry.verified.length > 0">
+                        <h2 v-if="entry.verified.length > 0">Verified ({{ entry.verified.length}})</h2>
+                        <table class="table">
                             <tr v-for="score in entry.verified">
                                 <td class="rank">
                                     <p>#{{ score.rank }}</p>
@@ -57,13 +57,10 @@ export default {
                                 <td class="score">
                                     <p>+{{ localize(score.score) }}</p>
                                 </td>
-                                <td class="verifier">
-                                    <p>{{ score.verifier || 'N/A' }}</p>
-                                </td>
                             </tr>
                         </table>
-                        <h2 v-if="entry.completed && entry.completed.length > 0">Completed ({{ entry.completed.length }})</h2>
-                        <table class="table" v-if="entry.completed && entry.completed.length > 0">
+                        <h2 v-if="entry.completed.length > 0">Completed ({{ entry.completed.length }})</h2>
+                        <table class="table">
                             <tr v-for="score in entry.completed">
                                 <td class="rank">
                                     <p>#{{ score.rank }}</p>
@@ -74,13 +71,10 @@ export default {
                                 <td class="score">
                                     <p>+{{ localize(score.score) }}</p>
                                 </td>
-                                <td class="verifier">
-                                    <p>{{ score.verifier || 'N/A' }}</p>
-                                </td>
                             </tr>
                         </table>
-                        <h2 v-if="entry.progressed && entry.progressed.length > 0">Progressed ({{ entry.progressed.length }})</h2>
-                        <table class="table" v-if="entry.progressed && entry.progressed.length > 0">
+                        <h2 v-if="entry.progressed.length > 0">Progressed ({{entry.progressed.length}})</h2>
+                        <table class="table">
                             <tr v-for="score in entry.progressed">
                                 <td class="rank">
                                     <p>#{{ score.rank }}</p>
@@ -91,9 +85,6 @@ export default {
                                 <td class="score">
                                     <p>+{{ localize(score.score) }}</p>
                                 </td>
-                                <td class="verifier">
-                                    <p>{{ score.verifier || 'N/A' }}</p>
-                                </td>
                             </tr>
                         </table>
                     </div>
@@ -103,32 +94,15 @@ export default {
     `,
     computed: {
         entry() {
-            return this.leaderboard[this.selected] || { user: 'Unknown', total: 0, verified: [], completed: [], progressed: [] };
+            return this.leaderboard[this.selected];
         },
     },
     async mounted() {
-        try {
-            const [leaderboard, err] = await fetchLeaderboard();
-            this.leaderboard = leaderboard || [];
-            this.err = err || [];
-        } catch (error) {
-            console.error('Failed to load leaderboard:', error);
-            this.err = ['Failed to load leaderboard data'];
-            // Тестовые данные, чтобы страница показалась
-            this.leaderboard = [
-                {
-                    user: 'Test Player',
-                    total: 1000,
-                    verified: [
-                        { rank: 1, level: 'Test Level', score: 500, link: '#', verifier: 'VerifierName' }
-                    ],
-                    completed: [],
-                    progressed: []
-                }
-            ];
-        } finally {
-            this.loading = false;
-        }
+        const [leaderboard, err] = await fetchLeaderboard();
+        this.leaderboard = leaderboard;
+        this.err = err;
+        // Hide loading spinner
+        this.loading = false;
     },
     methods: {
         localize,
