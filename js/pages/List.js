@@ -17,11 +17,11 @@ const roleIconMap = {
 export default {
     components: { Spinner, LevelAuthors },
     template: `
-        <main v-if="loading">
+        <main v-if="loading" class="gdl-loading">
             <Spinner></Spinner>
         </main>
-        <main v-else class="gdl-page-list">
-            <!-- Поисковая строка и фильтр -->
+        <div v-else class="gdl-wrapper">
+            <!-- Поисковая строка -->
             <div class="gdl-search-bar">
                 <div class="search-input-wrapper">
                     <span class="search-icon">🔍</span>
@@ -35,29 +35,31 @@ export default {
                 </div>
             </div>
 
+            <!-- Главный контейнер (Две колонки) -->
             <div class="gdl-content-grid">
-                <!-- Карточки уровней (в стиле Global Demonlist) -->
+                
+                <!-- ЛЕВАЯ КОЛОНКА: Список карточек -->
                 <div class="gdl-cards-container">
                     <div 
                         v-for="([level, err], i) in filteredList" 
                         :key="i"
                         class="gdl-level-card"
                         :class="{ 'active': selectedLevelIndex === getOriginalIndex(level), 'error': !level }"
-                        @click="selectLevelByItem(level, i)"
+                        @click="selectLevelByItem(level)"
                     >
-                        <!-- Превью уровня (вытаскиваем превью из YouTube) -->
+                        <!-- Превью -->
                         <div class="gdl-card-thumb">
                             <img 
                                 v-if="level" 
                                 :src="getThumbnail(level)" 
-                                alt="Level Thumbnail"
+                                alt="Thumbnail"
                                 @error="handleImgError"
                             />
                             <div v-else class="thumb-placeholder">Error</div>
                             <span class="rank-badge">#{{ getOriginalIndex(level) + 1 }}</span>
                         </div>
 
-                        <!-- Информация об уровне -->
+                        <!-- Текст карточки -->
                         <div class="gdl-card-info" v-if="level">
                             <div class="card-header">
                                 <span class="rank-number">#{{ getOriginalIndex(level) + 1 }}</span>
@@ -72,7 +74,7 @@ export default {
                                 <span class="points-min">{{ (score(getOriginalIndex(level) + 1, level.percentToQualify || 100, level.percentToQualify) || 0).toFixed(2) }}</span>
                                 <span class="points-dash">—</span>
                                 <span class="points-max">{{ (score(getOriginalIndex(level) + 1, 100, level.percentToQualify) || 0).toFixed(2) }}</span>
-                                <span class="points-label">points</span>
+                                <span class="points-label">pts</span>
                             </div>
                         </div>
 
@@ -86,17 +88,20 @@ export default {
                     </div>
                 </div>
 
-                <!-- Правая колонка: Детали выбранного уровня & Правила -->
+                <!-- ПРАВАЯ КОЛОНКА: Подробности уровня & Правила -->
                 <div class="gdl-details-container">
-                    <!-- Детали уровня -->
+                    
+                    <!-- Карточка уровня -->
                     <div class="gdl-level-detail-box" v-if="level">
                         <h2 class="detail-title">{{ level.name }}</h2>
 
-                        <LevelAuthors
-                            :author="level.author"
-                            :creators="level.creators"
-                            :verifier="level.verifier"
-                        ></LevelAuthors>
+                        <div class="authors-wrapper">
+                            <LevelAuthors
+                                :author="level.author"
+                                :creators="level.creators"
+                                :verifier="level.verifier"
+                            ></LevelAuthors>
+                        </div>
 
                         <div class="video-wrapper">
                             <iframe
@@ -136,25 +141,18 @@ export default {
                                 Этот уровень больше не принимает новые рекорды.
                             </p>
 
-                            <div class="records-table-wrapper">
-                                <table class="records-table">
-                                    <tbody>
-                                        <tr v-for="(record, rIdx) in level.records" :key="rIdx" class="record-row">
-                                            <td class="percent-col">{{ record.percent }}%</td>
-                                            <td class="user-col">
-                                                <a :href="record.link" target="_blank" class="user-link">
-                                                    {{ record.user }}
-                                                </a>
-                                            </td>
-                                            <td class="hz-col">{{ record.hz }}Hz</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="records-list" v-if="level.records && level.records.length > 0">
+                                <div v-for="(record, rIdx) in level.records" :key="rIdx" class="record-item">
+                                    <span class="percent-col">{{ record.percent }}%</span>
+                                    <a :href="record.link" target="_blank" class="user-link">{{ record.user }}</a>
+                                    <span class="hz-col">{{ record.hz }}Hz</span>
+                                </div>
                             </div>
+                            <div v-else class="no-records">Рекордов пока нет</div>
                         </div>
                     </div>
 
-                    <!-- Правила & Эдиторы -->
+                    <!-- Эдиторы и Правила -->
                     <div class="gdl-meta-box">
                         <div class="errors-list" v-if="errors.length > 0">
                             <div class="error-badge" v-for="error of errors" :key="error">
@@ -182,16 +180,17 @@ export default {
                         <div class="rules-section">
                             <h3>Rules</h3>
                             <ol class="rules-list">
-                                <li><strong>1. Запрещены читы.</strong> Любое использование читов, взломов и других способов нечестного прохождения запрещено.</li>
-                                <li><strong>2. Обязательные клики.</strong> Видео рекорда должно содержать клики мыши или тапы по экрану.</li>
-                                <li><strong>3. RAW-футаж.</strong> Рекорд должен быть предоставлен в виде оригинальной записи без монтажа.</li>
-                                <li><strong>4. Без багов и секрет-веев.</strong> Использование secret ways, bug routes и скипов запрещено.</li>
+                                <li><strong>1. Запрещены читы.</strong> Любое использование читов и нечестного прохождения запрещено.</li>
+                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать отчётливые клики/тапы.</li>
+                                <li><strong>3. RAW-футаж.</strong> Оригинальная запись без скрывающего монтажа.</li>
+                                <li><strong>4. Без секрет-веев.</strong> Скипы и баг-маршруты запрещены.</li>
                             </ol>
                         </div>
                     </div>
+
                 </div>
             </div>
-        </main>
+        </div>
     `,
 
     data: () => ({
@@ -238,16 +237,13 @@ export default {
         this.editors = await fetchEditors();
 
         if (!this.list) {
-            this.errors = ["Failed to load list. Retry in a few minutes or notify list staff."];
+            this.errors = ["Failed to load list."];
         } else {
             this.errors.push(
                 ...this.list
                     .filter(([_, err]) => err)
                     .map(([_, err]) => `Failed to load level (${err}.json)`)
             );
-            if (!this.editors) {
-                this.errors.push("Failed to load list editors.");
-            }
         }
 
         this.loading = false;
@@ -260,7 +256,7 @@ export default {
             if (!level) return 0;
             return this.list.findIndex(([l, _]) => l === level);
         },
-        selectLevelByItem(level, filteredIdx) {
+        selectLevelByItem(level) {
             if (!level) return;
             const origIdx = this.getOriginalIndex(level);
             if (origIdx !== -1) {
@@ -282,7 +278,7 @@ export default {
             return '/assets/no-thumb.png';
         },
         handleImgError(e) {
-            e.target.src = 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'; // fallback
+            e.target.src = 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg';
         }
     },
 };
