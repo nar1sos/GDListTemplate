@@ -91,7 +91,7 @@ export default {
                     <div class="gdl-level-detail-box" v-if="level">
                         <h2 class="detail-title">{{ level.name }}</h2>
 
-                        <!-- Чистый блок авторов без сжатия -->
+                        <!-- Чистый блок авторов -->
                         <div class="authors-clean-block">
                             <div class="author-item" v-if="level.creators && level.creators.length">
                                 <div class="author-label">CREATORS</div>
@@ -138,26 +138,35 @@ export default {
                             </div>
                         </div>
 
+                        <!-- Секция рекордов в стиле оригинала -->
                         <div class="records-section">
-                            <h3 class="section-subtitle">Records</h3>
-                            <p class="records-req" v-if="selected + 1 <= 75">
-                                <strong>{{ level.percentToQualify }}%</strong> или лучше для прохождения
-                            </p>
-                            <p class="records-req" v-else-if="selected + 1 <= 150">
-                                <strong>100%</strong> для прохождения
-                            </p>
-                            <p class="records-req" v-else>
-                                Этот уровень больше не принимает новые рекорды.
-                            </p>
-
-                            <div class="records-list" v-if="level.records && level.records.length > 0">
-                                <div v-for="(record, rIdx) in level.records" :key="rIdx" class="record-item">
-                                    <span class="percent-col">{{ record.percent }}%</span>
-                                    <a :href="record.link" target="_blank" class="user-link">{{ record.user }}</a>
-                                    <span class="hz-col">{{ record.hz }}Hz</span>
+                            <div class="records-header">
+                                <span class="records-trophy">🏆</span>
+                                <div class="records-header-text">
+                                    <h3 class="section-subtitle">Records</h3>
+                                    <p class="records-count-info" v-if="level.records">
+                                        <strong>{{ level.records.length }}</strong> records in total, 
+                                        <span class="highlight-100">{{ level.records.filter(r => r.percent === 100).length }}</span> of which are 100%
+                                    </p>
                                 </div>
                             </div>
-                            <div v-else class="no-records">Рекордов пока нет</div>
+
+                            <div class="records-list" v-if="level.records && level.records.length > 0">
+                                <div v-for="(record, rIdx) in level.records" :key="rIdx" class="record-card">
+                                    <div class="record-user-info">
+                                        <span class="user-name">{{ record.user }}</span>
+                                    </div>
+                                    <div class="record-meta-info">
+                                        <span class="percent-tag">{{ record.percent }}%</span>
+                                        <a :href="record.link" target="_blank" class="record-video-btn" title="Watch video">
+                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">No records yet</div>
                         </div>
                     </div>
 
