@@ -11,26 +11,20 @@ export default {
         loading: true,
         selected: 0,
         err: [],
-        debugError: null,
     }),
     template: `
         <main v-if="loading">
             <Spinner></Spinner>
         </main>
-        <main v-else-if="debugError" class="page-leaderboard-container">
-            <div style="padding: 2rem; color: #ff5555; background: #1e1e1e; border-radius: 8px;">
-                <h2>Ошибка при загрузке Лидерборда:</h2>
-                <pre>{{ debugError }}</pre>
-            </div>
-        </main>
         <main v-else class="page-leaderboard-container">
             <div class="page-leaderboard">
                 <div class="error-container" v-if="err && err.length > 0">
                     <p class="error">
-                        Не удалось загрузить следующие уровни: {{ err.join(', ') }}
+                        Leaderboard may be incorrect, as the following levels could not be loaded: {{ err.join(', ') }}
                     </p>
                 </div>
 
+                <!-- Левая панель со списком игроков -->
                 <div class="board-container">
                     <ul class="board-list">
                         <li 
@@ -41,14 +35,16 @@ export default {
                             @click="selected = i"
                         >
                             <span class="rank-label">#{{ i + 1 }}</span>
-                            <span class="user-name">{{ ientry.user }}</span>
-                            <span class="total-score">{{ localize(ientry.total) }}</span>
+                            <span class="user-name">{{ ientry.user || 'Unknown' }}</span>
+                            <span class="total-score">{{ localize(ientry.total || 0) }}</span>
                         </li>
                     </ul>
                 </div>
 
+                <!-- Правая панель с карточкой профиля -->
                 <div class="player-container" v-if="entry">
                     <div class="player-profile">
+                        
                         <div class="profile-header">
                             <div class="profile-avatar"></div>
                             <h1 class="profile-name">{{ entry.user }}</h1>
@@ -65,7 +61,7 @@ export default {
                             <div class="stat-card">
                                 <span class="stat-icon score-icon">✦</span>
                                 <div class="stat-info">
-                                    <div class="stat-value">{{ localize(entry.total) }}</div>
+                                    <div class="stat-value">{{ localize(entry.total || 0) }}</div>
                                     <div class="stat-label">Score</div>
                                 </div>
                             </div>
@@ -123,6 +119,7 @@ export default {
                                 </a>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -153,9 +150,8 @@ export default {
                 this.leaderboard = res.leaderboard || [];
                 this.err = res.err || [];
             }
-        } catch (err) {
-            console.error("Ошибка в Leaderboard:", err);
-            this.debugError = err.stack || err.toString();
+        } catch (e) {
+            console.error("Ошибка при сборе лидерборда:", e);
         } finally {
             this.loading = false;
         }
