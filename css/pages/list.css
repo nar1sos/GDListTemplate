@@ -1,13 +1,18 @@
 /* ======================================================
-   GLOBAL DEMONLIST - COMPLETE LIST STYLES (list.css)
+   GLOBAL OVERRIDES (ФОН И ТЁМНАЯ ТЕМА)
    ====================================================== */
 
-/* 1. ГЛОБАЛЬНЫЕ СБРОСЫ И СМОТРИМОСТЬ СТРАНИЦЫ */
-body, html {
-    overflow-x: hidden;
+/* Принудительный тёмный фон для всего сайта */
+html, body, #app, main, .surface, .page-list {
+    background-color: #0b0e14 !important;
+    background: #0b0e14 !important;
+    color: #f8fafc !important;
+}
+
+/* Очистка отступов */
+body {
     margin: 0;
     padding: 0;
-    color: #f8fafc;
 }
 
 .gdl-wrapper {
@@ -18,7 +23,46 @@ body, html {
     width: 100%;
 }
 
-/* 2. ПОИСКОВАЯ СТРОКА */
+/* ======================================================
+   ИСПРАВЛЕНИЕ СЖАТОГО ТЕКСТА (LevelAuthors)
+   ====================================================== */
+
+.level-authors-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    background: #0d1117;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #232b3e;
+}
+
+.author-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.author-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #64748b !important;
+    text-transform: uppercase;
+}
+
+.author-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #38bdf8 !important;
+    word-break: break-word;
+}
+
+/* ======================================================
+   ПОИСК И СЕТКА
+   ====================================================== */
+
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -67,7 +111,6 @@ body, html {
     cursor: pointer;
 }
 
-/* 3. ОСНОВНАЯ СЕТКА (КАРТОЧКИ И ДЕТАЛИ) */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 1fr 440px;
@@ -81,7 +124,10 @@ body, html {
     }
 }
 
-/* 4. СПИСОК КАРТОЧЕК И ЭЛЕМЕНТЫ */
+/* ======================================================
+   СПИСОК КАРТОЧЕК И ПРАВАЯ ПАНЕЛЬ
+   ====================================================== */
+
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -182,13 +228,10 @@ body, html {
 .points-min { color: #c084fc !important; font-weight: 600; }
 .points-max { color: #60a5fa !important; font-weight: 700; }
 
-/* 5. ПРАВАЯ ЧАСТЬ (ПОДРОБНОСТИ И МЕТА) */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    position: sticky;
-    top: 20px;
 }
 
 .gdl-level-detail-box, .gdl-meta-box {
@@ -207,18 +250,6 @@ body, html {
     margin: 0 0 10px 0;
 }
 
-.authors-wrapper {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    color: #e2e8f0 !important;
-}
-
-.authors-wrapper * {
-    color: #e2e8f0 !important;
-}
-
 .video-wrapper {
     width: 100%;
     aspect-ratio: 16/9;
@@ -233,7 +264,6 @@ body, html {
     height: 100%;
 }
 
-/* 6. СТАТИСТИКА И РЕКОРДЫ */
 .gdl-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -261,35 +291,10 @@ body, html {
     font-size: 14px;
 }
 
-.records-req {
-    color: #cbd5e1 !important;
-    font-size: 13px;
-}
+/* ======================================================
+   ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА
+   ====================================================== */
 
-.records-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.record-item {
-    display: flex;
-    justify-content: space-between;
-    background: #0d1117;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    color: #cbd5e1 !important;
-}
-
-.percent-col { color: #38bdf8 !important; font-weight: 700; }
-.user-link { color: #ffffff !important; text-decoration: none; }
-.user-link:hover { text-decoration: underline; }
-.hz-col { color: #64748b !important; }
-
-/* 7. ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА (ФИКС ОШИБОК) */
 .editors-list {
     list-style: none;
     padding: 0;
@@ -316,20 +321,6 @@ body, html {
     object-fit: contain;
     display: inline-block;
     flex-shrink: 0;
-}
-
-.editor-link {
-    color: #60a5fa !important;
-    text-decoration: none;
-}
-
-.editor-link:hover {
-    text-decoration: underline;
-}
-
-.rules-section h3, .gdl-meta-box h3 {
-    color: #ffffff !important;
-    margin-top: 0;
 }
 
 .rules-list {
