@@ -19,74 +19,113 @@ export default {
         </main>
         <main v-else class="page-leaderboard-container">
             <div class="page-leaderboard">
-                <div class="error-container">
-                    <p class="error" v-if="err.length > 0">
+                <div class="error-container" v-if="err.length > 0">
+                    <p class="error">
                         Leaderboard may be incorrect, as the following levels could not be loaded: {{ err.join(', ') }}
                     </p>
                 </div>
+
+                <!-- Левая панель со списком игроков -->
                 <div class="board-container">
-                    <table class="board">
-                        <tr v-for="(ientry, i) in leaderboard">
-                            <td class="rank">
-                                <p class="type-label-lg">#{{ i + 1 }}</p>
-                            </td>
-                            <td class="total">
-                                <p class="type-label-lg">{{ localize(ientry.total) }}</p>
-                            </td>
-                            <td class="user" :class="{ 'active': selected == i }">
-                                <button @click="selected = i">
-                                    <span class="type-label-lg">{{ ientry.user }}</span>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
+                    <ul class="board-list">
+                        <li 
+                            v-for="(ientry, i) in leaderboard" 
+                            :key="i"
+                            class="board-item"
+                            :class="{ 'active': selected === i }"
+                            @click="selected = i"
+                        >
+                            <span class="rank-label">#{{ i + 1 }}</span>
+                            <span class="user-name">{{ ientry.user }}</span>
+                            <span class="total-score">{{ localize(ientry.total) }}</span>
+                        </li>
+                    </ul>
                 </div>
-                <div class="player-container">
-                    <div class="player">
-                        <h1>#{{ selected + 1 }} {{ entry.user }}</h1>
-                        <h3>{{ entry.total }}</h3>
-                        <h2 v-if="entry.verified.length > 0">Verified ({{ entry.verified.length}})</h2>
-                        <table class="table">
-                            <tr v-for="score in entry.verified">
-                                <td class="rank">
-                                    <p>#{{ score.rank }}</p>
-                                </td>
-                                <td class="level">
-                                    <a class="type-label-lg" target="_blank" :href="score.link">{{ score.level }}</a>
-                                </td>
-                                <td class="score">
-                                    <p>+{{ localize(score.score) }}</p>
-                                </td>
-                            </tr>
-                        </table>
-                        <h2 v-if="entry.completed.length > 0">Completed ({{ entry.completed.length }})</h2>
-                        <table class="table">
-                            <tr v-for="score in entry.completed">
-                                <td class="rank">
-                                    <p>#{{ score.rank }}</p>
-                                </td>
-                                <td class="level">
-                                    <a class="type-label-lg" target="_blank" :href="score.link">{{ score.level }}</a>
-                                </td>
-                                <td class="score">
-                                    <p>+{{ localize(score.score) }}</p>
-                                </td>
-                            </tr>
-                        </table>
-                        <h2 v-if="entry.progressed.length > 0">Progressed ({{entry.progressed.length}})</h2>
-                        <table class="table">
-                            <tr v-for="score in entry.progressed">
-                                <td class="rank">
-                                    <p>#{{ score.rank }}</p>
-                                </td>
-                                <td class="level">
-                                    <a class="type-label-lg" target="_blank" :href="score.link">{{ score.percent }}% {{ score.level }}</a>
-                                </td>
-                                <td class="score">
-                                    <p>+{{ localize(score.score) }}</p>
-                                </td>
-                            </tr>
-                        </table>
+
+                <!-- Правая панель с карточкой профиля -->
+                <div class="player-container" v-if="entry">
+                    <div class="player-profile">
+                        
+                        <!-- Заголовок профиля -->
+                        <div class="profile-header">
+                            <div class="profile-avatar"></div>
+                            <h1 class="profile-name">{{ entry.user }}</h1>
+                        </div>
+
+                        <!-- Карточки статистики: Rank & Score -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-icon trophy-icon">🏆</span>
+                                <div class="stat-info">
+                                    <div class="stat-value">#{{ selected + 1 }}</div>
+                                    <div class="stat-label">Rank</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-icon score-icon">✦</span>
+                                <div class="stat-info">
+                                    <div class="stat-value">{{ localize(entry.total) }}</div>
+                                    <div class="stat-label">Score</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Блок Hardest Level -->
+                        <div class="hardest-card" v-if="hardestLevel">
+                            <div class="hardest-header">
+                                <span class="fire-icon">🔥</span>
+                                <span class="hardest-label">Hardest level</span>
+                            </div>
+                            <div class="hardest-content">
+                                <span class="hardest-rank">#{{ hardestLevel.rank }}</span>
+                                <a :href="hardestLevel.link" target="_blank" class="hardest-title">{{ hardestLevel.level }}</a>
+                            </div>
+                        </div>
+
+                        <!-- Секции прохождений (Verified / Completed) -->
+                        <div class="levels-category" v-if="allCompletedLevels.length > 0">
+                            <div class="category-header">
+                                <div class="category-title">
+                                    <span class="star-icon">★</span>
+                                    <span>Main levels</span>
+                                </div>
+                                <span class="badge">{{ allCompletedLevels.length }}</span>
+                            </div>
+                            <div class="chips-container">
+                                <a 
+                                    v-for="(score, idx) in allCompletedLevels" 
+                                    :key="idx" 
+                                    :href="score.link" 
+                                    target="_blank" 
+                                    class="level-chip"
+                                >
+                                    {{ score.level }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Секция прогрессов (Progressed) -->
+                        <div class="levels-category" v-if="entry.progressed && entry.progressed.length > 0">
+                            <div class="category-header">
+                                <div class="category-title">
+                                    <span class="infinity-icon">∞</span>
+                                    <span>Progressed levels</span>
+                                </div>
+                                <span class="badge">{{ entry.progressed.length }}</span>
+                            </div>
+                            <div class="chips-container">
+                                <a 
+                                    v-for="(score, idx) in entry.progressed" 
+                                    :key="idx" 
+                                    :href="score.link" 
+                                    target="_blank" 
+                                    class="level-chip chip-progress"
+                                >
+                                    {{ score.percent }}% {{ score.level }}
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -94,14 +133,23 @@ export default {
     `,
     computed: {
         entry() {
-            return this.leaderboard[this.selected];
+            return this.leaderboard[this.selected] || null;
         },
+        allCompletedLevels() {
+            if (!this.entry) return [];
+            const verified = this.entry.verified || [];
+            const completed = this.entry.completed || [];
+            return [...verified, ...completed];
+        },
+        hardestLevel() {
+            if (!this.allCompletedLevels.length) return null;
+            return [...this.allCompletedLevels].sort((a, b) => a.rank - b.rank)[0];
+        }
     },
     async mounted() {
         const [leaderboard, err] = await fetchLeaderboard();
         this.leaderboard = leaderboard;
         this.err = err;
-        // Hide loading spinner
         this.loading = false;
     },
     methods: {
