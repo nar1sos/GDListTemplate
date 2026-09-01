@@ -1,295 +1,273 @@
-/* ======================================================
-   GLOBAL DEMONLIST - COMPLETE FIX FOR THEMES & AUTHORS
-   ====================================================== */
+import { store } from "../main.js";
+import { embed } from "../util.js";
+import { score } from "../score.js";
+import { fetchEditors, fetchList } from "../content.js";
 
-.gdl-wrapper {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
-    width: 100%;
-}
+import Spinner from "../components/Spinner.js";
 
-/* 1. ПОИСК ПО ЦЕНТРУ */
-.gdl-search-bar {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
+const roleIconMap = {
+    owner: "crown",
+    admin: "user-gear",
+    helper: "user-shield",
+    dev: "code",
+    trial: "user-lock",
+};
 
-.search-input-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 550px;
-}
+export default {
+    components: { Spinner },
+    template: `
+        <main v-if="loading" class="gdl-loading">
+            <Spinner></Spinner>
+        </main>
+        <div v-else class="gdl-wrapper">
+            <!-- Поиск -->
+            <div class="gdl-search-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        placeholder="Search levels, authors, verifiers..." 
+                        class="gdl-input"
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">✕</button>
+                </div>
+            </div>
 
-.search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.5;
-}
+            <!-- Главный контент -->
+            <div class="gdl-content-grid">
+                
+                <!-- Список карт -->
+                <div class="gdl-cards-container">
+                    <div 
+                        v-for="([lvl, err], i) in filteredList" 
+                        :key="i"
+                        class="gdl-level-card"
+                        :class="{ 'active': selectedLevelIndex === getOriginalIndex(lvl), 'error': !lvl }"
+                        @click="selectLevelByItem(lvl)"
+                    >
+                        <div class="gdl-card-thumb">
+                            <img 
+                                v-if="lvl" 
+                                :src="getThumbnail(lvl)" 
+                                alt="Thumbnail"
+                                @error="handleImgError"
+                            />
+                            <div v-else class="thumb-placeholder">Error</div>
+                            <span class="rank-badge">#{{ getOriginalIndex(lvl) + 1 }}</span>
+                        </div>
 
-.gdl-input {
-    width: 100%;
-    padding: 12px 40px 12px 42px;
-    background: var(--surface-2, #161b26);
-    border: 1px solid var(--border-color, #283044);
-    border-radius: 10px;
-    color: var(--text-color, #ffffff);
-    font-size: 15px;
-    box-sizing: border-box;
-    outline: none;
-}
+                        <div class="gdl-card-info" v-if="lvl">
+                            <div class="card-header">
+                                <span class="rank-number">#{{ getOriginalIndex(lvl) + 1 }}</span>
+                                <h3 class="level-title">{{ lvl.name }}</h3>
+                            </div>
+                            <div class="card-authors">
+                                <span class="author-name">{{ lvl.author || 'Unknown' }}</span>
+                                <span class="separator" v-if="lvl.verifier">•</span>
+                                <span class="verifier-name" v-if="lvl.verifier">{{ lvl.verifier }}</span>
+                            </div>
+                            <div class="card-points">
+                                <span class="points-min">{{ (score(getOriginalIndex(lvl) + 1, lvl.percentToQualify || 100, lvl.percentToQualify) || 0).toFixed(2) }}</span>
+                                <span class="points-dash">—</span>
+                                <span class="points-max">{{ (score(getOriginalIndex(lvl) + 1, 100, lvl.percentToQualify) || 0).toFixed(2) }}</span>
+                                <span class="points-label">pts</span>
+                            </div>
+                        </div>
 
-.gdl-input:focus {
-    border-color: #3b82f6;
-}
+                        <div class="gdl-card-info" v-else>
+                            <h3 class="level-title error-text">Error loading level ({{ err }}.json)</h3>
+                        </div>
+                    </div>
 
-.clear-btn {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-}
+                    <div v-if="filteredList.length === 0" class="empty-results">
+                        Ничего не найдено по запросу "{{ searchQuery }}"
+                    </div>
+                </div>
 
-/* 2. ОСНОВНАЯ СЕТКА */
-.gdl-content-grid {
-    display: grid;
-    grid-template-columns: 1fr 440px;
-    gap: 25px;
-    align-items: start;
-}
+                <!-- Правая колонка -->
+                <div class="gdl-details-container">
+                    
+                    <div class="gdl-level-detail-box" v-if="level">
+                        <h2 class="detail-title">{{ level.name }}</h2>
 
-@media (max-width: 900px) {
-    .gdl-content-grid {
-        grid-template-columns: 1fr;
-    }
-}
+                        <!-- Чистый блок авторов с переносом -->
+                        <div class="authors-clean-block">
+                            <div class="author-item" v-if="level.creators && level.creators.length">
+                                <div class="author-label">CREATORS</div>
+                                <div class="author-val">{{ level.creators.join(', ') }}</div>
+                            </div>
+                            <div class="author-item" v-else-if="level.author">
+                                <div class="author-label">CREATORS</div>
+                                <div class="author-val">{{ level.author }}</div>
+                            </div>
 
-/* 3. КАРТОЧКИ УРОВНЕЙ */
-.gdl-cards-container {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
+                            <div class="author-item" v-if="level.verifier">
+                                <div class="author-label">VERIFIER</div>
+                                <div class="author-val">{{ level.verifier }}</div>
+                            </div>
 
-.gdl-level-card {
-    display: flex;
-    align-items: center;
-    background: var(--surface-2, #161b26);
-    border: 1px solid var(--border-color, #232b3e);
-    border-radius: 12px;
-    padding: 12px;
-    gap: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+                            <div class="author-item" v-if="level.author && level.creators && level.creators.length">
+                                <div class="author-label">PUBLISHER</div>
+                                <div class="author-val">{{ level.author }}</div>
+                            </div>
+                        </div>
 
-.gdl-level-card:hover {
-    border-color: #3b82f6;
-}
+                        <div class="video-wrapper">
+                            <iframe
+                                class="video"
+                                id="videoframe"
+                                :src="video"
+                                frameborder="0"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
 
-.gdl-level-card.active {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
+                        <div class="gdl-stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Points</span>
+                                <span class="stat-value">{{ score(selected + 1, 100, level.percentToQualify) }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">ID</span>
+                                <span class="stat-value">{{ level.id }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Password</span>
+                                <span class="stat-value">{{ level.password || 'Free Copy' }}</span>
+                            </div>
+                        </div>
 
-.gdl-card-thumb {
-    width: 160px;
-    height: 90px;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
-    background: var(--surface-1, #0d1117);
-}
+                        <div class="records-section">
+                            <h3 class="section-subtitle">Records</h3>
+                            <p class="records-req" v-if="selected + 1 <= 75">
+                                <strong>{{ level.percentToQualify }}%</strong> или лучше для прохождения
+                            </p>
+                            <p class="records-req" v-else-if="selected + 1 <= 150">
+                                <strong>100%</strong> для прохождения
+                            </p>
+                            <p class="records-req" v-else>
+                                Этот уровень больше не принимает новые рекорды.
+                            </p>
 
-.gdl-card-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+                            <div class="records-list" v-if="level.records && level.records.length > 0">
+                                <div v-for="(record, rIdx) in level.records" :key="rIdx" class="record-item">
+                                    <span class="percent-col">{{ record.percent }}%</span>
+                                    <a :href="record.link" target="_blank" class="user-link">{{ record.user }}</a>
+                                    <span class="hz-col">{{ record.hz }}Hz</span>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">Рекордов пока нет</div>
+                        </div>
+                    </div>
 
-.rank-badge {
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    background: rgba(10, 14, 23, 0.85);
-    color: #3b82f6;
-    font-weight: 800;
-    font-size: 11px;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
+                    <!-- Эдиторы и Правила -->
+                    <div class="gdl-meta-box">
+                        <template v-if="editors && editors.length">
+                            <h3>List Editors</h3>
+                            <ul class="editors-list">
+                                <li v-for="editor in editors" :key="editor.name">
+                                    <img
+                                        :src="\`/assets/\${roleIconMap[editor.role]}-dark.svg\`"
+                                        :alt="editor.role"
+                                        class="role-icon"
+                                    >
+                                    <a v-if="editor.link" :href="editor.link" target="_blank" class="editor-link">
+                                        {{ editor.name }}
+                                    </a>
+                                    <span v-else class="editor-name">{{ editor.name }}</span>
+                                </li>
+                            </ul>
+                        </template>
 
-.gdl-card-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
+                        <div class="rules-section">
+                            <h3>Rules</h3>
+                            <ol class="rules-list">
+                                <li><strong>1. Запрещены читы.</strong> Любое использование читов запрещено.</li>
+                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать слышимые клики.</li>
+                                <li><strong>3. RAW-футаж.</strong> Оригинальная запись без скрывающего монтажа.</li>
+                                <li><strong>4. Без секрет-веев.</strong> Скипы и баг-маршруты запрещены.</li>
+                            </ol>
+                        </div>
+                    </div>
 
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+                </div>
+            </div>
+        </div>
+    `,
 
-.rank-number {
-    color: #3b82f6;
-    font-size: 16px;
-    font-weight: 800;
-}
+    data: () => ({
+        list: [],
+        editors: [],
+        loading: true,
+        selected: 0,
+        searchQuery: "",
+        errors: [],
+        roleIconMap,
+        store
+    }),
 
-.level-title {
-    font-size: 17px;
-    font-weight: 700;
-    margin: 0;
-}
+    computed: {
+        filteredList() {
+            if (!this.searchQuery.trim()) return this.list;
+            const q = this.searchQuery.toLowerCase().trim();
+            return this.list.filter(([lvl, _]) => {
+                if (!lvl) return false;
+                const nameMatch = lvl.name?.toLowerCase().includes(q);
+                const authorMatch = lvl.author?.toLowerCase().includes(q);
+                const verifierMatch = lvl.verifier?.toLowerCase().includes(q);
+                return nameMatch || authorMatch || verifierMatch;
+            });
+        },
+        selectedLevelIndex() {
+            return this.selected;
+        },
+        level() {
+            return this.list[this.selected]?.[0] || null;
+        },
+        video() {
+            if (!this.level) return '';
+            const link = this.level.showcase || this.level.verification;
+            return embed(link);
+        },
+    },
 
-.card-authors {
-    font-size: 13px;
-    opacity: 0.8;
-}
+    async mounted() {
+        this.list = await fetchList();
+        this.editors = await fetchEditors();
+        this.loading = false;
+    },
 
-.card-points {
-    font-size: 13px;
-    margin-top: 4px;
-}
-
-.points-min { color: #c084fc; font-weight: 600; }
-.points-max { color: #60a5fa; font-weight: 700; }
-
-/* 4. ПРАВЫЙ БЛОК И ПОЛНЫЙ ФИКС СЖАТИЯ ТЕКСТА (LEVEL AUTHORS) */
-.gdl-details-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.gdl-level-detail-box, .gdl-meta-box {
-    background: var(--surface-2, #161b26);
-    border: 1px solid var(--border-color, #232b3e);
-    border-radius: 12px;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.detail-title {
-    font-size: 22px;
-    font-weight: 800;
-    margin: 0 0 15px 0;
-}
-
-/* Полный фикс сжатого блока авторов */
-.gdl-level-detail-box h2 + div,
-.gdl-level-detail-box [class*="author"],
-.gdl-level-detail-box [class*="authors"] {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    margin-bottom: 20px !important;
-    position: static !important;
-    height: auto !important;
-    min-height: auto !important;
-}
-
-/* Фикс текста и расстояния между категориями CREATORS / VERIFIER / PUBLISHER */
-.gdl-level-detail-box [class*="author"] h2,
-.gdl-level-detail-box [class*="author"] h3,
-.gdl-level-detail-box [class*="author"] h4,
-.gdl-level-detail-box [class*="author"] p,
-.gdl-level-detail-box [class*="author"] span,
-.gdl-level-detail-box [class*="author"] div {
-    display: block !important;
-    position: static !important;
-    line-height: 1.5 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 14px !important;
-}
-
-.video-wrapper {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 15px;
-    background: #000;
-}
-
-.video-wrapper iframe {
-    width: 100%;
-    height: 100%;
-}
-
-.gdl-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.stat-item {
-    background: var(--surface-1, #0d1117);
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-label {
-    display: block;
-    font-size: 11px;
-    opacity: 0.6;
-    text-transform: uppercase;
-}
-
-.stat-value {
-    font-weight: 700;
-    color: #38bdf8;
-    font-size: 14px;
-}
-
-/* 5. ИКОНКИ РЕДАКТОРОВ */
-.editors-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.editors-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-}
-
-.editors-list li img,
-.role-icon {
-    width: 20px !important;
-    height: 20px !important;
-    max-width: 20px !important;
-    max-height: 20px !important;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.rules-list {
-    padding: 0;
-    list-style: none;
-    font-size: 13px;
-}
-
-.rules-list li {
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
+    methods: {
+        embed,
+        score,
+        getOriginalIndex(level) {
+            if (!level) return 0;
+            return this.list.findIndex(([l, _]) => l === level);
+        },
+        selectLevelByItem(level) {
+            if (!level) return;
+            const origIdx = this.getOriginalIndex(level);
+            if (origIdx !== -1) {
+                this.selected = origIdx;
+            }
+        },
+        getYoutubeId(url) {
+            if (!url) return null;
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            return match ? match[1] : null;
+        },
+        getThumbnail(level) {
+            if (level.thumbnail) return level.thumbnail;
+            const videoUrl = level.verification || level.showcase;
+            const ytId = this.getYoutubeId(videoUrl);
+            if (ytId) {
+                return `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
+            }
+            return '/assets/no-thumb.png';
+        },
+        handleImgError(e) {
+            e.target.src = 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg';
+        }
+    },
+};
