@@ -1,128 +1,379 @@
-.page-list .list-container,
-.page-list .level-container,
-.page-list .meta-container {
-    padding-block: 2rem;
-}
-.page-list .list-container {
-    padding-inline: 1rem;
-}
-.page-list .meta-container {
-    padding-right: 2rem;
+/* ==========================================
+   GLOBAL DEMONLIST CARD STYLING
+   ========================================== */
+
+.gdl-page-list {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    color: #e2e8f0;
 }
 
-.page-list .list {
-    table-layout: auto;
+/* Поисковая строка */
+.gdl-search-bar {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
 }
-.page-list .list .rank {
-    text-align: end;
-    padding-right: 1rem;
-}
-.page-list .list .level {
+
+.search-input-wrapper {
+    position: relative;
     width: 100%;
-}
-.page-list .list .level button {
-    background-color: var(--color-background);
-    color: var(--color-on-background);
-    border: none;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    text-align: start;
-    word-break: normal;
-    overflow-wrap: anywhere;
-    cursor: pointer;
-}
-.page-list .list .level.error button {
-    color: var(--color-error);
-    cursor: not-allowed;
-    text-decoration: line-through;
-}
-.page-list .list .level button:hover {
-    background-color: var(--color-background-hover);
-    color: var(--color-on-background-hover);
-}
-.page-list .list .level.active button {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-}
-.page-list .level-container .level {
+    max-width: 600px;
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding-right: 2rem;
-    max-width: 48rem;
-}
-.page-list .level-container .level .level-authors {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    grid-auto-rows: max-content;
-    gap: 1rem;
-}
-.page-list .level-container .level .video {
-    aspect-ratio: 16/9;
-}
-.page-list .level-container .level .stats {
-    display: flex;
-    justify-content: space-evenly;
-    text-align: center;
-    gap: 2rem;
-}
-.page-list .level-container .level .stats li {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 1rem;
 }
-.page-list .level-container .level .records {
-    table-layout: fixed;
+
+.search-icon {
+    position: absolute;
+    left: 1.25rem;
+    font-size: 1rem;
+    opacity: 0.6;
 }
-.page-list .level-container .level .records tr td:not(:last-child) {
-    padding-right: 1rem;
-}
-.page-list .level-container .level .records .percent,
-.page-list .level-container .level .records .user,
-.page-list .level-container .level .records .hz {
-    padding-block: 1rem;
-}
-.page-list .level-container .level .records .user {
+
+.gdl-input {
     width: 100%;
+    padding: 0.85rem 2.5rem 0.85rem 3rem;
+    background-color: #1a202c;
+    border: 1px solid #2d3748;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.page-list .level-container .level .records .percent,
-.page-list .level-container .level .records .hz {
-    text-align: end;
+
+.gdl-input:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
 }
-.page-list .meta-container .og a:hover,
-.page-list .level-container .level .records a:hover {
+
+.clear-btn {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Сетка контента */
+.gdl-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .gdl-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Список карточек */
+.gdl-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.gdl-level-card {
+    display: flex;
+    background: #182030;
+    border: 1px solid #253147;
+    border-radius: 14px;
+    padding: 0.85rem;
+    gap: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.gdl-level-card:hover {
+    transform: translateY(-2px);
+    border-color: #3b82f6;
+    background: #1e293b;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.gdl-level-card.active {
+    border-color: #3b82f6;
+    background: #1e293b;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.gdl-level-card.error {
+    opacity: 0.6;
+    border-color: #e53e3e;
+}
+
+/* Превью */
+.gdl-card-thumb {
+    width: 200px;
+    height: 112px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    background: #0f172a;
+}
+
+.gdl-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rank-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    color: #3b82f6;
+    font-weight: 800;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* Инфо на карточке */
+.gdl-card-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-grow: 1;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.rank-number {
+    color: #3b82f6;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.level-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.card-authors {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    color: #94a3b8;
+}
+
+.verifier-name {
+    color: #10b981; /* Зеленый цвет верификатора */
+    font-weight: 600;
+}
+
+.separator {
+    opacity: 0.4;
+}
+
+.card-points {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    margin-top: 0.2rem;
+}
+
+.points-min {
+    color: #a855f7;
+    font-weight: 600;
+}
+
+.points-max {
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+.points-label {
+    opacity: 0.6;
+    font-size: 0.8rem;
+}
+
+/* Детали уровня справа */
+.gdl-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 1.5rem;
+}
+
+.gdl-level-detail-box, .gdl-meta-box {
+    background: #182030;
+    border: 1px solid #253147;
+    border-radius: 14px;
+    padding: 1.5rem;
+}
+
+.detail-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.video-wrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+    background: #0f172a;
+}
+
+.video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.gdl-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    background: #0f172a;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+/* Таблица рекордов */
+.records-section {
+    margin-top: 1rem;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.records-req {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.records-table-wrapper {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.records-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.record-row {
+    border-bottom: 1px solid #1e293b;
+}
+
+.record-row td {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.88rem;
+}
+
+.percent-col {
+    color: #38bdf8;
+    font-weight: 700;
+    width: 50px;
+}
+
+.user-link {
+    color: #f1f5f9;
+    text-decoration: none;
+}
+
+.user-link:hover {
+    color: #3b82f6;
     text-decoration: underline;
 }
-.page-list .meta {
+
+.hz-col {
+    text-align: right;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Эдиторы и Правила */
+.gdl-meta-box h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #f8fafc;
+}
+
+.editors-list {
+    list-style: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
 }
-.page-list .meta .errors {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-.page-list .meta .errors .error {
-    padding: 1rem;
-    background-color: var(--color-error);
-    color: var(--color-on-error);
-    border-radius: 0.5rem;
-}
-.page-list .meta .editors {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-.page-list .meta .editors li {
+
+.editors-list li {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.9rem;
 }
-.page-list .meta .editors li img {
-    height: 1.25rem;
+
+.role-icon {
+    width: 16px;
+    height: 16px;
 }
-.page-list .meta .editors li a:hover {
-    text-decoration: underline;
+
+.rules-list {
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.rules-list strong {
+    color: #e2e8f0;
 }
