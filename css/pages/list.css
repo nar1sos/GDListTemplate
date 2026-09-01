@@ -1,12 +1,13 @@
 /* ======================================================
-   GLOBAL DEMONLIST - FULL LIST STYLES (list.css)
+   GLOBAL DEMONLIST - COMPLETE LIST STYLES (list.css)
    ====================================================== */
 
-/* Сброс ограничений ширины и отмена внешнего скролла */
+/* 1. ГЛОБАЛЬНЫЕ СБРОСЫ И СМОТРИМОСТЬ СТРАНИЦЫ */
 body, html {
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+    color: #f8fafc;
 }
 
 .gdl-wrapper {
@@ -17,7 +18,7 @@ body, html {
     width: 100%;
 }
 
-/* Поисковая строка */
+/* 2. ПОИСКОВАЯ СТРОКА */
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -66,7 +67,7 @@ body, html {
     cursor: pointer;
 }
 
-/* Сетка: Слева карточки, Справа детализация */
+/* 3. ОСНОВНАЯ СЕТКА (КАРТОЧКИ И ДЕТАЛИ) */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 1fr 440px;
@@ -80,7 +81,7 @@ body, html {
     }
 }
 
-/* Список карточек */
+/* 4. СПИСОК КАРТОЧЕК И ЭЛЕМЕНТЫ */
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -110,7 +111,6 @@ body, html {
     background: #1c2333;
 }
 
-/* Превью карт */
 .gdl-card-thumb {
     width: 160px;
     height: 90px;
@@ -160,29 +160,29 @@ body, html {
 .level-title {
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
+    color: #ffffff !important;
     margin: 0;
 }
 
 .card-authors {
     font-size: 13px;
-    color: #94a3b8;
+    color: #94a3b8 !important;
 }
 
 .verifier-name {
-    color: #10b981;
+    color: #10b981 !important;
 }
 
 .card-points {
     font-size: 13px;
-    color: #cbd5e1;
+    color: #cbd5e1 !important;
     margin-top: 4px;
 }
 
-.points-min { color: #c084fc; font-weight: 600; }
-.points-max { color: #60a5fa; font-weight: 700; }
+.points-min { color: #c084fc !important; font-weight: 600; }
+.points-max { color: #60a5fa !important; font-weight: 700; }
 
-/* Правая панель */
+/* 5. ПРАВАЯ ЧАСТЬ (ПОДРОБНОСТИ И МЕТА) */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
@@ -197,28 +197,26 @@ body, html {
     border-radius: 12px;
     padding: 20px;
     box-sizing: border-box;
+    color: #f8fafc !important;
 }
 
 .detail-title {
     font-size: 22px;
     font-weight: 800;
-    color: #fff;
+    color: #ffffff !important;
     margin: 0 0 10px 0;
 }
 
-/* Исправление наложения текста CREATORS / VERIFIER */
 .authors-wrapper {
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    color: #e2e8f0 !important;
 }
 
-.authors-wrapper .level-authors,
-.authors-wrapper div {
-    display: block;
-    line-height: 1.5;
-    font-size: 14px;
+.authors-wrapper * {
+    color: #e2e8f0 !important;
 }
 
 .video-wrapper {
@@ -235,6 +233,7 @@ body, html {
     height: 100%;
 }
 
+/* 6. СТАТИСТИКА И РЕКОРДЫ */
 .gdl-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -252,14 +251,19 @@ body, html {
 .stat-label {
     display: block;
     font-size: 11px;
-    color: #64748b;
+    color: #64748b !important;
     text-transform: uppercase;
 }
 
 .stat-value {
     font-weight: 700;
-    color: #38bdf8;
+    color: #38bdf8 !important;
     font-size: 14px;
+}
+
+.records-req {
+    color: #cbd5e1 !important;
+    font-size: 13px;
 }
 
 .records-list {
@@ -277,33 +281,70 @@ body, html {
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 13px;
+    color: #cbd5e1 !important;
 }
 
-.percent-col { color: #38bdf8; font-weight: 700; }
-.user-link { color: #fff; text-decoration: none; }
+.percent-col { color: #38bdf8 !important; font-weight: 700; }
+.user-link { color: #ffffff !important; text-decoration: none; }
 .user-link:hover { text-decoration: underline; }
-.hz-col { color: #64748b; }
+.hz-col { color: #64748b !important; }
 
+/* 7. ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА (ФИКС ОШИБОК) */
 .editors-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 15px 0;
+    margin: 10px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .editors-list li {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
+    gap: 10px;
+    font-size: 14px;
+    color: #ffffff !important;
+}
+
+.editors-list li img,
+.role-icon {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.editor-link {
+    color: #60a5fa !important;
+    text-decoration: none;
+}
+
+.editor-link:hover {
+    text-decoration: underline;
+}
+
+.rules-section h3, .gdl-meta-box h3 {
+    color: #ffffff !important;
+    margin-top: 0;
 }
 
 .rules-list {
     padding: 0;
     list-style: none;
     font-size: 13px;
-    color: #94a3b8;
+    color: #cbd5e1 !important;
 }
 
 .rules-list li {
     margin-bottom: 8px;
+    line-height: 1.4;
+    color: #cbd5e1 !important;
+}
+
+.rules-list strong {
+    color: #ffffff !important;
 }
