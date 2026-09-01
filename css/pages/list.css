@@ -1,12 +1,12 @@
 /* ======================================================
-   ИСПРАВЛЕНИЕ СЕТКИ, СТРУКТУРЫ И ТЕМЫ (list.css)
+   GLOBAL DEMONLIST - FIXED AUTHORS & DARK THEME ONLY
    ====================================================== */
 
-/* 1. ФОН И УБИРАНИЕ БЕЛОГО ЦВЕТА СТРАНИЦЫ */
 html, body, #app, main, .surface, .page-list {
     background-color: #0b0e14 !important;
     background: #0b0e14 !important;
-    color: #f8fafc !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
     overflow-x: hidden;
     margin: 0;
     padding: 0;
@@ -20,7 +20,7 @@ html, body, #app, main, .surface, .page-list {
     width: 100%;
 }
 
-/* 2. ПОИСК По ЦЕНТРУ */
+/* 1. ПОИСК ПО ЦЕНТРУ */
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -39,23 +39,24 @@ html, body, #app, main, .surface, .page-list {
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .gdl-input {
     width: 100%;
     padding: 12px 40px 12px 42px;
-    background: #161b26;
-    border: 1px solid #283044;
+    background: #161b26 !important;
+    border: 1px solid #283044 !important;
     border-radius: 10px;
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 15px;
+    font-weight: 700 !important;
     box-sizing: border-box;
     outline: none;
 }
 
 .gdl-input:focus {
-    border-color: #3b82f6;
+    border-color: #3b82f6 !important;
 }
 
 .clear-btn {
@@ -65,11 +66,12 @@ html, body, #app, main, .surface, .page-list {
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: #888;
+    color: #ffffff;
+    font-weight: 800;
     cursor: pointer;
 }
 
-/* 3. СЕТКА (Слева карточки, Справа инфо) */
+/* 2. ОСНОВНАЯ СЕТКА */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 1fr 440px;
@@ -83,7 +85,7 @@ html, body, #app, main, .surface, .page-list {
     }
 }
 
-/* 4. КАРТОЧКИ УРОВНЕЙ */
+/* 3. КАРТОЧКИ УРОВНЕЙ */
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -93,8 +95,8 @@ html, body, #app, main, .surface, .page-list {
 .gdl-level-card {
     display: flex;
     align-items: center;
-    background: #161b26;
-    border: 1px solid #232b3e;
+    background: #161b26 !important;
+    border: 1px solid #232b3e !important;
     border-radius: 12px;
     padding: 12px;
     gap: 16px;
@@ -103,14 +105,14 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .gdl-level-card:hover {
-    border-color: #3b82f6;
-    background: #1c2333;
+    border-color: #3b82f6 !important;
+    background: #1c2333 !important;
 }
 
 .gdl-level-card.active {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-    background: #1c2333;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
+    background: #1c2333 !important;
 }
 
 .gdl-card-thumb {
@@ -120,7 +122,7 @@ html, body, #app, main, .surface, .page-list {
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    background: #0d1117;
+    background: #0d1117 !important;
 }
 
 .gdl-card-thumb img {
@@ -133,10 +135,10 @@ html, body, #app, main, .surface, .page-list {
     position: absolute;
     top: 4px;
     left: 4px;
-    background: rgba(10, 14, 23, 0.85);
-    color: #3b82f6;
-    font-weight: 800;
-    font-size: 11px;
+    background: rgba(10, 14, 23, 0.9);
+    color: #3b82f6 !important;
+    font-weight: 900 !important;
+    font-size: 12px;
     padding: 2px 6px;
     border-radius: 4px;
 }
@@ -154,37 +156,40 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .rank-number {
-    color: #3b82f6;
-    font-size: 16px;
-    font-weight: 800;
+    color: #3b82f6 !important;
+    font-size: 17px;
+    font-weight: 900 !important;
 }
 
 .level-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: #fff !important;
+    font-size: 18px;
+    font-weight: 900 !important;
+    color: #ffffff !important;
     margin: 0;
 }
 
 .card-authors {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700 !important;
     color: #94a3b8 !important;
 }
 
 .verifier-name {
     color: #10b981 !important;
+    font-weight: 800 !important;
 }
 
 .card-points {
-    font-size: 13px;
-    color: #cbd5e1 !important;
+    font-size: 14px;
+    font-weight: 800 !important;
+    color: #ffffff !important;
     margin-top: 4px;
 }
 
-.points-min { color: #c084fc !important; font-weight: 600; }
-.points-max { color: #60a5fa !important; font-weight: 700; }
+.points-min { color: #c084fc !important; font-weight: 800 !important; }
+.points-max { color: #60a5fa !important; font-weight: 900 !important; }
 
-/* 5. ПРАВЫЙ БЛОК И ПОЛНОЕ ИСПРАВЛЕНИЕ LevelAuthors */
+/* 4. ПРАВЫЙ БЛОК */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
@@ -192,8 +197,8 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .gdl-level-detail-box, .gdl-meta-box {
-    background: #161b26;
-    border: 1px solid #232b3e;
+    background: #161b26 !important;
+    border: 1px solid #232b3e !important;
     border-radius: 12px;
     padding: 20px;
     box-sizing: border-box;
@@ -201,29 +206,38 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .detail-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff !important;
-    margin: 0 0 10px 0;
+    font-size: 24px;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    margin: 0 0 15px 0;
 }
 
-/* Фикс сжатого текста CREATORS / VERIFIER / PUBLISHER */
-.gdl-level-detail-box > div,
-.gdl-level-detail-box .authors-wrapper,
-.gdl-level-detail-box [class*="author"] {
+/* ФИКС БЛОКА АВТОРОВ */
+.authors-clean-block {
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
-    position: static !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
 }
 
-.gdl-level-detail-box span,
-.gdl-level-detail-box p,
-.gdl-level-detail-box a {
-    position: static !important;
-    display: block !important;
-    line-height: 1.4 !important;
-    word-break: break-word !important;
+.author-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.author-label {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    color: #94a3b8 !important;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.author-val {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
 }
 
 .video-wrapper {
@@ -231,7 +245,7 @@ html, body, #app, main, .surface, .page-list {
     aspect-ratio: 16/9;
     border-radius: 8px;
     overflow: hidden;
-    margin: 15px 0;
+    margin-bottom: 15px;
     background: #000;
 }
 
@@ -248,7 +262,7 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .stat-item {
-    background: #0d1117;
+    background: #0d1117 !important;
     padding: 10px;
     border-radius: 8px;
     text-align: center;
@@ -257,31 +271,39 @@ html, body, #app, main, .surface, .page-list {
 .stat-label {
     display: block;
     font-size: 11px;
-    color: #64748b !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
     text-transform: uppercase;
 }
 
 .stat-value {
-    font-weight: 700;
+    font-weight: 900 !important;
     color: #38bdf8 !important;
-    font-size: 14px;
+    font-size: 15px;
 }
 
-/* 6. ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА */
+/* 5. РЕДАКТОРЫ И ПРАВИЛА */
+.gdl-meta-box h3 {
+    color: #ffffff !important;
+    font-size: 18px;
+    font-weight: 800 !important;
+}
+
 .editors-list {
     list-style: none;
     padding: 0;
     margin: 10px 0 20px 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .editors-list li {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 800 !important;
     color: #ffffff !important;
 }
 
@@ -298,16 +320,18 @@ html, body, #app, main, .surface, .page-list {
 .rules-list {
     padding: 0;
     list-style: none;
-    font-size: 13px;
-    color: #cbd5e1 !important;
+    font-size: 14px;
+    font-weight: 700 !important;
+    color: #ffffff !important;
 }
 
 .rules-list li {
-    margin-bottom: 8px;
-    line-height: 1.4;
-    color: #cbd5e1 !important;
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #ffffff !important;
 }
 
 .rules-list strong {
     color: #ffffff !important;
+    font-weight: 900 !important;
 }
