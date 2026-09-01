@@ -4,7 +4,6 @@ import { score } from "../score.js";
 import { fetchEditors, fetchList } from "../content.js";
 
 import Spinner from "../components/Spinner.js";
-import LevelAuthors from "../components/List/LevelAuthors.js";
 
 const roleIconMap = {
     owner: "crown",
@@ -15,13 +14,13 @@ const roleIconMap = {
 };
 
 export default {
-    components: { Spinner, LevelAuthors },
+    components: { Spinner },
     template: `
         <main v-if="loading" class="gdl-loading">
             <Spinner></Spinner>
         </main>
         <div v-else class="gdl-wrapper">
-            <!-- Поисковая строка -->
+            <!-- Поиск -->
             <div class="gdl-search-bar">
                 <div class="search-input-wrapper">
                     <span class="search-icon">🔍</span>
@@ -35,45 +34,43 @@ export default {
                 </div>
             </div>
 
-            <!-- Главный контейнер (Две колонки) -->
+            <!-- Главный контент -->
             <div class="gdl-content-grid">
                 
-                <!-- ЛЕВАЯ КОЛОНКА: Список карточек -->
+                <!-- Список карт -->
                 <div class="gdl-cards-container">
                     <div 
-                        v-for="([level, err], i) in filteredList" 
+                        v-for="([lvl, err], i) in filteredList" 
                         :key="i"
                         class="gdl-level-card"
-                        :class="{ 'active': selectedLevelIndex === getOriginalIndex(level), 'error': !level }"
-                        @click="selectLevelByItem(level)"
+                        :class="{ 'active': selectedLevelIndex === getOriginalIndex(lvl), 'error': !lvl }"
+                        @click="selectLevelByItem(lvl)"
                     >
-                        <!-- Превью -->
                         <div class="gdl-card-thumb">
                             <img 
-                                v-if="level" 
-                                :src="getThumbnail(level)" 
+                                v-if="lvl" 
+                                :src="getThumbnail(lvl)" 
                                 alt="Thumbnail"
                                 @error="handleImgError"
                             />
                             <div v-else class="thumb-placeholder">Error</div>
-                            <span class="rank-badge">#{{ getOriginalIndex(level) + 1 }}</span>
+                            <span class="rank-badge">#{{ getOriginalIndex(lvl) + 1 }}</span>
                         </div>
 
-                        <!-- Текст карточки -->
-                        <div class="gdl-card-info" v-if="level">
+                        <div class="gdl-card-info" v-if="lvl">
                             <div class="card-header">
-                                <span class="rank-number">#{{ getOriginalIndex(level) + 1 }}</span>
-                                <h3 class="level-title">{{ level.name }}</h3>
+                                <span class="rank-number">#{{ getOriginalIndex(lvl) + 1 }}</span>
+                                <h3 class="level-title">{{ lvl.name }}</h3>
                             </div>
                             <div class="card-authors">
-                                <span class="author-name">{{ level.author || 'Unknown' }}</span>
-                                <span class="separator" v-if="level.verifier">•</span>
-                                <span class="verifier-name" v-if="level.verifier">{{ level.verifier }}</span>
+                                <span class="author-name">{{ lvl.author || 'Unknown' }}</span>
+                                <span class="separator" v-if="lvl.verifier">•</span>
+                                <span class="verifier-name" v-if="lvl.verifier">{{ lvl.verifier }}</span>
                             </div>
                             <div class="card-points">
-                                <span class="points-min">{{ (score(getOriginalIndex(level) + 1, level.percentToQualify || 100, level.percentToQualify) || 0).toFixed(2) }}</span>
+                                <span class="points-min">{{ (score(getOriginalIndex(lvl) + 1, lvl.percentToQualify || 100, lvl.percentToQualify) || 0).toFixed(2) }}</span>
                                 <span class="points-dash">—</span>
-                                <span class="points-max">{{ (score(getOriginalIndex(level) + 1, 100, level.percentToQualify) || 0).toFixed(2) }}</span>
+                                <span class="points-max">{{ (score(getOriginalIndex(lvl) + 1, 100, lvl.percentToQualify) || 0).toFixed(2) }}</span>
                                 <span class="points-label">pts</span>
                             </div>
                         </div>
@@ -88,19 +85,32 @@ export default {
                     </div>
                 </div>
 
-                <!-- ПРАВАЯ КОЛОНКА: Подробности уровня & Правила -->
+                <!-- Правая колонка -->
                 <div class="gdl-details-container">
                     
-                    <!-- Карточка уровня -->
                     <div class="gdl-level-detail-box" v-if="level">
                         <h2 class="detail-title">{{ level.name }}</h2>
 
-                        <div class="authors-wrapper">
-                            <LevelAuthors
-                                :author="level.author"
-                                :creators="level.creators"
-                                :verifier="level.verifier"
-                            ></LevelAuthors>
+                        <!-- Чистый блок авторов без сжатия -->
+                        <div class="authors-clean-block">
+                            <div class="author-item" v-if="level.creators && level.creators.length">
+                                <div class="author-label">CREATORS</div>
+                                <div class="author-val">{{ level.creators.join(', ') }}</div>
+                            </div>
+                            <div class="author-item" v-else-if="level.author">
+                                <div class="author-label">CREATORS</div>
+                                <div class="author-val">{{ level.author }}</div>
+                            </div>
+
+                            <div class="author-item" v-if="level.verifier">
+                                <div class="author-label">VERIFIER</div>
+                                <div class="author-val">{{ level.verifier }}</div>
+                            </div>
+
+                            <div class="author-item" v-if="level.author && level.creators && level.creators.length">
+                                <div class="author-label">PUBLISHER</div>
+                                <div class="author-val">{{ level.author }}</div>
+                            </div>
                         </div>
 
                         <div class="video-wrapper">
@@ -124,11 +134,10 @@ export default {
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Password</span>
-                                <span class="stat-value">{{ level.password || 'Free' }}</span>
+                                <span class="stat-value">{{ level.password || 'Free Copy' }}</span>
                             </div>
                         </div>
 
-                        <!-- Таблица рекордов -->
                         <div class="records-section">
                             <h3 class="section-subtitle">Records</h3>
                             <p class="records-req" v-if="selected + 1 <= 75">
@@ -154,18 +163,12 @@ export default {
 
                     <!-- Эдиторы и Правила -->
                     <div class="gdl-meta-box">
-                        <div class="errors-list" v-if="errors.length > 0">
-                            <div class="error-badge" v-for="error of errors" :key="error">
-                                {{ error }}
-                            </div>
-                        </div>
-
                         <template v-if="editors && editors.length">
                             <h3>List Editors</h3>
                             <ul class="editors-list">
                                 <li v-for="editor in editors" :key="editor.name">
                                     <img
-                                        :src="\`/assets/\${roleIconMap[editor.role]}\${store.dark ? '-dark' : ''}.svg\`"
+                                        :src="\`/assets/\${roleIconMap[editor.role]}-dark.svg\`"
                                         :alt="editor.role"
                                         class="role-icon"
                                     >
@@ -180,8 +183,8 @@ export default {
                         <div class="rules-section">
                             <h3>Rules</h3>
                             <ol class="rules-list">
-                                <li><strong>1. Запрещены читы.</strong> Любое использование читов и нечестного прохождения запрещено.</li>
-                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать отчётливые клики/тапы.</li>
+                                <li><strong>1. Запрещены читы.</strong> Любое использование читов запрещено.</li>
+                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать слышимые клики.</li>
                                 <li><strong>3. RAW-футаж.</strong> Оригинальная запись без скрывающего монтажа.</li>
                                 <li><strong>4. Без секрет-веев.</strong> Скипы и баг-маршруты запрещены.</li>
                             </ol>
@@ -216,15 +219,12 @@ export default {
                 return nameMatch || authorMatch || verifierMatch;
             });
         },
-
         selectedLevelIndex() {
             return this.selected;
         },
-
         level() {
             return this.list[this.selected]?.[0] || null;
         },
-
         video() {
             if (!this.level) return '';
             const link = this.level.showcase || this.level.verification;
@@ -235,17 +235,6 @@ export default {
     async mounted() {
         this.list = await fetchList();
         this.editors = await fetchEditors();
-
-        if (!this.list) {
-            this.errors = ["Failed to load list."];
-        } else {
-            this.errors.push(
-                ...this.list
-                    .filter(([_, err]) => err)
-                    .map(([_, err]) => `Failed to load level (${err}.json)`)
-            );
-        }
-
         this.loading = false;
     },
 
