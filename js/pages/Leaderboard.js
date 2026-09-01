@@ -1,6 +1,5 @@
 import { fetchLeaderboard } from '../content.js';
 import { localize } from '../util.js';
-
 import Spinner from '../components/Spinner.js';
 
 export default {
@@ -12,20 +11,26 @@ export default {
         loading: true,
         selected: 0,
         err: [],
+        debugError: null,
     }),
     template: `
         <main v-if="loading">
             <Spinner></Spinner>
         </main>
+        <main v-else-if="debugError" class="page-leaderboard-container">
+            <div style="padding: 2rem; color: #ff5555; background: #1e1e1e; border-radius: 8px;">
+                <h2>Ошибка при загрузке Лидерборда:</h2>
+                <pre>{{ debugError }}</pre>
+            </div>
+        </main>
         <main v-else class="page-leaderboard-container">
             <div class="page-leaderboard">
                 <div class="error-container" v-if="err && err.length > 0">
                     <p class="error">
-                        Leaderboard may be incorrect, as the following levels could not be loaded: {{ err.join(', ') }}
+                        Не удалось загрузить следующие уровни: {{ err.join(', ') }}
                     </p>
                 </div>
 
-                <!-- Левая панель со списком игроков -->
                 <div class="board-container">
                     <ul class="board-list">
                         <li 
@@ -42,17 +47,13 @@ export default {
                     </ul>
                 </div>
 
-                <!-- Правая панель с карточкой профиля -->
                 <div class="player-container" v-if="entry">
                     <div class="player-profile">
-                        
-                        <!-- Заголовок профиля -->
                         <div class="profile-header">
                             <div class="profile-avatar"></div>
                             <h1 class="profile-name">{{ entry.user }}</h1>
                         </div>
 
-                        <!-- Карточки статистики: Rank & Score -->
                         <div class="stats-grid">
                             <div class="stat-card">
                                 <span class="stat-icon trophy-icon">🏆</span>
@@ -70,7 +71,6 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Блок Hardest Level -->
                         <div class="hardest-card" v-if="hardestLevel">
                             <div class="hardest-header">
                                 <span class="fire-icon">🔥</span>
@@ -82,7 +82,6 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секция пройденных / верифицированных уровней -->
                         <div class="levels-category" v-if="allCompletedLevels.length > 0">
                             <div class="category-header">
                                 <div class="category-title">
@@ -104,7 +103,6 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секция прогрессов (Progressed) -->
                         <div class="levels-category" v-if="entry.progressed && entry.progressed.length > 0">
                             <div class="category-header">
                                 <div class="category-title">
@@ -125,7 +123,6 @@ export default {
                                 </a>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -147,10 +144,21 @@ export default {
         }
     },
     async mounted() {
-        const [leaderboard, err] = await fetchLeaderboard();
-        this.leaderboard = leaderboard || [];
-        this.err = err || [];
-        this.loading = false;
+        try {
+            const res = await fetchLeaderboard();
+            if (Array.isArray(res)) {
+                this.leaderboard = res[0] || [];
+                this.err = res[1] || [];
+            } else if (res) {
+                this.leaderboard = res.leaderboard || [];
+                this.err = res.err || [];
+            }
+        } catch (err) {
+            console.error("Ошибка в Leaderboard:", err);
+            this.debugError = err.stack || err.toString();
+        } finally {
+            this.loading = false;
+        }
     },
     methods: {
         localize,
