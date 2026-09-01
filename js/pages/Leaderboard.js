@@ -19,7 +19,6 @@ export default {
             <Spinner></Spinner>
         </main>
         <main v-else class="page-leaderboard-container">
-            <!-- Переключатель вкладок -->
             <div class="tabs-container">
                 <button 
                     type="button"
@@ -45,7 +44,6 @@ export default {
                 </p>
             </div>
 
-            <!-- ВКЛАДКА ИГРОКОВ -->
             <div class="page-leaderboard" v-if="tab === 'players'">
                 <div class="board-container">
                     <ul class="board-list">
@@ -154,7 +152,6 @@ export default {
                 </div>
             </div>
 
-            <!-- ВКЛАДКА СТРАН -->
             <div class="country-board-full" v-if="tab === 'countries'">
                 <ul class="board-list">
                     <li 
@@ -173,7 +170,6 @@ export default {
                     </li>
                 </ul>
             </div>
-
         </main>
     `,
     computed: {
@@ -200,7 +196,7 @@ export default {
                 this.countryLeaderboard = res[2] || [];
             }
         } catch (e) {
-            console.error("Ошибка загрузки:", e);
+            console.error("Leaderboard error:", e);
         } finally {
             this.loading = false;
         }
