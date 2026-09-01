@@ -34,10 +34,42 @@ export default {
                 </div>
             </div>
 
-            <!-- Главный контент -->
+            <!-- Главный контент: 3 колонки -->
             <div class="gdl-content-grid">
                 
-                <!-- Список карт -->
+                <!-- ЛЕВАЯ КОЛОНКА: Editors + Rules -->
+                <div class="gdl-left-column">
+                    <div class="gdl-meta-box">
+                        <template v-if="editors && editors.length">
+                            <h3>List Editors</h3>
+                            <ul class="editors-list">
+                                <li v-for="editor in editors" :key="editor.name">
+                                    <img
+                                        :src="\`/assets/\${roleIconMap[editor.role]}-dark.svg\`"
+                                        :alt="editor.role"
+                                        class="role-icon"
+                                    >
+                                    <a v-if="editor.link" :href="editor.link" target="_blank" class="editor-link">
+                                        {{ editor.name }}
+                                    </a>
+                                    <span v-else class="editor-name">{{ editor.name }}</span>
+                                </li>
+                            </ul>
+                        </template>
+
+                        <div class="rules-section">
+                            <h3>Rules</h3>
+                            <ol class="rules-list">
+                                <li><strong>1. Запрещены читы.</strong> Любое использование читов запрещено.</li>
+                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать слышимые клики.</li>
+                                <li><strong>3. RAW-футаж.</strong> Оригинальная запись без скрывающего монтажа.</li>
+                                <li><strong>4. Без секрет-веев.</strong> Скипы и баг-маршруты запрещены.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА: Список уровней (демонов) -->
                 <div class="gdl-cards-container">
                     <div 
                         v-for="([lvl, err], i) in filteredList" 
@@ -85,13 +117,13 @@ export default {
                     </div>
                 </div>
 
-                <!-- Правая колонка -->
+                <!-- ПРАВАЯ КОЛОНКА: Детали уровня + Рекорды -->
                 <div class="gdl-details-container">
                     
                     <div class="gdl-level-detail-box" v-if="level">
                         <h2 class="detail-title">{{ level.name }}</h2>
 
-                        <!-- Чистый блок авторов -->
+                        <!-- Авторы -->
                         <div class="authors-clean-block">
                             <div class="author-item" v-if="level.creators && level.creators.length">
                                 <div class="author-label">CREATORS</div>
@@ -113,6 +145,7 @@ export default {
                             </div>
                         </div>
 
+                        <!-- Видео -->
                         <div class="video-wrapper">
                             <iframe
                                 class="video"
@@ -123,6 +156,7 @@ export default {
                             ></iframe>
                         </div>
 
+                        <!-- Статистика -->
                         <div class="gdl-stats-grid">
                             <div class="stat-item">
                                 <span class="stat-label">Points</span>
@@ -138,7 +172,7 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секция рекордов в стиле оригинала -->
+                        <!-- Секция рекордов справа -->
                         <div class="records-section">
                             <div class="records-header">
                                 <span class="records-trophy">🏆</span>
@@ -167,36 +201,6 @@ export default {
                                 </div>
                             </div>
                             <div v-else class="no-records">No records yet</div>
-                        </div>
-                    </div>
-
-                    <!-- Эдиторы и Правила -->
-                    <div class="gdl-meta-box">
-                        <template v-if="editors && editors.length">
-                            <h3>List Editors</h3>
-                            <ul class="editors-list">
-                                <li v-for="editor in editors" :key="editor.name">
-                                    <img
-                                        :src="\`/assets/\${roleIconMap[editor.role]}-dark.svg\`"
-                                        :alt="editor.role"
-                                        class="role-icon"
-                                    >
-                                    <a v-if="editor.link" :href="editor.link" target="_blank" class="editor-link">
-                                        {{ editor.name }}
-                                    </a>
-                                    <span v-else class="editor-name">{{ editor.name }}</span>
-                                </li>
-                            </ul>
-                        </template>
-
-                        <div class="rules-section">
-                            <h3>Rules</h3>
-                            <ol class="rules-list">
-                                <li><strong>1. Запрещены читы.</strong> Любое использование читов запрещено.</li>
-                                <li><strong>2. Обязательные клики.</strong> Запись должна содержать слышимые клики.</li>
-                                <li><strong>3. RAW-футаж.</strong> Оригинальная запись без скрывающего монтажа.</li>
-                                <li><strong>4. Без секрет-веев.</strong> Скипы и баг-маршруты запрещены.</li>
-                            </ol>
                         </div>
                     </div>
 
