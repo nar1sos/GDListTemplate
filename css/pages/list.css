@@ -1,5 +1,5 @@
 /* ======================================================
-   GLOBAL DEMONLIST - FULL FIXED CSS (NO LIGHT THEME, BOLD TEXT)
+   GLOBAL DEMONLIST - 3-COLUMN LAYOUT (LEFT: RULES, MID: LEVELS, RIGHT: DETAILS)
    ====================================================== */
 
 html, body, #app, main, .surface, .page-list {
@@ -13,14 +13,14 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .gdl-wrapper {
-    max-width: 1280px;
+    max-width: 1520px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
 }
 
-/* 1. ПОИСК ПО ЦЕНТРУ */
+/* 1. ПОИСК */
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -71,21 +71,105 @@ html, body, #app, main, .surface, .page-list {
     cursor: pointer;
 }
 
-/* 2. ОСНОВНАЯ СЕТКА */
+/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА */
 .gdl-content-grid {
     display: grid;
-    grid-template-columns: 1fr 440px;
-    gap: 25px;
+    grid-template-columns: 320px 1fr 440px;
+    gap: 20px;
     align-items: start;
+}
+
+@media (max-width: 1200px) {
+    .gdl-content-grid {
+        grid-template-columns: 1fr 440px;
+    }
+    .gdl-left-column {
+        order: 3;
+        grid-column: span 2;
+    }
 }
 
 @media (max-width: 900px) {
     .gdl-content-grid {
         grid-template-columns: 1fr;
     }
+    .gdl-left-column {
+        grid-column: span 1;
+    }
 }
 
-/* 3. КАРТОЧКИ УРОВНЕЙ */
+/* 3. ЛЕВАЯ КОЛОНКА (EDITORS + RULES) */
+.gdl-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gdl-meta-box {
+    background: #161b26 !important;
+    border: 1px solid #232b3e !important;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #ffffff !important;
+}
+
+.gdl-meta-box h3 {
+    color: #ffffff !important;
+    font-size: 18px;
+    font-weight: 800 !important;
+    margin-top: 0;
+}
+
+.editors-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.editors-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+}
+
+.editors-list li img,
+.role-icon {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.rules-list {
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0;
+}
+
+.rules-list li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #ffffff !important;
+}
+
+.rules-list strong {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* 4. ЦЕНТРАЛЬНАЯ КОЛОНКА (СПИСОК УРОВНЕЙ) */
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -116,8 +200,8 @@ html, body, #app, main, .surface, .page-list {
 }
 
 .gdl-card-thumb {
-    width: 160px;
-    height: 90px;
+    width: 150px;
+    height: 85px;
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -189,14 +273,14 @@ html, body, #app, main, .surface, .page-list {
 .points-min { color: #c084fc !important; font-weight: 800 !important; }
 .points-max { color: #60a5fa !important; font-weight: 900 !important; }
 
-/* 4. ПРАВЫЙ БЛОК И АВТОРЫ */
+/* 5. ПРАВАЯ КОЛОНКА (ДЕТАЛИ УРОВНЯ И РЕКОРДЫ) */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.gdl-level-detail-box, .gdl-meta-box {
+.gdl-level-detail-box {
     background: #161b26 !important;
     border: 1px solid #232b3e !important;
     border-radius: 12px;
@@ -257,7 +341,7 @@ html, body, #app, main, .surface, .page-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .stat-item {
@@ -281,9 +365,9 @@ html, body, #app, main, .surface, .page-list {
     font-size: 15px;
 }
 
-/* 5. СЕКЦИЯ РЕКОРДОВ (КАК НА ВТОРОМ СКРИНЕ) */
+/* 6. РЕКОРДЫ В ПРАВОМ БЛОКЕ */
 .records-section {
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -395,58 +479,4 @@ html, body, #app, main, .surface, .page-list {
     font-size: 13px !important;
     font-weight: 700 !important;
     padding: 10px 0;
-}
-
-/* 6. РЕДАКТОРЫ И ПРАВИЛА */
-.gdl-meta-box h3 {
-    color: #ffffff !important;
-    font-size: 18px;
-    font-weight: 800 !important;
-}
-
-.editors-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.editors-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    font-weight: 800 !important;
-    color: #ffffff !important;
-}
-
-.editors-list li img,
-.role-icon {
-    width: 20px !important;
-    height: 20px !important;
-    max-width: 20px !important;
-    max-height: 20px !important;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.rules-list {
-    padding: 0;
-    list-style: none;
-    font-size: 14px;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-}
-
-.rules-list li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-    color: #ffffff !important;
-}
-
-.rules-list strong {
-    color: #ffffff !important;
-    font-weight: 900 !important;
 }
