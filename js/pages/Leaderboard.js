@@ -147,23 +147,10 @@ export default {
         }
     },
     async mounted() {
-        try {
-            const res = await fetchLeaderboard();
-            
-            if (Array.isArray(res)) {
-                const [leaderboard, err] = res;
-                this.leaderboard = leaderboard || [];
-                this.err = err || [];
-            } else if (res) {
-                this.leaderboard = res.leaderboard || res;
-                this.err = res.err || [];
-            }
-        } catch (e) {
-            console.error("Ошибка при загрузке данных лидерборда:", e);
-            this.err = [e.message || "Failed to load leaderboard data"];
-        } finally {
-            this.loading = false;
-        }
+        const [leaderboard, err] = await fetchLeaderboard();
+        this.leaderboard = leaderboard || [];
+        this.err = err || [];
+        this.loading = false;
     },
     methods: {
         localize,
