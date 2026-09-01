@@ -1,8 +1,7 @@
 .page-leaderboard-container {
     display: block;
-    background-color: #0b0e14;
-    color: #e1e7ec;
-    min-height: 100vh;
+    background-color: var(--color-background-page, transparent);
+    color: var(--color-on-background, inherit);
     padding: 2rem 1rem;
     font-family: system-ui, -apple-system, sans-serif;
 }
@@ -22,17 +21,16 @@
 
 .error-container .error {
     padding: 1rem;
-    background-color: #e53935;
-    color: #ffffff;
+    background-color: var(--color-error, #e53935);
+    color: var(--color-on-error, #ffffff);
     border-radius: 0.5rem;
 }
 
-/* === Левая панель (Сайдбар игроков) === */
 .page-leaderboard .board-container {
-    background-color: #121721;
+    background-color: var(--color-background, #121721);
     border-radius: 0.75rem;
     padding: 0.5rem;
-    border: 1px solid #1e2638;
+    border: 1px solid var(--color-border, rgba(125, 125, 125, 0.2));
     max-height: 85vh;
     overflow-y: auto;
 }
@@ -57,17 +55,17 @@
 }
 
 .board-item:hover {
-    background-color: #1a2332;
+    background-color: var(--color-background-hover, rgba(0, 0, 0, 0.05));
 }
 
 .board-item.active {
-    background-color: #1f2b3e;
-    border: 1px solid #2d3f5d;
+    background-color: var(--color-primary-container, rgba(75, 137, 220, 0.15));
+    border: 1px solid var(--color-primary, #4b89dc);
 }
 
 .board-item .rank-label {
     font-weight: 700;
-    color: #4b89dc;
+    color: var(--color-primary, #4b89dc);
     width: 3.5rem;
     font-size: 0.9rem;
 }
@@ -75,7 +73,7 @@
 .board-item .user-name {
     flex: 1;
     font-weight: 600;
-    color: #f0f4f8;
+    color: var(--color-on-background, currentColor);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -83,16 +81,15 @@
 
 .board-item .total-score {
     font-size: 0.85rem;
-    color: #8a99ad;
+    opacity: 0.7;
     font-weight: 500;
 }
 
-/* === Правая панель (Профиль) === */
 .page-leaderboard .player-container {
-    background-color: #121721;
+    background-color: var(--color-background, #121721);
     border-radius: 0.75rem;
     padding: 2rem;
-    border: 1px solid #1e2638;
+    border: 1px solid var(--color-border, rgba(125, 125, 125, 0.2));
 }
 
 .player-profile {
@@ -101,7 +98,6 @@
     gap: 1.5rem;
 }
 
-/* Заголовок профиля */
 .profile-header {
     display: flex;
     align-items: center;
@@ -113,7 +109,7 @@
 .profile-avatar {
     width: 48px;
     height: 48px;
-    background-color: #1e2638;
+    background-color: var(--color-background-hover, rgba(125, 125, 125, 0.2));
     border-radius: 50%;
 }
 
@@ -121,10 +117,9 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0;
-    color: #ffffff;
+    color: var(--color-on-background, currentColor);
 }
 
-/* Сетка карточек Rank & Score */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -132,13 +127,13 @@
 }
 
 .stat-card {
-    background-color: #18202d;
+    background-color: var(--color-surface, rgba(125, 125, 125, 0.08));
     border-radius: 0.6rem;
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border: 1px solid #222d3f;
+    border: 1px solid var(--color-border, rgba(125, 125, 125, 0.15));
 }
 
 .stat-icon {
@@ -148,7 +143,7 @@
     justify-content: center;
     width: 42px;
     height: 42px;
-    background-color: #111622;
+    background-color: var(--color-background, rgba(0, 0, 0, 0.1));
     border-radius: 0.5rem;
 }
 
@@ -158,19 +153,18 @@
 .stat-value {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-on-background, currentColor);
     line-height: 1.2;
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: #728299;
+    opacity: 0.6;
 }
 
-/* Карточка Hardest Level */
 .hardest-card {
-    background-color: #18202d;
-    border: 1px solid #362520;
+    background-color: var(--color-surface, rgba(125, 125, 125, 0.08));
+    border: 1px solid rgba(255, 118, 77, 0.4);
     border-radius: 0.6rem;
     padding: 1rem 1.25rem;
     display: flex;
@@ -200,7 +194,7 @@
 }
 
 .hardest-title {
-    color: #ffffff;
+    color: var(--color-on-background, currentColor);
     font-size: 1.1rem;
     font-weight: 700;
     text-decoration: none;
@@ -210,7 +204,6 @@
     text-decoration: underline;
 }
 
-/* Секции уровней и плитки (Chips) */
 .levels-category {
     display: flex;
     flex-direction: column;
@@ -229,15 +222,15 @@
     gap: 0.5rem;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #a0aec0;
+    opacity: 0.8;
 }
 
 .star-icon { color: #e55353; }
 .infinity-icon { color: #4b89dc; }
 
 .badge {
-    background-color: #1e2638;
-    color: #a0aec0;
+    background-color: var(--color-background-hover, rgba(125, 125, 125, 0.2));
+    color: var(--color-on-background, currentColor);
     font-size: 0.8rem;
     padding: 0.15rem 0.6rem;
     border-radius: 1rem;
@@ -251,9 +244,9 @@
 }
 
 .level-chip {
-    background-color: #18202d;
-    color: #d1d9e0;
-    border: 1px solid #222d3f;
+    background-color: var(--color-surface, rgba(125, 125, 125, 0.08));
+    color: var(--color-on-background, currentColor);
+    border: 1px solid var(--color-border, rgba(125, 125, 125, 0.2));
     padding: 0.4rem 0.8rem;
     border-radius: 0.4rem;
     font-size: 0.85rem;
@@ -262,12 +255,11 @@
 }
 
 .level-chip:hover {
-    background-color: #202b3c;
-    border-color: #3b4c66;
-    color: #ffffff;
+    background-color: var(--color-background-hover, rgba(125, 125, 125, 0.15));
+    border-color: var(--color-primary, #4b89dc);
 }
 
 .chip-progress {
-    color: #8fa0b5;
+    opacity: 0.75;
     border-style: dashed;
 }
