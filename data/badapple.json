@@ -3,12 +3,14 @@
     "author": "Pryemishi Team",
     "creators": ["nar1"],
     "verifier": "nar1",
+    "country": "ua",
     "verification": "https://youtu.be/TaFpNLy8ZBU",
     "percentToQualify": 100,
     "password": "Free Copy",
     "records": [
         {
             "user": "Sample_Victor_1",
+            "country": "us",
             "link": "https://www.youtube.com/watch?v=MgJeijBGKHU",
             "percent": 100,
             "hz": 360
