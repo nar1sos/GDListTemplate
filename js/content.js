@@ -1,3 +1,51 @@
+import { round, score } from './score.js';
+
+/**
+ * Path to directory containing `_list.json` and all levels
+ */
+const dir = '/data';
+
+export async function fetchList() {
+    const listResult = await fetch(`${dir}/_list.json`);
+    try {
+        const list = await listResult.json();
+        return await Promise.all(
+            list.map(async (path, rank) => {
+                const levelResult = await fetch(`${dir}/${path}.json`);
+                try {
+                    const level = await levelResult.json();
+                    return [
+                        {
+                            ...level,
+                            path,
+                            records: Array.isArray(level.records)
+                                ? level.records.sort((a, b) => (b.percent || 0) - (a.percent || 0))
+                                : [],
+                        },
+                        null,
+                    ];
+                } catch {
+                    console.error(`Failed to load level #${rank + 1} ${path}.`);
+                    return [null, path];
+                }
+            }),
+        );
+    } catch {
+        console.error(`Failed to load list.`);
+        return null;
+    }
+}
+
+export async function fetchEditors() {
+    try {
+        const editorsResults = await fetch(`${dir}/_editors.json`);
+        const editors = await editorsResults.json();
+        return editors;
+    } catch {
+        return null;
+    }
+}
+
 export async function fetchLeaderboard() {
     const list = await fetchList();
     if (!list) return [[], [], []];
@@ -78,8 +126,7 @@ export async function fetchLeaderboard() {
         }
     });
 
-    // Подсчёт очков игроков
-    const leaderboard = Object.entries(scoreMap).map(([user, data]) => {
+    const res = Object.entries(scoreMap).map(([user, data]) => {
         const { verified, completed, progressed, country } = data;
         const total = [verified, completed, progressed]
             .flat()
@@ -87,15 +134,14 @@ export async function fetchLeaderboard() {
 
         const totalScore = round(total);
 
-        // Суммирование очков для Топа Стран
         if (country) {
-            const code = country.toLowerCase();
+            const code = String(country).toLowerCase();
             countryMap[code] = (countryMap[code] || 0) + totalScore;
         }
 
         return {
             user,
-            country: country ? country.toLowerCase() : null,
+            country: country ? String(country).toLowerCase() : null,
             total: totalScore,
             verified,
             completed,
@@ -103,10 +149,9 @@ export async function fetchLeaderboard() {
         };
     }).sort((a, b) => b.total - a.total);
 
-    // Рейтинг стран
     const countryLeaderboard = Object.entries(countryMap)
         .map(([code, total]) => ({ code, total: round(total) }))
         .sort((a, b) => b.total - a.total);
 
-    return [leaderboard, errs, countryLeaderboard];
+    return [res, errs, countryLeaderboard];
 }
