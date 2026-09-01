@@ -1,8 +1,13 @@
 /* ======================================================
-   GLOBAL DEMONLIST - 3-COLUMN LAYOUT (LEFT: RULES, MID: LEVELS, RIGHT: DETAILS)
+   GLOBAL DEMONLIST - FULL HEIGHT SIDEBARS (LEFT & RIGHT)
    ====================================================== */
 
-html, body, #app, main, .surface, .page-list {
+html {
+    height: 100%;
+}
+
+body, #app, main, .surface, .page-list {
+    min-height: 100vh;
     background-color: #0b0e14 !important;
     background: #0b0e14 !important;
     color: #ffffff !important;
@@ -10,6 +15,8 @@ html, body, #app, main, .surface, .page-list {
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .gdl-wrapper {
@@ -18,6 +25,9 @@ html, body, #app, main, .surface, .page-list {
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 1. ПОИСК */
@@ -26,6 +36,7 @@ html, body, #app, main, .surface, .page-list {
     display: flex;
     justify-content: center;
     margin-bottom: 25px;
+    flex-shrink: 0;
 }
 
 .search-input-wrapper {
@@ -71,12 +82,13 @@ html, body, #app, main, .surface, .page-list {
     cursor: pointer;
 }
 
-/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА */
+/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА НА ВСЮ ВЫСОТУ */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 320px 1fr 440px;
     gap: 20px;
-    align-items: start;
+    align-items: stretch;
+    flex: 1;
 }
 
 @media (max-width: 1200px) {
@@ -98,11 +110,10 @@ html, body, #app, main, .surface, .page-list {
     }
 }
 
-/* 3. ЛЕВАЯ КОЛОНКА (EDITORS + RULES) */
+/* 3. ЛЕВАЯ КОЛОНКА (НА ВСЮ ВЫСОТУ) */
 .gdl-left-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
 .gdl-meta-box {
@@ -112,6 +123,9 @@ html, body, #app, main, .surface, .page-list {
     padding: 20px;
     box-sizing: border-box;
     color: #ffffff !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .gdl-meta-box h3 {
@@ -147,6 +161,12 @@ html, body, #app, main, .surface, .page-list {
     max-height: 20px !important;
     object-fit: contain;
     flex-shrink: 0;
+}
+
+.rules-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .rules-list {
@@ -273,11 +293,10 @@ html, body, #app, main, .surface, .page-list {
 .points-min { color: #c084fc !important; font-weight: 800 !important; }
 .points-max { color: #60a5fa !important; font-weight: 900 !important; }
 
-/* 5. ПРАВАЯ КОЛОНКА (ДЕТАЛИ УРОВНЯ И РЕКОРДЫ) */
+/* 5. ПРАВАЯ КОЛОНКА (НА ВСЮ ВЫСОТУ) */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
 .gdl-level-detail-box {
@@ -287,6 +306,9 @@ html, body, #app, main, .surface, .page-list {
     padding: 20px;
     box-sizing: border-box;
     color: #ffffff !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .detail-title {
@@ -365,12 +387,13 @@ html, body, #app, main, .surface, .page-list {
     font-size: 15px;
 }
 
-/* 6. РЕКОРДЫ В ПРАВОМ БЛОКЕ */
+/* 6. РЕКОРДЫ В ПРАВОМ БЛОКЕ (ЗАНИМАЮТ ОСТАТОК ВЫСОТЫ) */
 .records-section {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    flex: 1;
 }
 
 .records-header {
