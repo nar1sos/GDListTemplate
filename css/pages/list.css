@@ -1,5 +1,5 @@
 /* ======================================================
-   GLOBAL DEMONLIST - FIXED AUTHORS & DARK THEME ONLY
+   GLOBAL DEMONLIST - FULL FIXED CSS (NO LIGHT THEME, BOLD TEXT)
    ====================================================== */
 
 html, body, #app, main, .surface, .page-list {
@@ -189,7 +189,7 @@ html, body, #app, main, .surface, .page-list {
 .points-min { color: #c084fc !important; font-weight: 800 !important; }
 .points-max { color: #60a5fa !important; font-weight: 900 !important; }
 
-/* 4. ПРАВЫЙ БЛОК */
+/* 4. ПРАВЫЙ БЛОК И АВТОРЫ */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
@@ -212,7 +212,6 @@ html, body, #app, main, .surface, .page-list {
     margin: 0 0 15px 0;
 }
 
-/* ФИКС БЛОКА АВТОРОВ */
 .authors-clean-block {
     display: flex !important;
     flex-direction: column !important;
@@ -282,7 +281,123 @@ html, body, #app, main, .surface, .page-list {
     font-size: 15px;
 }
 
-/* 5. РЕДАКТОРЫ И ПРАВИЛА */
+/* 5. СЕКЦИЯ РЕКОРДОВ (КАК НА ВТОРОМ СКРИНЕ) */
+.records-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.records-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.records-trophy {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.records-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.records-header-text .section-subtitle {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    margin: 0 !important;
+}
+
+.records-count-info {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    margin: 0 !important;
+}
+
+.records-count-info strong {
+    color: #94a3b8 !important;
+}
+
+.records-count-info .highlight-100 {
+    color: #22c55e !important;
+    font-weight: 800 !important;
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.record-card {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: #111622 !important;
+    border: 1px solid #1e2638 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.record-card:hover {
+    background: #171d2c !important;
+    border-color: #2b364e !important;
+}
+
+.record-user-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.record-user-info .user-name {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+
+.record-meta-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.percent-tag {
+    color: #22c55e !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+}
+
+.record-video-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #475569 !important;
+    transition: color 0.15s ease, transform 0.15s ease;
+    text-decoration: none !important;
+}
+
+.record-video-btn:hover {
+    color: #38bdf8 !important;
+    transform: scale(1.1);
+}
+
+.no-records {
+    color: #64748b !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 10px 0;
+}
+
+/* 6. РЕДАКТОРЫ И ПРАВИЛА */
 .gdl-meta-box h3 {
     color: #ffffff !important;
     font-size: 18px;
