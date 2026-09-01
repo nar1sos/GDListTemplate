@@ -133,7 +133,7 @@ export default {
     `,
     computed: {
         entry() {
-            return (this.leaderboard && this.leaderboard.length > 0) ? this.leaderboard[this.selected] : null;
+            return (this.leaderboard && this.leaderboard[this.selected]) ? this.leaderboard[this.selected] : null;
         },
         allCompletedLevels() {
             if (!this.entry) return [];
@@ -147,20 +147,10 @@ export default {
         }
     },
     async mounted() {
-        try {
-            const res = await fetchLeaderboard();
-            if (Array.isArray(res)) {
-                this.leaderboard = res[0] || [];
-                this.err = res[1] || [];
-            } else if (res) {
-                this.leaderboard = res.leaderboard || res || [];
-                this.err = res.err || [];
-            }
-        } catch (e) {
-            console.error(e);
-        } finally {
-            this.loading = false;
-        }
+        const [leaderboard, err] = await fetchLeaderboard();
+        this.leaderboard = leaderboard || [];
+        this.err = err || [];
+        this.loading = false;
     },
     methods: {
         localize,
