@@ -1,16 +1,13 @@
 /* ======================================================
-   GLOBAL OVERRIDES (ФОН И ТЁМНАЯ ТЕМА)
+   ИСПРАВЛЕНИЕ СЕТКИ, СТРУКТУРЫ И ТЕМЫ (list.css)
    ====================================================== */
 
-/* Принудительный тёмный фон для всего сайта */
+/* 1. ФОН И УБИРАНИЕ БЕЛОГО ЦВЕТА СТРАНИЦЫ */
 html, body, #app, main, .surface, .page-list {
     background-color: #0b0e14 !important;
     background: #0b0e14 !important;
     color: #f8fafc !important;
-}
-
-/* Очистка отступов */
-body {
+    overflow-x: hidden;
     margin: 0;
     padding: 0;
 }
@@ -23,46 +20,7 @@ body {
     width: 100%;
 }
 
-/* ======================================================
-   ИСПРАВЛЕНИЕ СЖАТОГО ТЕКСТА (LevelAuthors)
-   ====================================================== */
-
-.level-authors-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-    background: #0d1117;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #232b3e;
-}
-
-.author-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.author-label {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    color: #64748b !important;
-    text-transform: uppercase;
-}
-
-.author-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: #38bdf8 !important;
-    word-break: break-word;
-}
-
-/* ======================================================
-   ПОИСК И СЕТКА
-   ====================================================== */
-
+/* 2. ПОИСК По ЦЕНТРУ */
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -111,6 +69,7 @@ body {
     cursor: pointer;
 }
 
+/* 3. СЕТКА (Слева карточки, Справа инфо) */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 1fr 440px;
@@ -124,10 +83,7 @@ body {
     }
 }
 
-/* ======================================================
-   СПИСОК КАРТОЧЕК И ПРАВАЯ ПАНЕЛЬ
-   ====================================================== */
-
+/* 4. КАРТОЧКИ УРОВНЕЙ */
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -206,7 +162,7 @@ body {
 .level-title {
     font-size: 17px;
     font-weight: 700;
-    color: #ffffff !important;
+    color: #fff !important;
     margin: 0;
 }
 
@@ -228,6 +184,7 @@ body {
 .points-min { color: #c084fc !important; font-weight: 600; }
 .points-max { color: #60a5fa !important; font-weight: 700; }
 
+/* 5. ПРАВЫЙ БЛОК И ПОЛНОЕ ИСПРАВЛЕНИЕ LevelAuthors */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
@@ -240,14 +197,33 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-sizing: border-box;
-    color: #f8fafc !important;
+    color: #ffffff !important;
 }
 
 .detail-title {
     font-size: 22px;
     font-weight: 800;
-    color: #ffffff !important;
+    color: #fff !important;
     margin: 0 0 10px 0;
+}
+
+/* Фикс сжатого текста CREATORS / VERIFIER / PUBLISHER */
+.gdl-level-detail-box > div,
+.gdl-level-detail-box .authors-wrapper,
+.gdl-level-detail-box [class*="author"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    position: static !important;
+}
+
+.gdl-level-detail-box span,
+.gdl-level-detail-box p,
+.gdl-level-detail-box a {
+    position: static !important;
+    display: block !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
 }
 
 .video-wrapper {
@@ -255,7 +231,7 @@ body {
     aspect-ratio: 16/9;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin: 15px 0;
     background: #000;
 }
 
@@ -291,10 +267,7 @@ body {
     font-size: 14px;
 }
 
-/* ======================================================
-   ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА
-   ====================================================== */
-
+/* 6. ИКОНКИ РЕДАКТОРОВ И ПРАВИЛА */
 .editors-list {
     list-style: none;
     padding: 0;
@@ -319,7 +292,6 @@ body {
     max-width: 20px !important;
     max-height: 20px !important;
     object-fit: contain;
-    display: inline-block;
     flex-shrink: 0;
 }
 
