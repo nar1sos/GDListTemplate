@@ -1,93 +1,273 @@
 .page-leaderboard-container {
     display: block;
+    background-color: #0b0e14;
+    color: #e1e7ec;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    font-family: system-ui, -apple-system, sans-serif;
 }
+
 .page-leaderboard {
-    height: 100%;
     display: grid;
-    grid-template-columns: minmax(24rem, 2fr) 3fr;
+    grid-template-columns: 320px 1fr;
     grid-template-rows: max-content 1fr;
-    column-gap: 2rem;
-    max-width: 80rem;
+    gap: 1.5rem;
+    max-width: 1200px;
     margin: 0 auto;
 }
-.page-leaderboard > div {
+
+.error-container {
+    grid-column: 1 / -1;
+}
+
+.error-container .error {
+    padding: 1rem;
+    background-color: #e53935;
+    color: #ffffff;
+    border-radius: 0.5rem;
+}
+
+/* === Левая панель (Сайдбар игроков) === */
+.page-leaderboard .board-container {
+    background-color: #121721;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid #1e2638;
+    max-height: 85vh;
     overflow-y: auto;
 }
-.page-leaderboard .error-container {
-    grid-row: 1;
-    grid-column: 1 / span 2;
-}
-.page-leaderboard .error-container .error {
-    padding: 1rem;
-    background-color: var(--color-error);
-    color: var(--color-on-error);
-}
-.page-leaderboard .board-container,
-.page-leaderboard .player-container {
-    grid-row: 2;
-    padding-block: 2rem;
-}
-.page-leaderboard .board-container {
-    padding-inline: 1rem;
-}
-.page-leaderboard .board {
-    table-layout: auto;
-    display: block;
-    width: 100%;
-}
-.page-leaderboard .board .rank {
-    padding-block: 1rem;
-    text-align: end;
-}
-.page-leaderboard .board .total {
-    padding: 1rem;
-    text-align: end;
-}
-.page-leaderboard .board .user {
-    width: 100%;
-}
-.page-leaderboard .board .user button {
-    background-color: var(--color-background);
-    color: var(--color-on-background);
-    border: none;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    text-align: start;
-    word-break: normal;
-    overflow-wrap: anywhere;
-}
-.page-leaderboard .board .user button:hover {
-    background-color: var(--color-background-hover);
-    color: var(--color-on-background-hover);
-    cursor: pointer;
-}
-.page-leaderboard .board .user.active button {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-}
-.page-leaderboard .player {
+
+.board-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    padding-right: 2rem;
+    gap: 0.25rem;
 }
-.page-leaderboard .player .table {
-    table-layout: fixed;
+
+.board-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    user-select: none;
 }
-.page-leaderboard .player .table tr td:not(:last-child) {
-    padding-right: 2rem;
+
+.board-item:hover {
+    background-color: #1a2332;
 }
-.page-leaderboard .player .table p,
-.page-leaderboard .player .table a {
-    padding-block: 1rem;
+
+.board-item.active {
+    background-color: #1f2b3e;
+    border: 1px solid #2d3f5d;
 }
-.page-leaderboard .player .table .rank p,
-.page-leaderboard .player .table .score p {
-    text-align: end;
+
+.board-item .rank-label {
+    font-weight: 700;
+    color: #4b89dc;
+    width: 3.5rem;
+    font-size: 0.9rem;
 }
-.page-leaderboard .player .table .level {
-    width: 100%;
+
+.board-item .user-name {
+    flex: 1;
+    font-weight: 600;
+    color: #f0f4f8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.page-leaderboard .player .table a:hover {
+
+.board-item .total-score {
+    font-size: 0.85rem;
+    color: #8a99ad;
+    font-weight: 500;
+}
+
+/* === Правая панель (Профиль) === */
+.page-leaderboard .player-container {
+    background-color: #121721;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    border: 1px solid #1e2638;
+}
+
+.player-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Заголовок профиля */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.profile-avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #1e2638;
+    border-radius: 50%;
+}
+
+.profile-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+}
+
+/* Сетка карточек Rank & Score */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stat-card {
+    background-color: #18202d;
+    border-radius: 0.6rem;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #222d3f;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: #111622;
+    border-radius: 0.5rem;
+}
+
+.trophy-icon { color: #e5a93c; }
+.score-icon { color: #4a90e2; }
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #728299;
+}
+
+/* Карточка Hardest Level */
+.hardest-card {
+    background-color: #18202d;
+    border: 1px solid #362520;
+    border-radius: 0.6rem;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hardest-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ff764d;
+}
+
+.hardest-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.hardest-rank {
+    font-weight: 700;
+    color: #ff764d;
+    font-size: 1.1rem;
+}
+
+.hardest-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.hardest-title:hover {
     text-decoration: underline;
+}
+
+/* Секции уровней и плитки (Chips) */
+.levels-category {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #a0aec0;
+}
+
+.star-icon { color: #e55353; }
+.infinity-icon { color: #4b89dc; }
+
+.badge {
+    background-color: #1e2638;
+    color: #a0aec0;
+    font-size: 0.8rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+
+.chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.level-chip {
+    background-color: #18202d;
+    color: #d1d9e0;
+    border: 1px solid #222d3f;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.level-chip:hover {
+    background-color: #202b3c;
+    border-color: #3b4c66;
+    color: #ffffff;
+}
+
+.chip-progress {
+    color: #8fa0b5;
+    border-style: dashed;
 }
