@@ -1,72 +1,80 @@
-/* ==========================================
-   GLOBAL DEMONLIST CARD STYLING
-   ========================================== */
+/* ======================================================
+   GLOBAL DEMONLIST - FULL LIST STYLES (list.css)
+   ====================================================== */
 
-.gdl-page-list {
-    max-width: 1400px;
+/* Сброс ограничений ширины и отмена внешнего скролла */
+body, html {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.gdl-wrapper {
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
-    color: #e2e8f0;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 /* Поисковая строка */
 .gdl-search-bar {
-    margin-bottom: 2rem;
+    width: 100%;
     display: flex;
     justify-content: center;
+    margin-bottom: 25px;
 }
 
 .search-input-wrapper {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    display: flex;
-    align-items: center;
+    max-width: 550px;
 }
 
 .search-icon {
     position: absolute;
-    left: 1.25rem;
-    font-size: 1rem;
-    opacity: 0.6;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
 }
 
 .gdl-input {
     width: 100%;
-    padding: 0.85rem 2.5rem 0.85rem 3rem;
-    background-color: #1a202c;
-    border: 1px solid #2d3748;
+    padding: 12px 40px 12px 42px;
+    background: #161b26;
+    border: 1px solid #283044;
     border-radius: 10px;
-    color: #fff;
-    font-size: 0.95rem;
+    color: #ffffff;
+    font-size: 15px;
+    box-sizing: border-box;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .gdl-input:focus {
-    border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+    border-color: #3b82f6;
 }
 
 .clear-btn {
     position: absolute;
-    right: 1rem;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
-    color: #a0aec0;
+    color: #888;
     cursor: pointer;
-    font-size: 1rem;
 }
 
-/* Сетка контента */
+/* Сетка: Слева карточки, Справа детализация */
 .gdl-content-grid {
     display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 2rem;
+    grid-template-columns: 1fr 440px;
+    gap: 25px;
     align-items: start;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
     .gdl-content-grid {
         grid-template-columns: 1fr;
     }
@@ -76,49 +84,41 @@
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 14px;
 }
 
 .gdl-level-card {
     display: flex;
-    background: #182030;
-    border: 1px solid #253147;
-    border-radius: 14px;
-    padding: 0.85rem;
-    gap: 1.25rem;
+    align-items: center;
+    background: #161b26;
+    border: 1px solid #232b3e;
+    border-radius: 12px;
+    padding: 12px;
+    gap: 16px;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .gdl-level-card:hover {
-    transform: translateY(-2px);
     border-color: #3b82f6;
-    background: #1e293b;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    background: #1c2333;
 }
 
 .gdl-level-card.active {
     border-color: #3b82f6;
-    background: #1e293b;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    background: #1c2333;
 }
 
-.gdl-level-card.error {
-    opacity: 0.6;
-    border-color: #e53e3e;
-}
-
-/* Превью */
+/* Превью карт */
 .gdl-card-thumb {
-    width: 200px;
-    height: 112px;
-    border-radius: 10px;
+    width: 160px;
+    height: 90px;
+    border-radius: 8px;
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    background: #0f172a;
+    background: #0d1117;
 }
 
 .gdl-card-thumb img {
@@ -129,117 +129,105 @@
 
 .rank-badge {
     position: absolute;
-    top: 6px;
-    left: 6px;
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(4px);
+    top: 4px;
+    left: 4px;
+    background: rgba(10, 14, 23, 0.85);
     color: #3b82f6;
     font-weight: 800;
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 6px;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-/* Инфо на карточке */
 .gdl-card-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 0.4rem;
-    flex-grow: 1;
+    gap: 4px;
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 8px;
 }
 
 .rank-number {
     color: #3b82f6;
-    font-size: 1.1rem;
+    font-size: 16px;
     font-weight: 800;
 }
 
 .level-title {
-    font-size: 1.25rem;
+    font-size: 17px;
     font-weight: 700;
-    color: #ffffff;
+    color: #fff;
     margin: 0;
-    line-height: 1.2;
 }
 
 .card-authors {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.88rem;
+    font-size: 13px;
     color: #94a3b8;
 }
 
 .verifier-name {
-    color: #10b981; /* Зеленый цвет верификатора */
-    font-weight: 600;
-}
-
-.separator {
-    opacity: 0.4;
+    color: #10b981;
 }
 
 .card-points {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
+    font-size: 13px;
     color: #cbd5e1;
-    margin-top: 0.2rem;
+    margin-top: 4px;
 }
 
-.points-min {
-    color: #a855f7;
-    font-weight: 600;
-}
+.points-min { color: #c084fc; font-weight: 600; }
+.points-max { color: #60a5fa; font-weight: 700; }
 
-.points-max {
-    color: #3b82f6;
-    font-weight: 700;
-}
-
-.points-label {
-    opacity: 0.6;
-    font-size: 0.8rem;
-}
-
-/* Детали уровня справа */
+/* Правая панель */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 20px;
     position: sticky;
-    top: 1.5rem;
+    top: 20px;
 }
 
 .gdl-level-detail-box, .gdl-meta-box {
-    background: #182030;
-    border: 1px solid #253147;
-    border-radius: 14px;
-    padding: 1.5rem;
+    background: #161b26;
+    border: 1px solid #232b3e;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .detail-title {
-    font-size: 1.5rem;
+    font-size: 22px;
     font-weight: 800;
-    margin-bottom: 1rem;
     color: #fff;
+    margin: 0 0 10px 0;
+}
+
+/* Исправление наложения текста CREATORS / VERIFIER */
+.authors-wrapper {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.authors-wrapper .level-authors,
+.authors-wrapper div {
+    display: block;
+    line-height: 1.5;
+    font-size: 14px;
 }
 
 .video-wrapper {
     width: 100%;
     aspect-ratio: 16/9;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
-    margin: 1rem 0;
-    background: #0f172a;
+    margin-bottom: 15px;
+    background: #000;
 }
 
 .video-wrapper iframe {
@@ -250,130 +238,72 @@
 .gdl-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .stat-item {
-    background: #0f172a;
-    padding: 0.75rem;
+    background: #0d1117;
+    padding: 10px;
     border-radius: 8px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    display: block;
+    font-size: 11px;
     color: #64748b;
     text-transform: uppercase;
-    font-weight: 700;
 }
 
 .stat-value {
-    font-size: 0.95rem;
     font-weight: 700;
     color: #38bdf8;
+    font-size: 14px;
 }
 
-/* Таблица рекордов */
-.records-section {
-    margin-top: 1rem;
-}
-
-.section-subtitle {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.records-req {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    margin-bottom: 1rem;
-}
-
-.records-table-wrapper {
-    max-height: 250px;
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
     overflow-y: auto;
 }
 
-.records-table {
-    width: 100%;
-    border-collapse: collapse;
+.record-item {
+    display: flex;
+    justify-content: space-between;
+    background: #0d1117;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
 }
 
-.record-row {
-    border-bottom: 1px solid #1e293b;
-}
-
-.record-row td {
-    padding: 0.6rem 0.4rem;
-    font-size: 0.88rem;
-}
-
-.percent-col {
-    color: #38bdf8;
-    font-weight: 700;
-    width: 50px;
-}
-
-.user-link {
-    color: #f1f5f9;
-    text-decoration: none;
-}
-
-.user-link:hover {
-    color: #3b82f6;
-    text-decoration: underline;
-}
-
-.hz-col {
-    text-align: right;
-    color: #64748b;
-    font-size: 0.8rem;
-}
-
-/* Эдиторы и Правила */
-.gdl-meta-box h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: #f8fafc;
-}
+.percent-col { color: #38bdf8; font-weight: 700; }
+.user-link { color: #fff; text-decoration: none; }
+.user-link:hover { text-decoration: underline; }
+.hz-col { color: #64748b; }
 
 .editors-list {
     list-style: none;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin: 0 0 15px 0;
 }
 
 .editors-list li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.role-icon {
-    width: 16px;
-    height: 16px;
+    gap: 8px;
+    margin-bottom: 6px;
 }
 
 .rules-list {
-    padding-left: 0;
+    padding: 0;
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    font-size: 0.85rem;
+    font-size: 13px;
     color: #94a3b8;
 }
 
-.rules-list strong {
-    color: #e2e8f0;
+.rules-list li {
+    margin-bottom: 8px;
 }
