@@ -1,13 +1,6 @@
 /* ======================================================
-   GLOBAL DEMONLIST - FULL FIX (list.css)
+   GLOBAL DEMONLIST - COMPLETE FIX FOR THEMES & AUTHORS
    ====================================================== */
-
-/* 1. ГЛОБАЛЬНЫЕ СБРОСЫ (Поддержка светлой и тёмной темы) */
-body, html {
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
 
 .gdl-wrapper {
     max-width: 1280px;
@@ -17,7 +10,7 @@ body, html {
     width: 100%;
 }
 
-/* 2. ПОИСК По ЦЕНТРУ */
+/* 1. ПОИСК ПО ЦЕНТРУ */
 .gdl-search-bar {
     width: 100%;
     display: flex;
@@ -42,10 +35,10 @@ body, html {
 .gdl-input {
     width: 100%;
     padding: 12px 40px 12px 42px;
-    background: #161b26;
-    border: 1px solid #283044;
+    background: var(--surface-2, #161b26);
+    border: 1px solid var(--border-color, #283044);
     border-radius: 10px;
-    color: #ffffff;
+    color: var(--text-color, #ffffff);
     font-size: 15px;
     box-sizing: border-box;
     outline: none;
@@ -66,7 +59,7 @@ body, html {
     cursor: pointer;
 }
 
-/* 3. ОСНОВНАЯ СЕТКА */
+/* 2. ОСНОВНАЯ СЕТКА */
 .gdl-content-grid {
     display: grid;
     grid-template-columns: 1fr 440px;
@@ -80,7 +73,7 @@ body, html {
     }
 }
 
-/* 4. КАРТОЧКИ УРОВНЕЙ */
+/* 3. КАРТОЧКИ УРОВНЕЙ */
 .gdl-cards-container {
     display: flex;
     flex-direction: column;
@@ -90,8 +83,8 @@ body, html {
 .gdl-level-card {
     display: flex;
     align-items: center;
-    background: #161b26;
-    border: 1px solid #232b3e;
+    background: var(--surface-2, #161b26);
+    border: 1px solid var(--border-color, #232b3e);
     border-radius: 12px;
     padding: 12px;
     gap: 16px;
@@ -101,13 +94,11 @@ body, html {
 
 .gdl-level-card:hover {
     border-color: #3b82f6;
-    background: #1c2333;
 }
 
 .gdl-level-card.active {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-    background: #1c2333;
 }
 
 .gdl-card-thumb {
@@ -117,7 +108,7 @@ body, html {
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    background: #0d1117;
+    background: var(--surface-1, #0d1117);
 }
 
 .gdl-card-thumb img {
@@ -164,11 +155,7 @@ body, html {
 
 .card-authors {
     font-size: 13px;
-    color: #94a3b8;
-}
-
-.verifier-name {
-    color: #10b981;
+    opacity: 0.8;
 }
 
 .card-points {
@@ -179,7 +166,7 @@ body, html {
 .points-min { color: #c084fc; font-weight: 600; }
 .points-max { color: #60a5fa; font-weight: 700; }
 
-/* 5. ПРАВЫЙ БЛОК */
+/* 4. ПРАВЫЙ БЛОК И ПОЛНЫЙ ФИКС СЖАТИЯ ТЕКСТА (LEVEL AUTHORS) */
 .gdl-details-container {
     display: flex;
     flex-direction: column;
@@ -187,8 +174,8 @@ body, html {
 }
 
 .gdl-level-detail-box, .gdl-meta-box {
-    background: #161b26;
-    border: 1px solid #232b3e;
+    background: var(--surface-2, #161b26);
+    border: 1px solid var(--border-color, #232b3e);
     border-radius: 12px;
     padding: 20px;
     box-sizing: border-box;
@@ -200,26 +187,32 @@ body, html {
     margin: 0 0 15px 0;
 }
 
-/* ФИКС СЛИПШЕГОСЯ ТЕКСТА АВТОРОВ (Раздуваем отступы и строки) */
-.gdl-level-detail-box > h2 + div,
-.gdl-level-detail-box .authors-wrapper,
-.gdl-level-detail-box div[class*="author"] {
+/* Полный фикс сжатого блока авторов */
+.gdl-level-detail-box h2 + div,
+.gdl-level-detail-box [class*="author"],
+.gdl-level-detail-box [class*="authors"] {
     display: flex !important;
     flex-direction: column !important;
-    gap: 12px !important;
+    gap: 10px !important;
     margin-bottom: 20px !important;
+    position: static !important;
     height: auto !important;
-    min-height: fit-content !important;
+    min-height: auto !important;
 }
 
-.gdl-level-detail-box div[class*="author"] h3,
-.gdl-level-detail-box div[class*="author"] p,
-.gdl-level-detail-box div[class*="author"] span {
+/* Фикс текста и расстояния между категориями CREATORS / VERIFIER / PUBLISHER */
+.gdl-level-detail-box [class*="author"] h2,
+.gdl-level-detail-box [class*="author"] h3,
+.gdl-level-detail-box [class*="author"] h4,
+.gdl-level-detail-box [class*="author"] p,
+.gdl-level-detail-box [class*="author"] span,
+.gdl-level-detail-box [class*="author"] div {
     display: block !important;
-    line-height: 1.6 !important;
-    margin: 0 0 4px 0 !important;
-    font-size: 14px !important;
     position: static !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 14px !important;
 }
 
 .video-wrapper {
@@ -244,7 +237,7 @@ body, html {
 }
 
 .stat-item {
-    background: #0d1117;
+    background: var(--surface-1, #0d1117);
     padding: 10px;
     border-radius: 8px;
     text-align: center;
@@ -253,7 +246,7 @@ body, html {
 .stat-label {
     display: block;
     font-size: 11px;
-    color: #64748b;
+    opacity: 0.6;
     text-transform: uppercase;
 }
 
@@ -263,7 +256,7 @@ body, html {
     font-size: 14px;
 }
 
-/* 6. РЕДАКТОРЫ И ИКОНКИ */
+/* 5. ИКОНКИ РЕДАКТОРОВ */
 .editors-list {
     list-style: none;
     padding: 0;
