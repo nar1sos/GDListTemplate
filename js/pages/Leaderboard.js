@@ -19,7 +19,7 @@ export default {
         </main>
         <main v-else class="page-leaderboard-container">
             <div class="page-leaderboard">
-                <div class="error-container" v-if="err.length > 0">
+                <div class="error-container" v-if="err && err.length > 0">
                     <p class="error">
                         Leaderboard may be incorrect, as the following levels could not be loaded: {{ err.join(', ') }}
                     </p>
@@ -82,7 +82,7 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секции прохождений (Verified / Completed) -->
+                        <!-- Секция прохождений (Verified / Completed) -->
                         <div class="levels-category" v-if="allCompletedLevels.length > 0">
                             <div class="category-header">
                                 <div class="category-title">
@@ -133,7 +133,7 @@ export default {
     `,
     computed: {
         entry() {
-            return this.leaderboard[this.selected] || null;
+            return this.leaderboard && this.leaderboard.length > 0 ? this.leaderboard[this.selected] : null;
         },
         allCompletedLevels() {
             if (!this.entry) return [];
@@ -147,10 +147,23 @@ export default {
         }
     },
     async mounted() {
-        const [leaderboard, err] = await fetchLeaderboard();
-        this.leaderboard = leaderboard;
-        this.err = err;
-        this.loading = false;
+        try {
+            const res = await fetchLeaderboard();
+            
+            if (Array.isArray(res)) {
+                const [leaderboard, err] = res;
+                this.leaderboard = leaderboard || [];
+                this.err = err || [];
+            } else if (res) {
+                this.leaderboard = res.leaderboard || res;
+                this.err = res.err || [];
+            }
+        } catch (e) {
+            console.error("Ошибка при загрузке данных лидерборда:", e);
+            this.err = [e.message || "Failed to load leaderboard data"];
+        } finally {
+            this.loading = false;
+        }
     },
     methods: {
         localize,
