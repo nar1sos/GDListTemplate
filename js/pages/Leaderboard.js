@@ -82,7 +82,7 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секция прохождений (Verified / Completed) -->
+                        <!-- Секция пройденных / верифицированных уровней -->
                         <div class="levels-category" v-if="allCompletedLevels.length > 0">
                             <div class="category-header">
                                 <div class="category-title">
@@ -133,7 +133,7 @@ export default {
     `,
     computed: {
         entry() {
-            return this.leaderboard && this.leaderboard.length > 0 ? this.leaderboard[this.selected] : null;
+            return (this.leaderboard && this.leaderboard.length > 0) ? this.leaderboard[this.selected] : null;
         },
         allCompletedLevels() {
             if (!this.entry) return [];
@@ -150,11 +150,10 @@ export default {
         try {
             const res = await fetchLeaderboard();
             if (Array.isArray(res)) {
-                const [leaderboard, err] = res;
-                this.leaderboard = leaderboard || [];
-                this.err = err || [];
+                this.leaderboard = res[0] || [];
+                this.err = res[1] || [];
             } else if (res) {
-                this.leaderboard = res.leaderboard || res;
+                this.leaderboard = res.leaderboard || res || [];
                 this.err = res.err || [];
             }
         } catch (e) {
