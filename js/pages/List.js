@@ -69,7 +69,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА: Список уровней (демонов) -->
+                <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА: Список уровней -->
                 <div class="gdl-cards-container">
                     <div 
                         v-for="([lvl, err], i) in filteredList" 
@@ -172,7 +172,7 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Секция рекордов справа -->
+                        <!-- Секция рекордов -->
                         <div class="records-section">
                             <div class="records-header">
                                 <span class="records-trophy">🏆</span>
