@@ -1,157 +1,91 @@
-import { round, score } from './score.js';
+import { score } from "./score.js";
 
 /**
- * Path to directory containing `_list.json` and all levels
+ * Загружает список уровней из файла _list.json
  */
-const dir = '/data';
-
 export async function fetchList() {
-    const listResult = await fetch(`${dir}/_list.json`);
     try {
-        const list = await listResult.json();
+        const listResponse = await fetch("/data/_list.json");
+        const list = await listResponse.json();
+
         return await Promise.all(
             list.map(async (path, rank) => {
-                const levelResult = await fetch(`${dir}/${path}.json`);
                 try {
-                    const level = await levelResult.json();
+                    const levelResponse = await fetch(`/data/${path}.json`);
+                    const level = await levelResponse.json();
                     return [
                         {
                             ...level,
                             path,
-                            records: Array.isArray(level.records)
-                                ? level.records.sort((a, b) => (b.percent || 0) - (a.percent || 0))
-                                : [],
+                            records: level.records || [],
                         },
-                        null,
+                        rank + 1,
                     ];
                 } catch {
-                    console.error(`Failed to load level #${rank + 1} ${path}.`);
-                    return [null, path];
+                    return [null, rank + 1];
                 }
-            }),
+            })
         );
     } catch {
-        console.error(`Failed to load list.`);
-        return null;
+        return [];
     }
 }
 
-export async function fetchEditors() {
-    try {
-        const editorsResults = await fetch(`${dir}/_editors.json`);
-        const editors = await editorsResults.json();
-        return editors;
-    } catch {
-        return null;
-    }
-}
-
+/**
+ * Собирает табличку лидеров напрямую из файлов уровней
+ */
 export async function fetchLeaderboard() {
     const list = await fetchList();
-    if (!list) return [[], [], []];
-
     const scoreMap = {};
-    const countryMap = {};
-    const errs = [];
 
-    list.forEach(([level, err], rank) => {
-        if (err || !level) {
-            if (err) errs.push(err);
-            return;
-        }
+    for (const [level, rank] of list) {
+        if (!level || !level.records) continue;
 
-        // Верификатор
-        const rawVerifier = level.verifier ? String(level.verifier).trim() : null;
-        if (rawVerifier) {
-            const verifier = Object.keys(scoreMap).find(
-                (u) => u.toLowerCase() === rawVerifier.toLowerCase(),
-            ) || rawVerifier;
+        for (const record of level.records) {
+            const user = record.user;
+            if (!user) continue;
 
-            scoreMap[verifier] ??= {
-                country: level.country || null,
-                verified: [],
-                completed: [],
-                progressed: [],
-            };
-
-            if (level.country) scoreMap[verifier].country = level.country;
-
-            scoreMap[verifier].verified.push({
-                rank: rank + 1,
-                level: level.name || level.path,
-                score: score(rank + 1, 100, level.percentToQualify || 100),
-                link: level.verification || '',
-            });
-        }
-
-        // Рекорды
-        if (Array.isArray(level.records)) {
-            level.records.forEach((record) => {
-                if (!record || !record.user) return;
-                
-                const rawUser = String(record.user).trim();
-                const user = Object.keys(scoreMap).find(
-                    (u) => u.toLowerCase() === rawUser.toLowerCase(),
-                ) || rawUser;
-
-                scoreMap[user] ??= {
-                    country: record.country || null,
-                    verified: [],
-                    completed: [],
-                    progressed: [],
+            // Если игрок встречается в первый раз — создаем запись
+            if (!scoreMap[user]) {
+                scoreMap[user] = {
+                    user,
+                    nationality: record.nationality || null,
+                    avatar: record.avatar || null,
+                    totalScore: 0,
+                    hardest: null,
+                    hardestRank: Infinity,
+                    records: [],
                 };
+            }
 
-                if (record.country) scoreMap[user].country = record.country;
+            // Если у игрока еще нет флага или авы в базе, но они указаны в текущем рекорде
+            if (!scoreMap[user].nationality && record.nationality) {
+                scoreMap[user].nationality = record.nationality;
+            }
+            if (!scoreMap[user].avatar && record.avatar) {
+                scoreMap[user].avatar = record.avatar;
+            }
 
-                const { completed, progressed } = scoreMap[user];
-                const recPercent = record.percent || 0;
+            // Расчет очков за рекорд (если пройден на 100%)
+            if (record.percent === 100) {
+                const points = score(rank, 100, level.percentToQualify || 100);
+                scoreMap[user].totalScore += points;
 
-                if (recPercent === 100) {
-                    completed.push({
-                        rank: rank + 1,
-                        level: level.name || level.path,
-                        score: score(rank + 1, 100, level.percentToQualify || 100),
-                        link: record.link || '',
-                    });
-                } else {
-                    progressed.push({
-                        rank: rank + 1,
-                        level: level.name || level.path,
-                        percent: recPercent,
-                        score: score(rank + 1, recPercent, level.percentToQualify || 100),
-                        link: record.link || '',
-                    });
+                // Определение храненения хардста (чем меньше rank, тем выше лвл)
+                if (rank < scoreMap[user].hardestRank) {
+                    scoreMap[user].hardestRank = rank;
+                    scoreMap[user].hardest = level.name;
                 }
-            });
+
+                scoreMap[user].records.push({
+                    levelName: level.name,
+                    percent: 100,
+                    rank: rank
+                });
+            }
         }
-    });
+    }
 
-    const res = Object.entries(scoreMap).map(([user, data]) => {
-        const { verified, completed, progressed, country } = data;
-        const total = [verified, completed, progressed]
-            .flat()
-            .reduce((prev, cur) => prev + (cur.score || 0), 0);
-
-        const totalScore = round(total);
-
-        if (country) {
-            const code = String(country).toLowerCase();
-            countryMap[code] = (countryMap[code] || 0) + totalScore;
-        }
-
-        return {
-            user,
-            country: country ? String(country).toLowerCase() : null,
-            total: totalScore,
-            verified,
-            completed,
-            progressed,
-        };
-    }).sort((a, b) => b.total - a.total);
-
-    const countryLeaderboard = Object.entries(countryMap)
-        .map(([code, total]) => ({ code, total: round(total) }))
-        .sort((a, b) => b.total - a.total);
-
-    return [res, errs, countryLeaderboard];
+    // Сортируем игроков по очкам
+    return Object.values(scoreMap).sort((a, b) => b.totalScore - a.totalScore);
 }
