@@ -1,66 +1,85 @@
 import { fetchLeaderboard } from "../content.js";
 
 const styles = `
+/* Контейнер во всю ширину экрана */
 .leaderboard-wrapper {
     display: flex;
-    gap: 16px;
-    padding: 24px;
-    max-width: 1280px;
-    margin: 0 auto;
+    flex-direction: row-reverse; /* Список игроков СПРАВА, профиль СЛЕВА */
+    gap: 24px;
+    padding: 24px 32px;
+    width: 100%;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #ffffff;
-    box-sizing: border-box;
 }
 
+/* СПИСОК ИГРОКОВ (СПРАВА) */
 .sidebar-list {
-    width: 280px;
+    width: 380px;
+    flex-shrink: 0;
     background: #0f141d;
     border: 1px solid #1a2233;
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    flex-shrink: 0;
+    gap: 8px;
+    height: fit-content;
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .sidebar-item {
     display: flex;
     align-items: center;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 8px;
-    background: transparent;
+    background: #131924;
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    font-size: 1.05rem;
+    transition: all 0.15s ease;
     border: 1px solid transparent;
 }
 
 .sidebar-item:hover {
-    background: #141b27;
+    background: #1a2333;
 }
 
 .sidebar-item.active {
-    background: #141b2d;
+    background: #1a253b;
     border: 1px solid #283754;
 }
 
 .rank-num {
     color: #3b82f6;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    width: 32px;
+    width: 38px;
 }
 
 .user-block {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex-grow: 1;
 }
 
-.user-block .flag {
-    font-size: 1.1rem;
+.avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #202b3d;
+    flex-shrink: 0;
+}
+
+.flag-img-mini {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
 .user-block .username {
@@ -70,59 +89,72 @@ const styles = `
 
 .user-score {
     color: #8b9bb4;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 
+/* ПРОФИЛЬ ИГРОКА (СЛЕВА И НА ВЕСЬ ЭКРАН) */
 .profile-card {
     flex-grow: 1;
     background: #0f141d;
     border: 1px solid #1a2233;
     border-radius: 12px;
-    padding: 32px;
+    padding: 40px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
+/* Шапка профиля */
 .profile-title {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 16px;
 }
 
-.flag-main {
-    font-size: 2.8rem;
-    line-height: 1;
+.avatar-large {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #283754;
+    flex-shrink: 0;
+}
+
+.flag-img-large {
+    width: 44px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
 }
 
 .profile-title h1 {
     margin: 0;
-    font-size: 2.2rem;
+    font-size: 2.8rem;
     font-weight: 800;
     letter-spacing: -0.5px;
 }
 
+/* Карточки RANK и SCORE */
 .grid-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 20px;
 }
 
 .card-stat {
     background: #131926;
     border: 1px solid #1e283d;
-    border-radius: 10px;
-    padding: 20px 24px;
+    border-radius: 12px;
+    padding: 24px 28px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
 }
 
 .card-stat .icon {
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,47 +166,49 @@ const styles = `
 }
 
 .card-stat .val {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #ffffff;
     line-height: 1.1;
 }
 
 .card-stat .lbl {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: #5d739c;
     font-weight: 800;
-    letter-spacing: 0.8px;
-    margin-top: 4px;
+    letter-spacing: 1px;
+    margin-top: 6px;
 }
 
+/* Блок Hardest level */
 .card-hardest {
     background: #131926;
     border: 1px solid #3d2325;
-    border-radius: 10px;
-    padding: 16px 20px;
+    border-radius: 12px;
+    padding: 20px 24px;
 }
 
 .hardest-title {
     color: #ff5252;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .hardest-value {
-    font-size: 1.15rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: #ffffff;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
+/* Блок Main levels */
 .section-levels {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .section-top {
@@ -185,34 +219,34 @@ const styles = `
 
 .section-top .title {
     color: #ff5252;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .count-badge {
     background: #1a2336;
     color: #627ca8;
     border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 0.8rem;
+    padding: 4px 12px;
+    font-size: 0.9rem;
     font-weight: 700;
 }
 
 .pills-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .level-pill {
     background: #141c2e;
     border: 1px solid #202d4a;
-    padding: 10px 16px;
+    padding: 12px 20px;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #ffffff;
     transition: background 0.15s ease;
@@ -223,10 +257,9 @@ const styles = `
 }
 `;
 
-// Внедрение стилей в документ
-if (!document.getElementById("leaderboard-styles")) {
+if (!document.getElementById("leaderboard-styles-wide")) {
     const styleSheet = document.createElement("style");
-    styleSheet.id = "leaderboard-styles";
+    styleSheet.id = "leaderboard-styles-wide";
     styleSheet.innerText = styles;
     document.head.appendChild(styleSheet);
 }
@@ -234,11 +267,11 @@ if (!document.getElementById("leaderboard-styles")) {
 export default {
     template: `
         <main v-if="loading" class="gdl-loading">
-            <p style="padding: 20px; text-align: center;">Загрузка данных...</p>
+            <p style="padding: 20px; text-align: center; color: #fff;">Загрузка данных...</p>
         </main>
 
         <main v-else class="leaderboard-wrapper">
-            <!-- ЛЕВАЯ ЧАСТЬ: СПИСОК ИГРОКОВ -->
+            <!-- СПИСОК ИГРОКОВ СПРАВА -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, i) in players" 
@@ -249,17 +282,47 @@ export default {
                 >
                     <span class="rank-num">#{{ i + 1 }}</span>
                     <div class="user-block">
-                        <span v-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
+                        <!-- Аватарка по ссылке -->
+                        <img 
+                            v-if="player.avatar" 
+                            :src="player.avatar" 
+                            class="avatar-mini" 
+                            @error="$event.target.style.display='none'"
+                        />
+                        
+                        <!-- Флаг: если ссылка на картинку -->
+                        <img 
+                            v-if="isUrl(player.nationality)" 
+                            :src="player.nationality" 
+                            class="flag-img-mini" 
+                        />
+                        <!-- Флаг: если эмодзи/код страны -->
+                        <span v-else-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
+
                         <span class="username">{{ player.user }}</span>
                     </div>
                     <span class="user-score">{{ formatScore(player.totalScore) }}</span>
                 </div>
             </div>
 
-            <!-- ПРАВАЯ ЧАСТЬ: ПРОФИЛЬ ИГРОКА -->
+            <!-- ПРОФИЛЬ ИГРОКА СЛЕВА -->
             <div class="profile-card" v-if="currentPlayer">
                 <div class="profile-title">
-                    <span v-if="currentPlayer.nationality" class="flag-main">{{ getFlagEmoji(currentPlayer.nationality) }}</span>
+                    <img 
+                        v-if="currentPlayer.avatar" 
+                        :src="currentPlayer.avatar" 
+                        class="avatar-large" 
+                        @error="$event.target.style.display='none'"
+                    />
+
+                    <!-- Флаг в профиле -->
+                    <img 
+                        v-if="isUrl(currentPlayer.nationality)" 
+                        :src="currentPlayer.nationality" 
+                        class="flag-img-large" 
+                    />
+                    <span v-else-if="currentPlayer.nationality" class="flag-main">{{ getFlagEmoji(currentPlayer.nationality) }}</span>
+
                     <h1>{{ currentPlayer.user }}</h1>
                 </div>
 
@@ -348,8 +411,12 @@ export default {
             return parts.join(',');
         },
 
+        isUrl(str) {
+            return typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'));
+        },
+
         getFlagEmoji(countryCode) {
-            if (!countryCode || countryCode.length !== 2) return '';
+            if (!countryCode || countryCode.length !== 2) return countryCode || '';
             const codePoints = countryCode
                 .toUpperCase()
                 .split('')
