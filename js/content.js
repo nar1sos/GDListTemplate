@@ -18,12 +18,15 @@ export async function fetchList() {
         if (!listResponse.ok) return [];
         const list = await listResponse.json();
 
-        return await Promise.all(
+        const results = await Promise.all(
             list.map(async (path, index) => {
                 const rank = index + 1;
                 try {
                     const levelResponse = await fetch(`/data/${path}.json`);
-                    if (!levelResponse.ok) return [null, rank];
+                    if (!levelResponse.ok) {
+                        console.error(`Не удалось загрузить файл уровня: /data/${path}.json`);
+                        return null;
+                    }
                     const level = await levelResponse.json();
                     return [
                         {
@@ -34,10 +37,13 @@ export async function fetchList() {
                         rank,
                     ];
                 } catch (e) {
-                    return [null, rank];
+                    console.error(`Ошибка синтаксиса JSON в файле /data/${path}.json:`, e);
+                    return null;
                 }
             })
         );
+
+        return results.filter(item => item !== null);
     } catch (e) {
         console.error("Ошибка загрузки /data/_list.json:", e);
         return [];
@@ -109,15 +115,15 @@ export async function fetchLeaderboard() {
                     scoreMap[user].hardestRank = rank;
                     scoreMap[user].hardest = level.name || level.path;
                 }
+            }
 
-                const alreadyHasLevel = scoreMap[user].records.some(r => r.levelName === (level.name || level.path));
-                if (!alreadyHasLevel) {
-                    scoreMap[user].records.push({
-                        levelName: level.name || level.path,
-                        percent: 100,
-                        rank: rank
-                    });
-                }
+            const alreadyHasLevel = scoreMap[user].records.some(r => r.levelName === (level.name || level.path));
+            if (!alreadyHasLevel) {
+                scoreMap[user].records.push({
+                    levelName: level.name || level.path,
+                    percent: Number(record.percent),
+                    rank: rank
+                });
             }
         }
     });
