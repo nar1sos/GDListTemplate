@@ -5,7 +5,7 @@ export default {
         <div class="gdl-wrapper">
             <div class="leaderboard-grid">
                 
-                <!-- ЛЕВАЯ КОЛОНКА: ТОП ИГРОКОВ (ФЛАГ) -->
+                <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ЛИДЕРОВ): ПОКАЗЫВАЕТ ФЛАГ -->
                 <div class="leaderboard-list">
                     <div 
                         v-for="(user, i) in leaderboard" 
@@ -16,30 +16,31 @@ export default {
                     >
                         <span class="rank-num">#{{ i + 1 }}</span>
                         
-                        <!-- Флаг страны (эмодзи или ссылка на картинку-флаг) -->
+                        <!-- ФЛАГ ИГРОКА (если есть) -->
                         <span class="user-flag" v-if="user.nationality">
                             <img 
-                                v-if="user.nationality.startsWith('http') || user.nationality.endsWith('.png')" 
-                                :src="user.nationality" 
+                                v-if="user.nationality.length <= 3"
+                                :src="'/assets/flags/' + user.nationality.toLowerCase() + '.svg'" 
                                 alt="flag" 
                                 class="flag-icon"
+                                @error="$event.target.style.display='none'"
                             />
                             <span v-else>{{ user.nationality }}</span>
                         </span>
 
                         <span class="user-name">{{ user.user }}</span>
-                        <span class="user-score">{{ (user.totalScore || 0).toLocaleString() }}</span>
+                        <span class="user-score">{{ (user.totalScore || 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
                     </div>
                 </div>
 
-                <!-- ПРАВАЯ КОЛОНКА: КАРТОЧКА ПРОФИЛЯ (АВАТАРКА) -->
+                <!-- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ): ПОКАЗЫВАЕТ АВАТАРКУ -->
                 <div class="profile-container" v-if="selectedUser">
                     
-                    <!-- Шапка с аватаркой и ником -->
+                    <!-- Шапка: Аватарка + Имя -->
                     <div class="profile-header-box">
                         <div class="profile-avatar-wrapper">
                             <img 
-                                :src="selectedUser.avatar || '/assets/default-avatar.png'" 
+                                :src="selectedUser.avatar || 'https://i.postimg.cc/mD43TzN3/default-avatar.png'" 
                                 :alt="selectedUser.user"
                                 class="profile-avatar-img"
                                 @error="handleAvatarError"
@@ -48,7 +49,7 @@ export default {
                         <h2 class="profile-username">{{ selectedUser.user }}</h2>
                     </div>
 
-                    <!-- Карточки статистики: Rank и Score -->
+                    <!-- Статистика Rank & Score -->
                     <div class="stats-row">
                         <div class="stat-box">
                             <span class="stat-icon">🏆</span>
@@ -61,7 +62,7 @@ export default {
                         <div class="stat-box">
                             <span class="stat-icon">✦</span>
                             <div class="stat-info">
-                                <span class="stat-val">{{ (selectedUser.totalScore || 0).toLocaleString() }}</span>
+                                <span class="stat-val">{{ (selectedUser.totalScore || 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
                                 <span class="stat-lbl">SCORE</span>
                             </div>
                         </div>
@@ -70,18 +71,18 @@ export default {
                     <!-- Hardest level -->
                     <div class="hardest-box" v-if="selectedUser.hardest">
                         <div class="hardest-label">🔥 Hardest level</div>
-                        <div class="hardest-title">#1 {{ selectedUser.hardest }}</div>
+                        <div class="hardest-title">#{{ selectedUser.hardestRank }} {{ selectedUser.hardest }}</div>
                     </div>
 
-                    <!-- Main levels (Только пройденные 100% уровни) -->
-                    <div class="completed-box" v-if="completedList.length">
+                    <!-- Main levels (Пройденные 100% уровни) -->
+                    <div class="completed-box" v-if="selectedUser.records && selectedUser.records.length">
                         <div class="completed-header">
                             <span class="completed-title">★ Main levels</span>
-                            <span class="completed-count">{{ completedList.length }}</span>
+                            <span class="completed-count">{{ selectedUser.records.length }}</span>
                         </div>
                         <div class="completed-tags">
                             <span 
-                                v-for="rec in completedList" 
+                                v-for="rec in selectedUser.records" 
                                 :key="rec.levelName" 
                                 class="completed-tag"
                             >
@@ -103,10 +104,6 @@ export default {
     computed: {
         selectedUser() {
             return this.leaderboard[this.selectedUserIndex] || null;
-        },
-        completedList() {
-            if (!this.selectedUser || !this.selectedUser.records) return [];
-            return this.selectedUser.records.filter(r => r.percent === 100);
         }
     },
 
@@ -116,7 +113,7 @@ export default {
 
     methods: {
         handleAvatarError(e) {
-            e.target.src = '/assets/default-avatar.png';
+            e.target.src = 'https://i.postimg.cc/mD43TzN3/default-avatar.png';
         }
     }
 };
