@@ -1,1 +1,13 @@
-
+{
+    "name": "Baumkuchen End",
+    "author": "Pryemishi Team",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "verification": "https://youtu.be/Ays5kbNqras",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+        }
+    ]
+}
