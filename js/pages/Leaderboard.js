@@ -1,8 +1,8 @@
-import { fetchLeaderboard } from "./content.js";
+import { fetchLeaderboard } from "../content.js";
 
 export default {
     template: `
-        <main v-if="loading">
+        <main v-if="loading" class="gdl-loading">
             <div class="spinner">
                 <p>Загрузка лидерборда...</p>
             </div>
@@ -50,7 +50,7 @@ export default {
                 <p v-else style="padding: 1rem;">Лидерборд пуст или данные не загрузились.</p>
             </div>
 
-            <!-- Детали выбранного игрока (справа или снизу) -->
+            <!-- Правая панель с подробностями выбранного игрока -->
             <div class="player-details" v-if="currentPlayer">
                 <h2>{{ currentPlayer.user }}</h2>
                 <p>Всего очков: <strong>{{ Math.round(currentPlayer.totalScore) }}</strong></p>
@@ -84,7 +84,6 @@ export default {
     async mounted() {
         try {
             this.loading = true;
-            // Вызываем правильную функцию подсчета из content.js
             const res = await fetchLeaderboard();
             this.players = Array.isArray(res) ? res : [];
         } catch (e) {
@@ -96,7 +95,6 @@ export default {
     },
 
     methods: {
-        // Преобразует двухбуквенный код страны (RU, UA, US и т.д.) в смайлик флага
         getFlagEmoji(countryCode) {
             if (!countryCode || countryCode.length !== 2) return '';
             const codePoints = countryCode
