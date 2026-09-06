@@ -2,94 +2,71 @@ import { fetchLeaderboard } from "../content.js";
 
 export default {
     template: `
-        <main v-if="loading" class="loading-state">
+        <main v-if="loading" class="gdl-loading">
             <p>Загрузка данных...</p>
         </main>
 
-        <main v-else class="page-leaderboard-container">
-            <!-- ЛЕВАЯ КОЛОНКА: СПИСОК ИГРОКОВ -->
-            <div class="board-sidebar">
-                <div class="search-bar">
-                    <input type="text" v-model="searchQuery" placeholder="Search..." />
-                </div>
-
-                <div class="players-list">
-                    <div 
-                        v-for="(player, index) in filteredPlayers" 
-                        :key="player.user" 
-                        class="player-item"
-                        :class="{ 'active': selectedUser === player.user }"
-                        @click="selectedUser = player.user"
-                    >
-                        <span class="player-rank">#{{ getOriginalRank(player.user) }}</span>
-                        <span class="player-name">{{ player.user }}</span>
-                        <div class="player-meta">
-                            <span class="player-score">{{ Math.round(player.totalScore) }}</span>
-                            <span v-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
-                            <img v-if="player.avatar" :src="player.avatar" class="avatar-small" alt="avatar" />
-                        </div>
+        <main v-else class="leaderboard-wrapper">
+            <!-- ЛЕВАЯ ЧАСТЬ: СПИСОК ИГРОКОВ -->
+            <div class="sidebar-list">
+                <div 
+                    v-for="(player, i) in players" 
+                    :key="player.user"
+                    class="sidebar-item"
+                    :class="{ 'active': selectedUser === player.user }"
+                    @click="selectedUser = player.user"
+                >
+                    <span class="rank-num">#{{ i + 1 }}</span>
+                    <div class="user-block">
+                        <span v-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
+                        <span class="username">{{ player.user }}</span>
                     </div>
+                    <span class="user-score">{{ formatScore(player.totalScore) }}</span>
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: ДЕТАЛИ ИГРОКА (КАК НА 2 КАРТИНКЕ) -->
-            <div class="board-main" v-if="currentPlayer">
-                <!-- ШАПКА ИГРОКА -->
-                <div class="profile-header">
-                    <img v-if="currentPlayer.avatar" :src="currentPlayer.avatar" class="avatar-large" alt="avatar" />
-                    <h2>
-                        {{ currentPlayer.user }}
-                        <span v-if="currentPlayer.nationality" class="flag-large">{{ getFlagEmoji(currentPlayer.nationality) }}</span>
-                    </h2>
+            <!-- ПРАВАЯ ЧАСТЬ: ПРОФИЛЬ ИГРОКА 1 В 1 С КАРТИНКИ -->
+            <div class="profile-card" v-if="currentPlayer">
+                <!-- ШАПКА -->
+                <div class="profile-title">
+                    <span v-if="currentPlayer.nationality" class="flag-main">{{ getFlagEmoji(currentPlayer.nationality) }}</span>
+                    <h1>{{ currentPlayer.user }}</h1>
                 </div>
 
-                <!-- КАРТОЧКИ СТАТИСТИКИ -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-icon">🏆</span>
-                        <div>
-                            <div class="stat-value">#{{ currentRank }}</div>
-                            <div class="stat-label">Rank</div>
+                <!-- КАРТОЧКИ РАНГА И ОЧКОВ -->
+                <div class="grid-stats">
+                    <div class="card-stat">
+                        <span class="icon">🏆</span>
+                        <div class="info">
+                            <div class="val">#{{ currentRank }}</div>
+                            <div class="lbl">RANK</div>
                         </div>
                     </div>
 
-                    <div class="stat-card">
-                        <span class="stat-icon">✦</span>
-                        <div>
-                            <div class="stat-value">{{ Math.round(currentPlayer.totalScore) }}</div>
-                            <div class="stat-label">Score</div>
+                    <div class="card-stat">
+                        <span class="icon">✦</span>
+                        <div class="info">
+                            <div class="val">{{ formatScore(currentPlayer.totalScore) }}</div>
+                            <div class="lbl">SCORE</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- САМЫЙ СЛОЖНЫЙ ДЕМОН -->
-                <div class="hardest-card" v-if="currentPlayer.hardest">
-                    <div class="section-title">🔥 Hardest level</div>
-                    <div class="hardest-name">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
+                <!-- HARDEST LEVEL -->
+                <div class="card-hardest" v-if="currentPlayer.hardest">
+                    <div class="hardest-title">🔥 Hardest level</div>
+                    <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
-                <!-- MAIN LEVELS (100% ПРОХОЖДЕНИЯ) -->
-                <div class="levels-section" v-if="mainLevels.length">
-                    <div class="section-header">
-                        <span class="section-title">★ Main levels</span>
-                        <span class="badge">{{ mainLevels.length }}</span>
+                <!-- MAIN LEVELS -->
+                <div class="section-levels" v-if="mainLevels.length">
+                    <div class="section-top">
+                        <span class="title">★ Main levels</span>
+                        <span class="count-badge">{{ mainLevels.length }}</span>
                     </div>
-                    <div class="tags-grid">
-                        <div v-for="rec in mainLevels" :key="rec.levelName" class="level-tag">
+                    <div class="pills-grid">
+                        <div v-for="rec in mainLevels" :key="rec.levelName" class="level-pill">
                             {{ rec.levelName }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EXTENDED LEVELS (ПРОЦЕНТЫ) -->
-                <div class="levels-section" v-if="extendedLevels.length">
-                    <div class="section-header">
-                        <span class="section-title">🟡 Extended levels</span>
-                        <span class="badge">{{ extendedLevels.length }}</span>
-                    </div>
-                    <div class="tags-grid">
-                        <div v-for="rec in extendedLevels" :key="rec.levelName" class="level-tag">
-                            {{ rec.levelName }} ({{ rec.percent }}%)
                         </div>
                     </div>
                 </div>
@@ -100,17 +77,10 @@ export default {
     data: () => ({
         players: [],
         selectedUser: null,
-        searchQuery: "",
         loading: true
     }),
 
     computed: {
-        filteredPlayers() {
-            if (!this.searchQuery) return this.players;
-            const q = this.searchQuery.toLowerCase();
-            return this.players.filter(p => p.user.toLowerCase().includes(q));
-        },
-
         currentPlayer() {
             if (!this.players.length) return null;
             return this.players.find(p => p.user === this.selectedUser) || this.players[0];
@@ -124,11 +94,6 @@ export default {
         mainLevels() {
             if (!this.currentPlayer || !this.currentPlayer.records) return [];
             return this.currentPlayer.records.filter(r => Number(r.percent) === 100);
-        },
-
-        extendedLevels() {
-            if (!this.currentPlayer || !this.currentPlayer.records) return [];
-            return this.currentPlayer.records.filter(r => Number(r.percent) < 100);
         }
     },
 
@@ -149,8 +114,11 @@ export default {
     },
 
     methods: {
-        getOriginalRank(userName) {
-            return this.players.findIndex(p => p.user === userName) + 1;
+        formatScore(val) {
+            if (!val && val !== 0) return '0';
+            const parts = Number(val).toFixed(3).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            return parts.join(',');
         },
 
         getFlagEmoji(countryCode) {
