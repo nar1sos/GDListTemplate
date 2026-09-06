@@ -1,3 +1,59 @@
+import { score } from "./score.js";
+
+function getSafeScore(rank, percent, minPercent) {
+    try {
+        if (typeof score === 'function') {
+            const val = score(rank, percent, minPercent);
+            return isNaN(val) ? 0 : val;
+        }
+    } catch (e) {
+        console.warn("Ошибка в функции score():", e);
+    }
+    return percent === 100 ? Math.max(100 - rank, 10) : 0;
+}
+
+export async function fetchList() {
+    try {
+        const listResponse = await fetch("/data/_list.json");
+        if (!listResponse.ok) return [];
+        const list = await listResponse.json();
+
+        return await Promise.all(
+            list.map(async (path, index) => {
+                const rank = index + 1;
+                try {
+                    const levelResponse = await fetch(`/data/${path}.json`);
+                    if (!levelResponse.ok) return [null, rank];
+                    const level = await levelResponse.json();
+                    return [
+                        {
+                            ...level,
+                            path,
+                            records: Array.isArray(level.records) ? level.records : [],
+                        },
+                        rank,
+                    ];
+                } catch (e) {
+                    return [null, rank];
+                }
+            })
+        );
+    } catch (e) {
+        console.error("Ошибка загрузки /data/_list.json:", e);
+        return [];
+    }
+}
+
+export async function fetchEditors() {
+    try {
+        const response = await fetch("/data/_editors.json");
+        if (!response.ok) return [];
+        return await response.json();
+    } catch (e) {
+        return [];
+    }
+}
+
 export async function fetchLeaderboard() {
     const list = await fetchList();
     const scoreMap = {};
@@ -13,7 +69,8 @@ export async function fetchLeaderboard() {
                 allRecords.push({
                     user: level.verifier,
                     percent: 100,
-                    nationality: level.verifierNationality || null
+                    nationality: level.verifierNationality || level.nationality || level.country || null,
+                    avatar: level.verifierAvatar || level.avatar || null
                 });
             }
         }
@@ -22,11 +79,14 @@ export async function fetchLeaderboard() {
             const user = record.user;
             if (!user) continue;
 
+            const flag = record.nationality || record.country || null;
+            const avatar = record.avatar || null;
+
             if (!scoreMap[user]) {
                 scoreMap[user] = {
                     user: user,
-                    nationality: record.nationality || record.country || null,
-                    avatar: record.avatar || null,
+                    nationality: flag,
+                    avatar: avatar,
                     totalScore: 0,
                     hardest: null,
                     hardestRank: Infinity,
@@ -34,12 +94,11 @@ export async function fetchLeaderboard() {
                 };
             }
 
-            // Если у юзера еще не сохранен флаг или аватар — подтягиваем из текущего рекорда
-            if (!scoreMap[user].nationality && (record.nationality || record.country)) {
-                scoreMap[user].nationality = record.nationality || record.country;
+            if (!scoreMap[user].nationality && flag) {
+                scoreMap[user].nationality = flag;
             }
-            if (!scoreMap[user].avatar && record.avatar) {
-                scoreMap[user].avatar = record.avatar;
+            if (!scoreMap[user].avatar && avatar) {
+                scoreMap[user].avatar = avatar;
             }
 
             const points = getSafeScore(rank, Number(record.percent), level.percentToQualify || 100);
