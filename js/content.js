@@ -1,59 +1,3 @@
-import { score } from "./score.js";
-
-function getSafeScore(rank, percent, minPercent) {
-    try {
-        if (typeof score === 'function') {
-            const val = score(rank, percent, minPercent);
-            return isNaN(val) ? 0 : val;
-        }
-    } catch (e) {
-        console.warn("Ошибка в функции score():", e);
-    }
-    return percent === 100 ? Math.max(100 - rank, 10) : 0;
-}
-
-export async function fetchList() {
-    try {
-        const listResponse = await fetch("/data/_list.json");
-        if (!listResponse.ok) return [];
-        const list = await listResponse.json();
-
-        return await Promise.all(
-            list.map(async (path, index) => {
-                const rank = index + 1;
-                try {
-                    const levelResponse = await fetch(`/data/${path}.json`);
-                    if (!levelResponse.ok) return [null, rank];
-                    const level = await levelResponse.json();
-                    return [
-                        {
-                            ...level,
-                            path,
-                            records: Array.isArray(level.records) ? level.records : [],
-                        },
-                        rank,
-                    ];
-                } catch (e) {
-                    return [null, rank];
-                }
-            })
-        );
-    } catch (e) {
-        console.error("Ошибка загрузки /data/_list.json:", e);
-        return [];
-    }
-}
-
-export async function fetchEditors() {
-    try {
-        const response = await fetch("/data/_editors.json");
-        if (!response.ok) return [];
-        return await response.json();
-    } catch (e) {
-        return [];
-    }
-}
-
 export async function fetchLeaderboard() {
     const list = await fetchList();
     const scoreMap = {};
@@ -61,10 +5,8 @@ export async function fetchLeaderboard() {
     list.forEach(([level, rank]) => {
         if (!level) return;
 
-        // Собираем все прохождения из records
         const allRecords = [...(level.records || [])];
 
-        // Учитываем верификатора как 100% прохождение, если его еще нет в records
         if (level.verifier) {
             const hasVerifierRecord = allRecords.some(r => r.user === level.verifier);
             if (!hasVerifierRecord) {
@@ -83,7 +25,8 @@ export async function fetchLeaderboard() {
             if (!scoreMap[user]) {
                 scoreMap[user] = {
                     user: user,
-                    nationality: record.nationality || null,
+                    nationality: record.nationality || record.country || null,
+                    avatar: record.avatar || null,
                     totalScore: 0,
                     hardest: null,
                     hardestRank: Infinity,
@@ -91,8 +34,12 @@ export async function fetchLeaderboard() {
                 };
             }
 
-            if (!scoreMap[user].nationality && record.nationality) {
-                scoreMap[user].nationality = record.nationality;
+            // Если у юзера еще не сохранен флаг или аватар — подтягиваем из текущего рекорда
+            if (!scoreMap[user].nationality && (record.nationality || record.country)) {
+                scoreMap[user].nationality = record.nationality || record.country;
+            }
+            if (!scoreMap[user].avatar && record.avatar) {
+                scoreMap[user].avatar = record.avatar;
             }
 
             const points = getSafeScore(rank, Number(record.percent), level.percentToQualify || 100);
