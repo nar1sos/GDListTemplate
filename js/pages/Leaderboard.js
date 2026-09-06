@@ -1,207 +1,126 @@
-import { fetchLeaderboard } from '../content.js';
-import { localize } from '../util.js';
-import Spinner from '../components/Spinner.js';
+import { fetchLeaderboard, fetchList } from "../content.js";
+import { score } from "../score.js";
 
 export default {
-    components: {
-        Spinner,
-    },
-    data: () => ({
-        leaderboard: [],
-        countryLeaderboard: [],
-        loading: true,
-        selected: 0,
-        err: [],
-        tab: 'players',
-    }),
     template: `
-        <main v-if="loading">
-            <Spinner></Spinner>
-        </main>
-        <main v-else class="page-leaderboard-container">
-            <div class="tabs-container">
-                <button 
-                    type="button"
-                    class="tab-button" 
-                    :class="{ active: tab === 'players' }" 
-                    @click="tab = 'players'"
-                >
-                    👤 Игроки
-                </button>
-                <button 
-                    type="button"
-                    class="tab-button" 
-                    :class="{ active: tab === 'countries' }" 
-                    @click="tab = 'countries'"
-                >
-                    🌐 Страны
-                </button>
-            </div>
-
-            <div class="error-container" v-if="err && err.length > 0">
-                <p class="error">
-                    Ошибки загрузки уровней: {{ err.join(', ') }}
-                </p>
-            </div>
-
-            <div class="page-leaderboard" v-if="tab === 'players'">
-                <div class="board-container">
-                    <ul class="board-list">
-                        <li 
-                            v-for="(ientry, i) in leaderboard" 
-                            :key="i"
-                            class="board-item"
-                            :class="{ 'active': selected === i }"
-                            @click="selected = i"
-                        >
-                            <span class="rank-label">#{{ i + 1 }}</span>
+        <div class="gdl-wrapper">
+            <div class="leaderboard-grid">
+                
+                <!-- ЛЕВАЯ КОЛОНКА: Списочный топ игрока (здесь ФЛАГ) -->
+                <div class="leaderboard-list">
+                    <div 
+                        v-for="(user, i) in leaderboard" 
+                        :key="user.user"
+                        class="leaderboard-card"
+                        :class="{ 'active': selectedUserIndex === i }"
+                        @click="selectedUserIndex = i"
+                    >
+                        <span class="rank-num">#{{ i + 1 }}</span>
+                        
+                        <!-- Флаг страны (emoji или картинка-флаг) -->
+                        <span class="user-flag" v-if="user.nationality">
                             <img 
-                                v-if="ientry.country" 
-                                :src="'https://flagcdn.com/24x18/' + ientry.country + '.png'" 
+                                v-if="user.nationality.startsWith('http') || user.nationality.endsWith('.png')" 
+                                :src="user.nationality" 
+                                alt="flag" 
                                 class="flag-icon"
-                                alt="flag"
                             />
-                            <span class="user-name">{{ ientry.user }}</span>
-                            <span class="total-score">{{ localize(ientry.total) }}</span>
-                        </li>
-                    </ul>
+                            <span v-else>{{ user.nationality }}</span>
+                        </span>
+
+                        <span class="user-name">{{ user.user }}</span>
+                        <span class="user-score">{{ (user.totalScore || 0).toLocaleString() }}</span>
+                    </div>
                 </div>
 
-                <div class="player-container" v-if="entry">
-                    <div class="player-profile">
-                        <div class="profile-header">
+                <!-- ПРАВАЯ КОЛОНКА: Карточка профиля (здесь АВАТАРКА) -->
+                <div class="profile-container" v-if="selectedUser">
+                    
+                    <!-- Шапка профиля -->
+                    <div class="profile-header-box">
+                        <div class="profile-avatar-wrapper">
+                            <!-- Аватарка игрока (если есть, иначе дефолтная картинка) -->
                             <img 
-                                v-if="entry.country" 
-                                :src="'https://flagcdn.com/48x36/' + entry.country + '.png'" 
-                                class="profile-flag"
-                                alt="flag"
+                                :src="selectedUser.avatar || '/assets/default-avatar.png'" 
+                                :alt="selectedUser.user"
+                                class="profile-avatar-img"
+                                @error="handleAvatarError"
                             />
-                            <h1 class="profile-name">{{ entry.user }}</h1>
                         </div>
+                        <h2 class="profile-username">{{ selectedUser.user }}</h2>
+                    </div>
 
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <span class="stat-icon trophy-icon">🏆</span>
-                                <div class="stat-info">
-                                    <div class="stat-value">#{{ selected + 1 }}</div>
-                                    <div class="stat-label">Rank</div>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <span class="stat-icon score-icon">✦</span>
-                                <div class="stat-info">
-                                    <div class="stat-value">{{ localize(entry.total) }}</div>
-                                    <div class="stat-label">Score</div>
-                                </div>
+                    <!-- Карточки статистики: Rank и Score -->
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <span class="stat-icon">🏆</span>
+                            <div class="stat-info">
+                                <span class="stat-val">#{{ selectedUserIndex + 1 }}</span>
+                                <span class="stat-lbl">RANK</span>
                             </div>
                         </div>
 
-                        <div class="hardest-card" v-if="hardestLevel">
-                            <div class="hardest-header">
-                                <span class="fire-icon">🔥</span>
-                                <span class="hardest-label">Hardest level</span>
-                            </div>
-                            <div class="hardest-content">
-                                <span class="hardest-rank">#{{ hardestLevel.rank }}</span>
-                                <a :href="hardestLevel.link" target="_blank" class="hardest-title">{{ hardestLevel.level }}</a>
-                            </div>
-                        </div>
-
-                        <div class="levels-category" v-if="allCompletedLevels.length > 0">
-                            <div class="category-header">
-                                <div class="category-title">
-                                    <span class="star-icon">★</span>
-                                    <span>Main levels</span>
-                                </div>
-                                <span class="badge">{{ allCompletedLevels.length }}</span>
-                            </div>
-                            <div class="chips-container">
-                                <a 
-                                    v-for="(score, idx) in allCompletedLevels" 
-                                    :key="idx" 
-                                    :href="score.link" 
-                                    target="_blank" 
-                                    class="level-chip"
-                                >
-                                    {{ score.level }}
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="levels-category" v-if="entry.progressed && entry.progressed.length > 0">
-                            <div class="category-header">
-                                <div class="category-title">
-                                    <span class="infinity-icon">∞</span>
-                                    <span>Progressed levels</span>
-                                </div>
-                                <span class="badge">{{ entry.progressed.length }}</span>
-                            </div>
-                            <div class="chips-container">
-                                <a 
-                                    v-for="(score, idx) in entry.progressed" 
-                                    :key="idx" 
-                                    :href="score.link" 
-                                    target="_blank" 
-                                    class="level-chip chip-progress"
-                                >
-                                    {{ score.percent }}% {{ score.level }}
-                                </a>
+                        <div class="stat-box">
+                            <span class="stat-icon">✦</span>
+                            <div class="stat-info">
+                                <span class="stat-val">{{ (selectedUser.totalScore || 0).toLocaleString() }}</span>
+                                <span class="stat-lbl">SCORE</span>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Hardest level -->
+                    <div class="hardest-box" v-if="selectedUser.hardest">
+                        <div class="hardest-label">🔥 Hardest level</div>
+                        <div class="hardest-title">#1 {{ selectedUser.hardest }}</div>
+                    </div>
+
+                    <!-- Main levels (Completed) -->
+                    <div class="completed-box" v-if="selectedUser.verified && selectedUser.verified.length">
+                        <div class="completed-header">
+                            <span class="completed-title">★ Main levels</span>
+                            <span class="completed-count">{{ completedList.length }}</span>
+                        </div>
+                        <div class="completed-tags">
+                            <span 
+                                v-for="rec in completedList" 
+                                :key="rec.levelName" 
+                                class="completed-tag"
+                            >
+                                {{ rec.levelName }}
+                            </span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-            <div class="country-board-full" v-if="tab === 'countries'">
-                <ul class="board-list">
-                    <li 
-                        v-for="(c, i) in countryLeaderboard" 
-                        :key="i"
-                        class="board-item country-item"
-                    >
-                        <span class="rank-label">#{{ i + 1 }}</span>
-                        <img 
-                            :src="'https://flagcdn.com/32x24/' + c.code + '.png'" 
-                            class="flag-icon-large" 
-                            alt="flag"
-                        />
-                        <span class="user-name">{{ c.code.toUpperCase() }}</span>
-                        <span class="total-score">{{ localize(c.total) }} pts</span>
-                    </li>
-                </ul>
-            </div>
-        </main>
+        </div>
     `,
+
+    data: () => ({
+        list: [],
+        leaderboard: [],
+        selectedUserIndex: 0,
+    }),
+
     computed: {
-        entry() {
-            return (this.leaderboard && this.leaderboard[this.selected]) ? this.leaderboard[this.selected] : null;
+        selectedUser() {
+            return this.leaderboard[this.selectedUserIndex] || null;
         },
-        allCompletedLevels() {
-            if (!this.entry) return [];
-            const verified = this.entry.verified || [];
-            const completed = this.entry.completed || [];
-            return [...verified, ...completed];
-        },
-        hardestLevel() {
-            if (!this.allCompletedLevels.length) return null;
-            return [...this.allCompletedLevels].sort((a, b) => a.rank - b.rank)[0];
+        completedList() {
+            if (!this.selectedUser || !this.selectedUser.verified) return [];
+            return this.selectedUser.verified.filter(r => r.percent === 100);
         }
     },
+
     async mounted() {
-        try {
-            const res = await fetchLeaderboard();
-            if (Array.isArray(res)) {
-                this.leaderboard = res[0] || [];
-                this.err = res[1] || [];
-                this.countryLeaderboard = res[2] || [];
-            }
-        } catch (e) {
-            console.error("Leaderboard error:", e);
-        } finally {
-            this.loading = false;
-        }
+        this.list = await fetchList();
+        this.leaderboard = await fetchLeaderboard();
     },
+
     methods: {
-        localize,
-    },
+        handleAvatarError(e) {
+            e.target.src = 'https://i.postimg.cc/mD43TzN3/default-avatar.png';
+        }
+    }
 };
