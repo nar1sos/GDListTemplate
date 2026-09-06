@@ -9,6 +9,11 @@
     "password": "Free Copy",
     "records": [
         {
+            "user": "neru",
+            "link": "",
+            "percent": 100,
+            "country": "kz",
+            "hz": 60            
         }
     ]
 }
