@@ -1,6 +1,5 @@
 import { score } from "./score.js";
 
-// Безопасный подсчет очков (если score.js не загрузился или выдал NaN)
 function getSafeScore(rank, percent, minPercent) {
     try {
         if (typeof score === 'function') {
@@ -8,14 +7,14 @@ function getSafeScore(rank, percent, minPercent) {
             return isNaN(val) ? 0 : val;
         }
     } catch (e) {
-        console.warn("Ошибка в функция score():", e);
+        console.warn("Ошибка в функции score():", e);
     }
-    // Простой фоллбек на случай ошибки в score.js
     return percent === 100 ? Math.max(100 - rank, 10) : 0;
 }
 
 /**
  * Загружает список уровней из _list.json
+ * Возвращает массив парами: [levelData, rankIndex]
  */
 export async function fetchList() {
     try {
@@ -24,10 +23,11 @@ export async function fetchList() {
         const list = await listResponse.json();
 
         return await Promise.all(
-            list.map(async (path, rank) => {
+            list.map(async (path, index) => {
+                const rank = index + 1;
                 try {
                     const levelResponse = await fetch(`/data/${path}.json`);
-                    if (!levelResponse.ok) return [null, rank + 1];
+                    if (!levelResponse.ok) return [null, rank];
                     const level = await levelResponse.json();
                     return [
                         {
@@ -35,10 +35,10 @@ export async function fetchList() {
                             path,
                             records: Array.isArray(level.records) ? level.records : [],
                         },
-                        rank + 1,
+                        rank,
                     ];
                 } catch (e) {
-                    return [null, rank + 1];
+                    return [null, rank];
                 }
             })
         );
@@ -49,18 +49,27 @@ export async function fetchList() {
 }
 
 /**
- * Собирает лидерборд напрямую из файлов уровней
+ * Загружает список редакторов
+ */
+export async function fetchEditors() {
+    try {
+        const response = await fetch("/data/_editors.json");
+        if (!response.ok) return [];
+        return await response.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Собирает лидерборд
  */
 export async function fetchLeaderboard() {
     const list = await fetchList();
     const scoreMap = {};
 
-    for (const item of list) {
-        if (!item || !item[0]) continue;
-        const level = item[0];
-        const rank = item[1];
-
-        if (!level.records) continue;
+    list.forEach(([level, rank]) => {
+        if (!level || !level.records) return;
 
         for (const record of level.records) {
             const user = record.user;
@@ -78,7 +87,6 @@ export async function fetchLeaderboard() {
                 };
             }
 
-            // Подтягиваем флаг и аву, если появились в следующих записях
             if (!scoreMap[user].nationality && record.nationality) {
                 scoreMap[user].nationality = record.nationality;
             }
@@ -86,14 +94,13 @@ export async function fetchLeaderboard() {
                 scoreMap[user].avatar = record.avatar;
             }
 
-            // Подсчет 100% прохождений
             if (Number(record.percent) === 100) {
                 const points = getSafeScore(rank, 100, level.percentToQualify || 100);
                 scoreMap[user].totalScore += points;
 
                 if (rank < scoreMap[user].hardestRank) {
                     scoreMap[user].hardestRank = rank;
-                    scoreMap[user].hardest = level.name;
+                    scoreMap[user].hardest = level.name || level.path;
                 }
 
                 scoreMap[user].records.push({
@@ -103,7 +110,7 @@ export async function fetchLeaderboard() {
                 });
             }
         }
-    }
+    });
 
     return Object.values(scoreMap).sort((a, b) => b.totalScore - a.totalScore);
 }
