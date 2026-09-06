@@ -1,50 +1,34 @@
 :root {
-    --color-background: white;
-    --color-on-background: black;
-    --color-background-hover: #eee;
-    --color-on-background-hover: black;
-    --color-primary: #0066ff;
-    --color-on-primary: white;
-    --color-error: #de0000;
-    --color-on-error: white;
-}
-
-main.dark,
-header.dark {
     color-scheme: dark;
-    --color-background: #1c1b1f;
-    --color-on-background: white;
-    --color-background-hover: #27262c;
-    --color-on-background-hover: white;
-    --color-primary: #283593;
-    --color-primary-disabled: #1f213c;
-    --color-on-primary: white;
+    --color-background: #0b0e14;
+    --color-on-background: #ffffff;
+    --color-background-hover: #161b26;
+    --color-on-background-hover: #ffffff;
+    --color-primary: #161b26;
+    --color-primary-disabled: #121620;
+    --color-on-primary: #ffffff;
     --color-error: #de0000;
-    --color-on-error: white;
+    --color-on-error: #ffffff;
 }
 
 html,
 body {
     height: 100%;
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
     display: flex;
     flex-direction: column;
     margin: 0;
-    background-color: #0b0e14 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    overflow-x: hidden;
 }
 
 header,
 main {
     background-color: var(--color-background);
     color: var(--color-on-background);
-    display: grid;
-    grid-template-columns: minmax(16rem, 1fr) minmax(16rem, 2fr) minmax(16em, 1fr);
-    column-gap: 2rem;
 }
 
 header {
@@ -53,11 +37,15 @@ header {
     height: 4rem;
     background-color: var(--color-primary);
     color: var(--color-on-primary);
+    border-bottom: 1px solid #232b3e;
+    box-sizing: border-box;
 }
 
 @media screen and (min-width: 1366px) {
     header {
         display: grid;
+        grid-template-columns: minmax(16rem, 1fr) minmax(16rem, 2fr) minmax(16em, 1fr);
+        column-gap: 2rem;
         padding-inline: 0;
     }
 }
@@ -75,16 +63,15 @@ header .nav {
 }
 
 main {
-    height: 0;
     flex: 1;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr);
-    column-gap: 2rem;
-    background-color: #0b0e14 !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 main > div {
     overflow-y: auto;
+    height: 100%;
 }
 
 .spinner {
@@ -101,218 +88,123 @@ input[type="checkbox"] {
     margin: 0;
 }
 
-/* ======================================================
-   GLOBAL DEMONLIST - FULL HEIGHT SIDEBARS & LIST LAYOUT
-   ====================================================== */
-
+/* СТИЛИ СПИСКА И ЛИДЕРБОРДА */
 .gdl-wrapper {
-    max-width: 1520px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
 }
 
-/* 1. ПОИСК */
 .gdl-search-bar {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-    flex-shrink: 0;
+    margin-bottom: 20px;
 }
 
 .search-input-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 550px;
+    max-width: 500px;
 }
 
 .search-icon {
     position: absolute;
-    left: 14px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.6;
+    pointer-events: none;
 }
 
 .gdl-input {
     width: 100%;
-    padding: 12px 40px 12px 42px;
-    background: #161b26 !important;
-    border: 1px solid #283044 !important;
-    border-radius: 10px;
-    color: #ffffff !important;
-    font-size: 15px;
-    font-weight: 700 !important;
+    padding: 10px 36px 10px 36px;
+    background: #161b26;
+    border: 1px solid #232b3e;
+    border-radius: 8px;
+    color: #fff;
     box-sizing: border-box;
     outline: none;
 }
 
 .gdl-input:focus {
-    border-color: #3b82f6 !important;
+    border-color: #3b82f6;
 }
 
 .clear-btn {
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
+    background: transparent;
     border: none;
-    color: #ffffff;
-    font-weight: 800;
+    color: #aaa;
     cursor: pointer;
 }
 
-/* 2. ТРЁХКОЛОНОЧНАЯ СЕТКА */
 .gdl-content-grid {
     display: grid;
-    grid-template-columns: 320px 1fr 440px;
+    grid-template-columns: 280px 1fr 400px;
     gap: 20px;
-    align-items: stretch;
-    flex: 1;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
     .gdl-content-grid {
-        grid-template-columns: 1fr 440px;
+        grid-template-columns: 1fr 350px;
     }
     .gdl-left-column {
-        order: 3;
-        grid-column: span 2;
+        display: none;
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .gdl-content-grid {
         grid-template-columns: 1fr;
     }
-    .gdl-left-column {
-        grid-column: span 1;
-    }
 }
 
-/* 3. ЛЕВАЯ КОЛОНКА */
-.gdl-left-column {
-    display: flex;
-    flex-direction: column;
+.gdl-meta-box, .gdl-level-detail-box, .profile-container {
+    background: #161b26;
+    border: 1px solid #232b3e;
+    border-radius: 10px;
+    padding: 16px;
 }
 
-.gdl-meta-box {
-    background: #161b26 !important;
-    border: 1px solid #232b3e !important;
-    border-radius: 12px;
-    padding: 20px;
-    box-sizing: border-box;
-    color: #ffffff !important;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.gdl-meta-box h3 {
-    color: #ffffff !important;
-    font-size: 18px;
-    font-weight: 800 !important;
-    margin-top: 0;
-}
-
-.editors-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 20px 0;
+.gdl-cards-container, .leaderboard-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.editors-list li {
+.gdl-level-card, .leaderboard-card {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 15px;
-    font-weight: 800 !important;
-    color: #ffffff !important;
-}
-
-.editors-list li img,
-.role-icon {
-    width: 20px !important;
-    height: 20px !important;
-    max-width: 20px !important;
-    max-height: 20px !important;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.rules-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.rules-list {
-    padding: 0;
-    list-style: none;
-    font-size: 14px;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    margin: 0;
-}
-
-.rules-list li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-    color: #ffffff !important;
-}
-
-.rules-list strong {
-    color: #ffffff !important;
-    font-weight: 900 !important;
-}
-
-/* 4. ЦЕНТРАЛЬНАЯ КОЛОНКА (СПИСОК УРОВНЕЙ) */
-.gdl-cards-container {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.gdl-level-card {
-    display: flex;
-    align-items: center;
-    background: #161b26 !important;
-    border: 1px solid #232b3e !important;
-    border-radius: 12px;
-    padding: 12px;
-    gap: 16px;
+    background: #161b26;
+    border: 1px solid #232b3e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    gap: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    user-select: none;
 }
 
-.gdl-level-card:hover {
-    border-color: #3b82f6 !important;
-    background: #1c2333 !important;
+.gdl-level-card:hover, .leaderboard-card:hover {
+    background: #1c2333;
+    border-color: #3b82f6;
 }
 
-.gdl-level-card.active {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
-    background: #1c2333 !important;
+.gdl-level-card.active, .leaderboard-card.active {
+    background: #1c2333;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
 }
 
 .gdl-card-thumb {
-    width: 150px;
-    height: 85px;
-    border-radius: 8px;
+    width: 120px;
+    height: 68px;
+    border-radius: 6px;
     overflow: hidden;
     position: relative;
+    background: #000;
     flex-shrink: 0;
-    background: #0d1117 !important;
 }
 
 .gdl-card-thumb img {
@@ -325,267 +217,63 @@ input[type="checkbox"] {
     position: absolute;
     top: 4px;
     left: 4px;
-    background: rgba(10, 14, 23, 0.9);
-    color: #3b82f6 !important;
-    font-weight: 900 !important;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: rgba(0,0,0,0.8);
+    color: #3b82f6;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
 }
 
 .gdl-card-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.rank-number {
-    color: #3b82f6 !important;
-    font-size: 17px;
-    font-weight: 900 !important;
+    gap: 2px;
 }
 
 .level-title {
-    font-size: 18px;
-    font-weight: 900 !important;
-    color: #ffffff !important;
     margin: 0;
+    font-size: 16px;
+    color: #fff;
 }
 
 .card-authors {
-    font-size: 14px;
-    font-weight: 700 !important;
-    color: #94a3b8 !important;
-}
-
-.verifier-name {
-    color: #10b981 !important;
-    font-weight: 800 !important;
+    font-size: 13px;
+    color: #8b949e;
 }
 
 .card-points {
-    font-size: 14px;
-    font-weight: 800 !important;
-    color: #ffffff !important;
+    font-size: 12px;
+    color: #38bdf8;
     margin-top: 4px;
 }
 
-.points-min { color: #c084fc !important; font-weight: 800 !important; }
-.points-max { color: #60a5fa !important; font-weight: 900 !important; }
-
-/* 5. ПРАВАЯ КОЛОНКА */
-.gdl-details-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.gdl-level-detail-box {
-    background: #161b26 !important;
-    border: 1px solid #232b3e !important;
-    border-radius: 12px;
-    padding: 20px;
-    box-sizing: border-box;
-    color: #ffffff !important;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.detail-title {
-    font-size: 24px;
-    font-weight: 900 !important;
-    color: #ffffff !important;
-    margin: 0 0 15px 0;
-}
-
-.authors-clean-block {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    margin-bottom: 20px !important;
-}
-
-.author-item {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-}
-
-.author-label {
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    color: #94a3b8 !important;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-}
-
-.author-val {
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    color: #ffffff !important;
-}
-
 .video-wrapper {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 8px;
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
     overflow: hidden;
-    margin-bottom: 15px;
+    border-radius: 6px;
+    margin: 12px 0;
     background: #000;
 }
 
 .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-}
-
-.gdl-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.stat-item {
-    background: #0d1117 !important;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 800 !important;
-    color: #94a3b8 !important;
-    text-transform: uppercase;
-}
-
-.stat-value {
-    font-weight: 900 !important;
-    color: #38bdf8 !important;
-    font-size: 15px;
-}
-
-/* 6. РЕКОРДЫ В ПРАВОМ БЛОКЕ */
-.records-section {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    flex: 1;
-}
-
-.records-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
-}
-
-.records-trophy {
-    font-size: 22px;
-    line-height: 1;
-}
-
-.records-header-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.records-header-text .section-subtitle {
-    font-size: 17px !important;
-    font-weight: 900 !important;
-    color: #ffffff !important;
-    margin: 0 !important;
-}
-
-.records-count-info {
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    color: #64748b !important;
-    margin: 0 !important;
-}
-
-.records-count-info strong {
-    color: #94a3b8 !important;
-}
-
-.records-count-info .highlight-100 {
-    color: #22c55e !important;
-    font-weight: 800 !important;
-}
-
-.records-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    border: 0;
 }
 
 .record-card {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    background: #111622 !important;
-    border: 1px solid #1e2638 !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.record-card:hover {
-    background: #171d2c !important;
-    border-color: #2b364e !important;
-}
-
-.record-user-info {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-}
-
-.record-user-info .user-name {
-    color: #ffffff !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-}
-
-.record-meta-info {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-}
-
-.percent-tag {
-    color: #22c55e !important;
-    font-weight: 800 !important;
-    font-size: 13px !important;
-}
-
-.record-video-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #475569 !important;
-    transition: color 0.15s ease, transform 0.15s ease;
-    text-decoration: none !important;
-}
-
-.record-video-btn:hover {
-    color: #38bdf8 !important;
-    transform: scale(1.1);
-}
-
-.no-records {
-    color: #64748b !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
 }
