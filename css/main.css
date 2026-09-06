@@ -1,4 +1,5 @@
 :root {
+    color-scheme: dark;
     --color-background: #1c1b1f;
     --color-on-background: #ffffff;
     --color-background-hover: #27262c;
@@ -10,28 +11,28 @@
     --color-on-error: #ffffff;
 }
 
-html,
-body {
+html, body {
     height: 100%;
+    margin: 0;
+    padding: 0;
     background-color: var(--color-background);
     color: var(--color-on-background);
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
     display: flex;
     flex-direction: column;
-    margin: 0;
 }
 
-header,
-main {
+header, main {
     background-color: var(--color-background);
     color: var(--color-on-background);
 }
 
 header {
     display: flex;
+    align-items: center;
     padding-inline: calc(25vw - 10rem);
     height: 4rem;
     background-color: var(--color-primary);
@@ -47,17 +48,19 @@ header {
     }
 }
 
-main {
+main.page-list {
     flex: 1;
     display: grid;
     grid-template-columns: minmax(16rem, 1fr) minmax(16rem, 2fr) minmax(16em, 1fr);
     column-gap: 2rem;
-    padding: 1rem;
+    padding: 1.5rem;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 main > div {
     overflow-y: auto;
+    max-height: calc(100vh - 6rem);
 }
 
 .spinner {
@@ -65,26 +68,32 @@ main > div {
     align-items: center;
     justify-content: center;
     grid-column: span 3;
+    width: 100%;
+    height: 100%;
 }
 
+/* Таблица списка */
 table.list {
     width: 100%;
     border-collapse: collapse;
 }
 
 table.list td {
-    padding: 0.5rem;
+    padding: 0.25rem;
 }
 
 table.list td.level button {
     width: 100%;
     text-align: left;
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     color: var(--color-on-background);
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
 }
 
 table.list td.level button:hover {
@@ -94,14 +103,30 @@ table.list td.level button:hover {
 table.list td.level.active button {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
+    border-color: #3b82f6;
 }
 
+.type-label-lg {
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.type-label-md {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+/* Видео плеер */
 .video {
     position: relative;
     padding-bottom: 56.25%;
     height: 0;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    background: #000;
 }
 
 .video iframe {
@@ -112,26 +137,59 @@ table.list td.level.active button {
     height: 100%;
 }
 
+/* Карточки статистики */
 .stats {
     display: flex;
     list-style: none;
     padding: 0;
     gap: 1rem;
+    margin: 1.5rem 0;
 }
 
 .stats li {
+    flex: 1;
     background: var(--color-background-hover);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.75rem;
+    border-radius: 8px;
     text-align: center;
 }
 
+.stats li h2 {
+    margin: 0;
+    color: #38bdf8;
+}
+
+.stats li p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Таблица рекордов */
 table.records {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 0.5rem;
 }
 
 table.records td {
-    padding: 0.5rem;
+    padding: 0.6rem;
     border-bottom: 1px solid var(--color-background-hover);
+}
+
+table.records td.percent p {
+    color: #22c55e;
+    font-weight: bold;
+    margin: 0;
+}
+
+table.records td.link a {
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.meta .inner {
+    background: var(--color-background-hover);
+    padding: 1rem;
+    border-radius: 8px;
 }
