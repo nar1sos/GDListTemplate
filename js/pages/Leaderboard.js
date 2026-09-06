@@ -109,7 +109,6 @@ const styles = `
     gap: 24px;
 }
 
-/* Увеличенный размер аватарки в профиле игрока */
 .avatar-large {
     width: 120px;
     height: 120px;
@@ -247,10 +246,18 @@ const styles = `
     font-weight: 700;
     color: #ffffff;
     transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .level-pill:hover {
     background: #1c2740;
+}
+
+.pill-percent {
+    color: #3b82f6;
+    font-weight: 800;
 }
 `;
 
@@ -342,6 +349,7 @@ export default {
                     <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
+                <!-- 100% ПРОХОЖДЕНИЯ -->
                 <div class="section-levels" v-if="mainLevels.length">
                     <div class="section-top">
                         <span class="title">★ Main levels</span>
@@ -350,6 +358,20 @@ export default {
                     <div class="pills-grid">
                         <div v-for="rec in mainLevels" :key="rec.levelName" class="level-pill">
                             {{ rec.levelName }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ПРОГРЕССЫ (МЕНЬШЕ 100%) -->
+                <div class="section-levels" v-if="progressLevels.length">
+                    <div class="section-top">
+                        <span class="title" style="color: #3b82f6;">📊 Progresses</span>
+                        <span class="count-badge">{{ progressLevels.length }}</span>
+                    </div>
+                    <div class="pills-grid">
+                        <div v-for="rec in progressLevels" :key="rec.levelName" class="level-pill">
+                            <span>{{ rec.levelName }}</span>
+                            <span class="pill-percent">({{ rec.percent }}%)</span>
                         </div>
                     </div>
                 </div>
@@ -377,6 +399,11 @@ export default {
         mainLevels() {
             if (!this.currentPlayer || !this.currentPlayer.records) return [];
             return this.currentPlayer.records.filter(r => Number(r.percent) === 100);
+        },
+
+        progressLevels() {
+            if (!this.currentPlayer || !this.currentPlayer.records) return [];
+            return this.currentPlayer.records.filter(r => Number(r.percent) < 100);
         }
     },
 
