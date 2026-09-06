@@ -9,10 +9,11 @@
     "password": "Free Copy",
     "records": [
         {
-            "user": "NaR1",
+            "user": "nar1",
             "link": "https://youtu.be/pU_j-__Whts",
             "percent": 100,
             "country": "ua",
+            "avatar": "https://i.pinimg.com/originals/b9/78/a2/b978a2def64d881e6fa1e54690691333.jpg"
             "hz": 60            
         }
     ]
