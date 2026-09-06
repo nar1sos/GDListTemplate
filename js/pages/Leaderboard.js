@@ -14,13 +14,13 @@ export default {
             <div class="list-container">
                 <table class="list" v-if="list && list.length">
                     <tbody>
-                        <tr v-for="([level, err], i) in list" :key="i">
+                        <tr v-for="([level, rankErr], i) in list" :key="i">
                             <td class="rank">
                                 <p class="type-label-lg">#{{ i + 1 }}</p>
                             </td>
                             <td class="level" :class="{ 'active': selected === i }">
                                 <button type="button" @click="selected = i">
-                                    <span class="type-label-lg">{{ level ? level.name : 'Ошибка (' + err + ')' }}</span>
+                                    <span class="type-label-lg">{{ level ? level.name : 'Ошибка (' + rankErr + ')' }}</span>
                                     <span v-if="level" class="type-label-md">{{ getAuthorText(level) }}</span>
                                 </button>
                             </td>
@@ -111,9 +111,12 @@ export default {
         },
 
         embedUrl() {
-            if (!this.currentLevel || !this.currentLevel.verification) return null;
+            if (!this.currentLevel) return null;
+            const link = this.currentLevel.verification || this.currentLevel.showcase;
+            if (!link) return null;
+
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = String(this.currentLevel.verification).match(regExp);
+            const match = String(link).match(regExp);
             return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
         }
     },
@@ -144,7 +147,7 @@ export default {
             try {
                 if (typeof score === "function") {
                     const res = score(rank, percent, minPercent || 100);
-                    if (!isNaN(res)) return Math.round(res);
+                    if (res !== undefined && !isNaN(res)) return Math.round(res);
                 }
             } catch (err) {
                 // Игнорируем ошибку внешней функции
