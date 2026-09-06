@@ -259,6 +259,17 @@ const styles = `
     color: #3b82f6;
     font-weight: 800;
 }
+
+/* Зелёные элементы верификации */
+.level-pill.verified-pill {
+    background: #0d2222;
+    border: 1px solid #1a5246;
+    color: #3bf6b0;
+}
+
+.level-pill.verified-pill:hover {
+    background: #133333;
+}
 `;
 
 if (!document.getElementById("leaderboard-styles-wide")) {
@@ -349,6 +360,19 @@ export default {
                     <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
+                <!-- ВЕРИФИЦИРОВАННЫЕ УРОВНИ (GREEN SECTION) -->
+                <div class="section-levels" v-if="verifiedLevels.length">
+                    <div class="section-top">
+                        <span class="title" style="color: #3bf6b0;">✔ Which are verified</span>
+                        <span class="count-badge" style="background: #11362e; color: #3bf6b0;">{{ verifiedLevels.length }}</span>
+                    </div>
+                    <div class="pills-grid">
+                        <div v-for="lvl in verifiedLevels" :key="lvl" class="level-pill verified-pill">
+                            {{ lvl }}
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 100% ПРОХОЖДЕНИЯ -->
                 <div class="section-levels" v-if="mainLevels.length">
                     <div class="section-top">
@@ -394,6 +418,11 @@ export default {
         currentRank() {
             if (!this.currentPlayer) return 0;
             return this.players.findIndex(p => p.user === this.currentPlayer.user) + 1;
+        },
+
+        verifiedLevels() {
+            if (!this.currentPlayer || !this.currentPlayer.verified) return [];
+            return this.currentPlayer.verified;
         },
 
         mainLevels() {
