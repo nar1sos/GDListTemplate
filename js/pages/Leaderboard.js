@@ -106,15 +106,17 @@ const styles = `
 .profile-title {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 24px;
 }
 
+/* Увеличенный размер аватарки в профиле игрока */
 .avatar-large {
-    width: 72px;
-    height: 72px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #283754;
+    border: 3px solid #283754;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     flex-shrink: 0;
 }
 
@@ -277,7 +279,6 @@ export default {
                 >
                     <span class="rank-num">#{{ i + 1 }}</span>
                     <div class="user-block">
-                        <!-- Иконка аватарки -->
                         <img 
                             v-if="player.avatar" 
                             :src="player.avatar" 
@@ -285,7 +286,6 @@ export default {
                             @error="$event.target.style.display='none'"
                         />
                         
-                        <!-- Картинка флага по коду страны -->
                         <img 
                             v-if="player.nationality" 
                             :src="getFlagUrl(player.nationality)" 
