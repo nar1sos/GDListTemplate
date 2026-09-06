@@ -201,6 +201,7 @@ const styles = `
     margin-top: 8px;
 }
 
+/* ОБЩИЕ СЕКЦИИ ДЛЯ СТАНДАРТНЫХ УРОВНЕЙ */
 .section-levels {
     display: flex;
     flex-direction: column;
@@ -240,9 +241,9 @@ const styles = `
 .level-pill {
     background: #141c2e;
     border: 1px solid #202d4a;
-    padding: 12px 20px;
+    padding: 10px 18px;
     border-radius: 8px;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #ffffff;
     transition: background 0.15s ease;
@@ -260,15 +261,62 @@ const styles = `
     font-weight: 800;
 }
 
-/* Зелёные элементы верификации */
-.level-pill.verified-pill {
-    background: #0d2222;
-    border: 1px solid #1a5246;
-    color: #3bf6b0;
+/* --- СТИЛИ ДЛЯ VERIFIED КАРТОЧКИ (КАК НА СКРИНШОТЕ) --- */
+.verified-card {
+    background: #122125; /* Темный зеленовато-синий фон подложки */
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.level-pill.verified-pill:hover {
-    background: #133333;
+.verified-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.verified-card-title {
+    color: #20d38b;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.verified-count-badge {
+    background: #1c3237;
+    color: #9cb1b5;
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.verified-pills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+}
+
+.verified-level-pill {
+    background: #0e171b; /* Почти черный/темный центр кнопки */
+    border: 1.5px solid #1ba36a; /* Яркая зеленая рамка */
+    color: #d1e2e5;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    transition: all 0.15s ease;
+}
+
+.verified-level-pill:hover {
+    background: #142228;
+    border-color: #22c57d;
+    color: #ffffff;
 }
 `;
 
@@ -360,14 +408,20 @@ export default {
                     <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
-                <!-- ВЕРИФИЦИРОВАННЫЕ УРОВНИ (GREEN SECTION) -->
-                <div class="section-levels" v-if="verifiedLevels.length">
-                    <div class="section-top">
-                        <span class="title" style="color: #3bf6b0;">✔ Which are verified</span>
-                        <span class="count-badge" style="background: #11362e; color: #3bf6b0;">{{ verifiedLevels.length }}</span>
+                <!-- ВЕРИФИЦИРОВАННЫЕ УРОВНИ (ЗЕЛЕНАЯ ПОДЛОЖКА КАК НА СКРИНШОТЕ) -->
+                <div class="verified-card" v-if="verifiedLevels.length">
+                    <div class="verified-card-top">
+                        <div class="verified-card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span>Which are verified</span>
+                        </div>
+                        <span class="verified-count-badge">{{ verifiedLevels.length }}</span>
                     </div>
-                    <div class="pills-grid">
-                        <div v-for="lvl in verifiedLevels" :key="lvl" class="level-pill verified-pill">
+                    <div class="verified-pills-grid">
+                        <div v-for="lvl in verifiedLevels" :key="lvl" class="verified-level-pill">
                             {{ lvl }}
                         </div>
                     </div>
