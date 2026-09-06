@@ -5,18 +5,18 @@ export default {
         <div class="gdl-wrapper">
             <div class="leaderboard-grid">
                 
-                <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ЛИДЕРОВ): ПОКАЗЫВАЕТ ФЛАГ -->
+                <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ИГРОКОВ) -->
                 <div class="leaderboard-list">
                     <div 
                         v-for="(user, i) in leaderboard" 
                         :key="user.user"
                         class="leaderboard-card"
                         :class="{ 'active': selectedUserIndex === i }"
-                        @click="selectedUserIndex = i"
+                        @click="selectUser(i)"
                     >
                         <span class="rank-num">#{{ i + 1 }}</span>
                         
-                        <!-- ФЛАГ ИГРОКА (если есть) -->
+                        <!-- Флаг -->
                         <span class="user-flag" v-if="user.nationality">
                             <img 
                                 v-if="user.nationality.length <= 3"
@@ -29,14 +29,13 @@ export default {
                         </span>
 
                         <span class="user-name">{{ user.user }}</span>
-                        <span class="user-score">{{ (user.totalScore || 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+                        <span class="user-score">{{ Math.round(user.totalScore || 0).toLocaleString() }}</span>
                     </div>
                 </div>
 
-                <!-- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ): ПОКАЗЫВАЕТ АВАТАРКУ -->
+                <!-- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ) -->
                 <div class="profile-container" v-if="selectedUser">
                     
-                    <!-- Шапка: Аватарка + Имя -->
                     <div class="profile-header-box">
                         <div class="profile-avatar-wrapper">
                             <img 
@@ -49,7 +48,6 @@ export default {
                         <h2 class="profile-username">{{ selectedUser.user }}</h2>
                     </div>
 
-                    <!-- Статистика Rank & Score -->
                     <div class="stats-row">
                         <div class="stat-box">
                             <span class="stat-icon">🏆</span>
@@ -62,19 +60,17 @@ export default {
                         <div class="stat-box">
                             <span class="stat-icon">✦</span>
                             <div class="stat-info">
-                                <span class="stat-val">{{ (selectedUser.totalScore || 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+                                <span class="stat-val">{{ Math.round(selectedUser.totalScore || 0).toLocaleString() }}</span>
                                 <span class="stat-lbl">SCORE</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Hardest level -->
                     <div class="hardest-box" v-if="selectedUser.hardest">
                         <div class="hardest-label">🔥 Hardest level</div>
                         <div class="hardest-title">#{{ selectedUser.hardestRank }} {{ selectedUser.hardest }}</div>
                     </div>
 
-                    <!-- Main levels (Пройденные 100% уровни) -->
                     <div class="completed-box" v-if="selectedUser.records && selectedUser.records.length">
                         <div class="completed-header">
                             <span class="completed-title">★ Main levels</span>
@@ -92,6 +88,7 @@ export default {
                     </div>
 
                 </div>
+
             </div>
         </div>
     `,
@@ -112,6 +109,9 @@ export default {
     },
 
     methods: {
+        selectUser(index) {
+            this.selectedUserIndex = index;
+        },
         handleAvatarError(e) {
             e.target.src = 'https://i.postimg.cc/mD43TzN3/default-avatar.png';
         }
