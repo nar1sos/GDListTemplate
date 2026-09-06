@@ -1,12 +1,11 @@
-import { fetchLeaderboard, fetchList } from "../content.js";
-import { score } from "../score.js";
+import { fetchLeaderboard } from "../content.js";
 
 export default {
     template: `
         <div class="gdl-wrapper">
             <div class="leaderboard-grid">
                 
-                <!-- ЛЕВАЯ КОЛОНКА: Списочный топ игрока (здесь ФЛАГ) -->
+                <!-- ЛЕВАЯ КОЛОНКА: ТОП ИГРОКОВ (ФЛАГ) -->
                 <div class="leaderboard-list">
                     <div 
                         v-for="(user, i) in leaderboard" 
@@ -17,7 +16,7 @@ export default {
                     >
                         <span class="rank-num">#{{ i + 1 }}</span>
                         
-                        <!-- Флаг страны (emoji или картинка-флаг) -->
+                        <!-- Флаг страны (эмодзи или ссылка на картинку-флаг) -->
                         <span class="user-flag" v-if="user.nationality">
                             <img 
                                 v-if="user.nationality.startsWith('http') || user.nationality.endsWith('.png')" 
@@ -33,13 +32,12 @@ export default {
                     </div>
                 </div>
 
-                <!-- ПРАВАЯ КОЛОНКА: Карточка профиля (здесь АВАТАРКА) -->
+                <!-- ПРАВАЯ КОЛОНКА: КАРТОЧКА ПРОФИЛЯ (АВАТАРКА) -->
                 <div class="profile-container" v-if="selectedUser">
                     
-                    <!-- Шапка профиля -->
+                    <!-- Шапка с аватаркой и ником -->
                     <div class="profile-header-box">
                         <div class="profile-avatar-wrapper">
-                            <!-- Аватарка игрока (если есть, иначе дефолтная картинка) -->
                             <img 
                                 :src="selectedUser.avatar || '/assets/default-avatar.png'" 
                                 :alt="selectedUser.user"
@@ -75,8 +73,8 @@ export default {
                         <div class="hardest-title">#1 {{ selectedUser.hardest }}</div>
                     </div>
 
-                    <!-- Main levels (Completed) -->
-                    <div class="completed-box" v-if="selectedUser.verified && selectedUser.verified.length">
+                    <!-- Main levels (Только пройденные 100% уровни) -->
+                    <div class="completed-box" v-if="completedList.length">
                         <div class="completed-header">
                             <span class="completed-title">★ Main levels</span>
                             <span class="completed-count">{{ completedList.length }}</span>
@@ -98,7 +96,6 @@ export default {
     `,
 
     data: () => ({
-        list: [],
         leaderboard: [],
         selectedUserIndex: 0,
     }),
@@ -108,19 +105,18 @@ export default {
             return this.leaderboard[this.selectedUserIndex] || null;
         },
         completedList() {
-            if (!this.selectedUser || !this.selectedUser.verified) return [];
-            return this.selectedUser.verified.filter(r => r.percent === 100);
+            if (!this.selectedUser || !this.selectedUser.records) return [];
+            return this.selectedUser.records.filter(r => r.percent === 100);
         }
     },
 
     async mounted() {
-        this.list = await fetchList();
         this.leaderboard = await fetchLeaderboard();
     },
 
     methods: {
         handleAvatarError(e) {
-            e.target.src = 'https://i.postimg.cc/mD43TzN3/default-avatar.png';
+            e.target.src = '/assets/default-avatar.png';
         }
     }
 };
