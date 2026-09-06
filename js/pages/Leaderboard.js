@@ -1,158 +1,109 @@
-import { fetchList } from "../content.js";
-import { score } from "../score.js";
+import { fetchLeaderboard } from "./content.js";
 
 export default {
     template: `
         <main v-if="loading">
             <div class="spinner">
-                <p>Загрузка данных...</p>
+                <p>Загрузка лидерборда...</p>
             </div>
         </main>
-        
-        <main v-else class="page-list">
-            <!-- 1. ЛЕВАЯ КОЛОНКА: СПИСОК УРОВНЕЙ -->
-            <div class="list-container">
-                <table class="list" v-if="list && list.length">
+
+        <main v-else class="page-leaderboard">
+            <div class="board-container">
+                <h1>Топ Игроков</h1>
+
+                <table class="leaderboard-table" v-if="players && players.length">
+                    <thead>
+                        <tr>
+                            <th class="rank">#</th>
+                            <th class="user">Игрок</th>
+                            <th class="score">Очки</th>
+                            <th class="hardest">Самый сложный демон</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr v-for="([level, rankErr], i) in list" :key="i">
+                        <tr 
+                            v-for="(player, i) in players" 
+                            :key="player.user"
+                            :class="{ 'active': selected === i }"
+                            @click="selected = i"
+                        >
                             <td class="rank">
                                 <p class="type-label-lg">#{{ i + 1 }}</p>
                             </td>
-                            <td class="level" :class="{ 'active': selected === i }">
-                                <button type="button" @click="selected = i">
-                                    <span class="type-label-lg">{{ level ? level.name : 'Ошибка (' + rankErr + ')' }}</span>
-                                    <span v-if="level" class="type-label-md">{{ getAuthorText(level) }}</span>
-                                </button>
+                            <td class="user">
+                                <div class="user-info">
+                                    <img v-if="player.avatar" :src="player.avatar" class="avatar" alt="avatar" />
+                                    <span v-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
+                                    <span class="type-label-lg">{{ player.user }}</span>
+                                </div>
+                            </td>
+                            <td class="score">
+                                <p class="type-label-lg">{{ Math.round(player.totalScore) }} pts</p>
+                            </td>
+                            <td class="hardest">
+                                <p class="type-label-md">{{ player.hardest || '—' }}</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <p v-else style="padding: 1rem;">Список уровней пуст или не загрузился.</p>
+                <p v-else style="padding: 1rem;">Лидерборд пуст или данные не загрузились.</p>
             </div>
 
-            <!-- 2. ЦЕНТРАЛЬНАЯ КОЛОНКА: ИНФОРМАЦИЯ ОБ УРОВНЕ -->
-            <div class="level-container">
-                <div class="level" v-if="currentLevel">
-                    <h1>{{ currentLevel.name }}</h1>
-                    <p class="type-label-md">Создатель: {{ getAuthorText(currentLevel) }}</p>
-                    <p class="type-label-md" v-if="currentLevel.verifier">Верификатор: {{ currentLevel.verifier }}</p>
-                    
-                    <div v-if="embedUrl" class="video">
-                        <iframe 
-                            :src="embedUrl" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
+            <!-- Детали выбранного игрока (справа или снизу) -->
+            <div class="player-details" v-if="currentPlayer">
+                <h2>{{ currentPlayer.user }}</h2>
+                <p>Всего очков: <strong>{{ Math.round(currentPlayer.totalScore) }}</strong></p>
+                <p v-if="currentPlayer.hardest">Самый сложный: <strong>{{ currentPlayer.hardest }}</strong> (#{{ currentPlayer.hardestRank }})</p>
 
-                    <ul class="stats">
-                        <li>
-                            <h2>{{ calculateScore(selected + 1, 100, currentLevel.percentToQualify) }}</h2>
-                            <p>Очки за 100%</p>
-                        </li>
-                        <li>
-                            <h2>{{ currentLevel.percentToQualify || 100 }}%</h2>
-                            <p>Мин. процент</p>
-                        </li>
-                        <li v-if="currentLevel.id">
-                            <h2>{{ currentLevel.id }}</h2>
-                            <p>ID Уровня</p>
-                        </li>
-                    </ul>
-
-                    <h2>Рекорды</h2>
-                    <table class="records" v-if="currentLevel.records && currentLevel.records.length">
-                        <tbody>
-                            <tr v-for="(record, rIdx) in currentLevel.records" :key="rIdx">
-                                <td class="user">
-                                    <p>{{ record.user }}</p>
-                                </td>
-                                <td class="percent">
-                                    <p>{{ record.percent }}%</p>
-                                </td>
-                                <td class="link">
-                                    <a v-if="record.link" :href="record.link" target="_blank" rel="noopener noreferrer">🎬</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p v-else>Рекордов пока нет.</p>
-                </div>
-                <div v-else style="padding: 1rem;">
-                    <p>Выберите уровень из списка слева.</p>
-                </div>
-            </div>
-
-            <!-- 3. ПРАВАЯ КОЛОНКА: ИНФО И ПРАВИЛА -->
-            <div class="meta-container">
-                <div class="meta">
-                    <div class="inner">
-                        <h3>Правила Demonlist</h3>
-                        <p>1. Прохождение должно быть полностью записано на видео.</p>
-                        <p>2. Обязателен слышимый звук игры или кликов.</p>
-                        <p>3. На видео должен присутствовать счётчик FPS/TPS.</p>
-                    </div>
-                </div>
+                <h3>Пройденные уровни ({{ currentPlayer.records.length }})</h3>
+                <ul class="player-records-list">
+                    <li v-for="rec in currentPlayer.records" :key="rec.levelName">
+                        <span class="level-rank">#{{ rec.rank }}</span>
+                        <span class="level-name">{{ rec.levelName }}</span>
+                        <span class="level-percent">{{ rec.percent }}%</span>
+                    </li>
+                </ul>
             </div>
         </main>
     `,
 
     data: () => ({
-        list: [],
+        players: [],
         selected: 0,
         loading: true
     }),
 
     computed: {
-        currentLevel() {
-            if (!this.list || !this.list[this.selected]) return null;
-            return this.list[this.selected][0];
-        },
-
-        embedUrl() {
-            if (!this.currentLevel) return null;
-            const link = this.currentLevel.verification || this.currentLevel.showcase;
-            if (!link) return null;
-
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = String(link).match(regExp);
-            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+        currentPlayer() {
+            if (!this.players || !this.players[this.selected]) return null;
+            return this.players[this.selected];
         }
     },
 
     async mounted() {
         try {
             this.loading = true;
-            const res = await fetchList();
-            this.list = Array.isArray(res) ? res : [];
+            // Вызываем правильную функцию подсчета из content.js
+            const res = await fetchLeaderboard();
+            this.players = Array.isArray(res) ? res : [];
         } catch (e) {
-            console.error("Ошибка при загрузке списка:", e);
-            this.list = [];
+            console.error("Ошибка при загрузке лидерборда:", e);
+            this.players = [];
         } finally {
             this.loading = false;
         }
     },
 
     methods: {
-        getAuthorText(level) {
-            if (!level) return "Unknown";
-            if (Array.isArray(level.creators) && level.creators.length > 0) {
-                return level.creators.join(", ");
-            }
-            return level.author || "Unknown";
-        },
-
-        calculateScore(rank, percent, minPercent) {
-            try {
-                if (typeof score === "function") {
-                    const res = score(rank, percent, minPercent || 100);
-                    if (res !== undefined && !isNaN(res)) return Math.round(res);
-                }
-            } catch (err) {
-                // Игнорируем ошибку внешней функции
-            }
-            return percent === 100 ? Math.max(100 - rank, 10) : 0;
+        // Преобразует двухбуквенный код страны (RU, UA, US и т.д.) в смайлик флага
+        getFlagEmoji(countryCode) {
+            if (!countryCode || countryCode.length !== 2) return '';
+            const codePoints = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 127397 + char.charCodeAt(0));
+            return String.fromCodePoint(...codePoints);
         }
     }
 };
