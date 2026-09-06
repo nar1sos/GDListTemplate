@@ -1,5 +1,6 @@
 import { score } from "./score.js";
 
+// Безопасный подсчет очков
 function getSafeScore(rank, percent, minPercent) {
     try {
         if (typeof score === 'function') {
@@ -14,7 +15,6 @@ function getSafeScore(rank, percent, minPercent) {
 
 /**
  * Загружает список уровней из _list.json
- * Возвращает массив парами: [levelData, rankIndex]
  */
 export async function fetchList() {
     try {
@@ -49,7 +49,7 @@ export async function fetchList() {
 }
 
 /**
- * Загружает список редакторов
+ * Загружает список редакторов из _editors.json
  */
 export async function fetchEditors() {
     try {
@@ -57,12 +57,13 @@ export async function fetchEditors() {
         if (!response.ok) return [];
         return await response.json();
     } catch (e) {
+        console.error("Ошибка загрузки /data/_editors.json:", e);
         return [];
     }
 }
 
 /**
- * Собирает лидерборд
+ * Собирает лидерборд игроков
  */
 export async function fetchLeaderboard() {
     const list = await fetchList();
