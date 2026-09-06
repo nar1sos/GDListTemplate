@@ -2,17 +2,16 @@ import { fetchLeaderboard } from "../content.js";
 
 export default {
     template: `
-        <main v-if="loading" class="gdl-loading">
+        <main v-if="loading">
             <div class="spinner">
                 <p>Загрузка лидерборда...</p>
             </div>
         </main>
 
-        <main v-else class="page-leaderboard">
+        <main v-else class="page-leaderboard-container">
+            <!-- Таблица лидирующих игроков -->
             <div class="board-container">
-                <h1>Топ Игроков</h1>
-
-                <table class="leaderboard-table" v-if="players && players.length">
+                <table class="board">
                     <thead>
                         <tr>
                             <th class="rank">#</th>
@@ -32,8 +31,8 @@ export default {
                                 <p class="type-label-lg">#{{ i + 1 }}</p>
                             </td>
                             <td class="user">
-                                <div class="user-info">
-                                    <img v-if="player.avatar" :src="player.avatar" class="avatar" alt="avatar" />
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <img v-if="player.avatar" :src="player.avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" alt="avatar" />
                                     <span v-if="player.nationality" class="flag">{{ getFlagEmoji(player.nationality) }}</span>
                                     <span class="type-label-lg">{{ player.user }}</span>
                                 </div>
@@ -47,23 +46,41 @@ export default {
                         </tr>
                     </tbody>
                 </table>
-                <p v-else style="padding: 1rem;">Лидерборд пуст или данные не загрузились.</p>
             </div>
 
-            <!-- Правая панель с подробностями выбранного игрока -->
-            <div class="player-details" v-if="currentPlayer">
-                <h2>{{ currentPlayer.user }}</h2>
-                <p>Всего очков: <strong>{{ Math.round(currentPlayer.totalScore) }}</strong></p>
-                <p v-if="currentPlayer.hardest">Самый сложный: <strong>{{ currentPlayer.hardest }}</strong> (#{{ currentPlayer.hardestRank }})</p>
+            <!-- Правая панель информации о выбранном игроке -->
+            <div class="player-container">
+                <div class="player" v-if="currentPlayer">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <img v-if="currentPlayer.avatar" :src="currentPlayer.avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" alt="avatar" />
+                        <h1>{{ currentPlayer.user }}</h1>
+                    </div>
 
-                <h3>Пройденные уровни ({{ currentPlayer.records.length }})</h3>
-                <ul class="player-records-list">
-                    <li v-for="rec in currentPlayer.records" :key="rec.levelName">
-                        <span class="level-rank">#{{ rec.rank }}</span>
-                        <span class="level-name">{{ rec.levelName }}</span>
-                        <span class="level-percent">{{ rec.percent }}%</span>
-                    </li>
-                </ul>
+                    <p class="type-label-md">Всего очков: <strong>{{ Math.round(currentPlayer.totalScore) }}</strong></p>
+                    <p class="type-label-md" v-if="currentPlayer.hardest">
+                        Самый сложный демон: <strong>{{ currentPlayer.hardest }}</strong> (#{{ currentPlayer.hardestRank }})
+                    </p>
+
+                    <h2>Пройденные уровни ({{ currentPlayer.records.length }})</h2>
+                    <table class="records" v-if="currentPlayer.records && currentPlayer.records.length">
+                        <tbody>
+                            <tr v-for="rec in currentPlayer.records" :key="rec.levelName">
+                                <td class="rank">
+                                    <p>#{{ rec.rank }}</p>
+                                </td>
+                                <td class="level">
+                                    <p>{{ rec.levelName }}</p>
+                                </td>
+                                <td class="percent">
+                                    <p>{{ rec.percent }}%</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-else style="padding: 1rem;">
+                    <p>Выберите игрока из списка.</p>
+                </div>
             </div>
         </main>
     `,
@@ -87,7 +104,7 @@ export default {
             const res = await fetchLeaderboard();
             this.players = Array.isArray(res) ? res : [];
         } catch (e) {
-            console.error("Ошибка при загрузке лидерборда:", e);
+            console.error("Ошибка при загрузке лидерборда GDL:", e);
             this.players = [];
         } finally {
             this.loading = false;
