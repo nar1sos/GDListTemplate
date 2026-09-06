@@ -261,9 +261,9 @@ const styles = `
     font-weight: 800;
 }
 
-/* --- СТИЛИ ДЛЯ VERIFIED КАРТОЧКИ (КАК НА СКРИНШОТЕ) --- */
+/* VERIFIED КАРТОЧКА */
 .verified-card {
-    background: #122125; /* Темный зеленовато-синий фон подложки */
+    background: #122125;
     border-radius: 12px;
     padding: 20px 24px;
     display: flex;
@@ -302,8 +302,8 @@ const styles = `
 }
 
 .verified-level-pill {
-    background: #0e171b; /* Почти черный/темный центр кнопки */
-    border: 1.5px solid #1ba36a; /* Яркая зеленая рамка */
+    background: #0e171b;
+    border: 1.5px solid #1ba36a;
     color: #d1e2e5;
     padding: 6px 14px;
     border-radius: 10px;
@@ -408,7 +408,34 @@ export default {
                     <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
-                <!-- ВЕРИФИЦИРОВАННЫЕ УРОВНИ (ЗЕЛЕНАЯ ПОДЛОЖКА КАК НА СКРИНШОТЕ) -->
+                <!-- 1. MAIN LEVELS (100%) -->
+                <div class="section-levels" v-if="mainLevels.length">
+                    <div class="section-top">
+                        <span class="title">★ Main levels</span>
+                        <span class="count-badge">{{ mainLevels.length }}</span>
+                    </div>
+                    <div class="pills-grid">
+                        <div v-for="rec in mainLevels" :key="rec.levelName" class="level-pill">
+                            {{ rec.levelName }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PROGRESSES (МЕНЬШЕ 100%) -->
+                <div class="section-levels" v-if="progressLevels.length">
+                    <div class="section-top">
+                        <span class="title" style="color: #3b82f6;">📊 Progresses</span>
+                        <span class="count-badge">{{ progressLevels.length }}</span>
+                    </div>
+                    <div class="pills-grid">
+                        <div v-for="rec in progressLevels" :key="rec.levelName" class="level-pill">
+                            <span>{{ rec.levelName }}</span>
+                            <span class="pill-percent">({{ rec.percent }}%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. WHICH ARE VERIFIED (ПОСЛЕДНЯЯ КАТЕГОРИЯ) -->
                 <div class="verified-card" v-if="verifiedLevels.length">
                     <div class="verified-card-top">
                         <div class="verified-card-title">
@@ -423,33 +450,6 @@ export default {
                     <div class="verified-pills-grid">
                         <div v-for="lvl in verifiedLevels" :key="lvl" class="verified-level-pill">
                             {{ lvl }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 100% ПРОХОЖДЕНИЯ -->
-                <div class="section-levels" v-if="mainLevels.length">
-                    <div class="section-top">
-                        <span class="title">★ Main levels</span>
-                        <span class="count-badge">{{ mainLevels.length }}</span>
-                    </div>
-                    <div class="pills-grid">
-                        <div v-for="rec in mainLevels" :key="rec.levelName" class="level-pill">
-                            {{ rec.levelName }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ПРОГРЕССЫ (МЕНЬШЕ 100%) -->
-                <div class="section-levels" v-if="progressLevels.length">
-                    <div class="section-top">
-                        <span class="title" style="color: #3b82f6;">📊 Progresses</span>
-                        <span class="count-badge">{{ progressLevels.length }}</span>
-                    </div>
-                    <div class="pills-grid">
-                        <div v-for="rec in progressLevels" :key="rec.levelName" class="level-pill">
-                            <span>{{ rec.levelName }}</span>
-                            <span class="pill-percent">({{ rec.percent }}%)</span>
                         </div>
                     </div>
                 </div>
