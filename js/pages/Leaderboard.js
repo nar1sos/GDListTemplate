@@ -3,7 +3,19 @@ import { fetchLeaderboard } from "../content.js";
 export default {
     template: `
         <div class="gdl-wrapper">
-            <div class="leaderboard-grid">
+            
+            <!-- Загрузка -->
+            <div v-if="loading" class="no-records" style="text-align: center; padding: 40px;">
+                Загрузка лидерборда...
+            </div>
+
+            <!-- Нет данных -->
+            <div v-else-if="!leaderboard || leaderboard.length === 0" class="no-records" style="text-align: center; padding: 40px;">
+                Игроки не найдены. Проверьте файлы уровней в /data/
+            </div>
+
+            <!-- Сетка лидерборда -->
+            <div v-else class="leaderboard-grid">
                 
                 <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ИГРОКОВ) -->
                 <div class="leaderboard-list">
@@ -12,7 +24,7 @@ export default {
                         :key="user.user"
                         class="leaderboard-card"
                         :class="{ 'active': selectedUserIndex === i }"
-                        @click="selectUser(i)"
+                        @click="selectedUserIndex = i"
                     >
                         <span class="rank-num">#{{ i + 1 }}</span>
                         
@@ -96,22 +108,28 @@ export default {
     data: () => ({
         leaderboard: [],
         selectedUserIndex: 0,
+        loading: true
     }),
 
     computed: {
         selectedUser() {
-            return this.leaderboard[this.selectedUserIndex] || null;
+            if (!this.leaderboard || this.leaderboard.length === 0) return null;
+            return this.leaderboard[this.selectedUserIndex] || this.leaderboard[0];
         }
     },
 
     async mounted() {
-        this.leaderboard = await fetchLeaderboard();
+        try {
+            this.loading = true;
+            this.leaderboard = await fetchLeaderboard();
+        } catch (e) {
+            console.error("Ошибка при загрузке лидерборда:", e);
+        } finally {
+            this.loading = false;
+        }
     },
 
     methods: {
-        selectUser(index) {
-            this.selectedUserIndex = index;
-        },
         handleAvatarError(e) {
             e.target.src = 'https://i.postimg.cc/mD43TzN3/default-avatar.png';
         }
