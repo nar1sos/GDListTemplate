@@ -1,299 +1,213 @@
-/* Базовые цвета для СВЕТЛОЙ (белой) темы */
-:root {
-    --dl-bg-page: #f8fafc;
-    --dl-bg-card: #ffffff;
-    --dl-bg-hover: #f1f5f9;
-    --dl-border: #e2e8f0;
-    --dl-text: #0f172a;
-    --dl-text-muted: #64748b;
-    --dl-chip-bg: #f1f5f9;
-    --dl-primary: #2563eb;
-    --dl-primary-bg: #eff6ff;
-}
-
-/* Автоматическое переключение на ТЁМНУЮ тему, если на сайте включен класс dark или data-theme="dark" */
-[data-theme="dark"],
-.dark,
-body.dark-theme,
-html.dark {
-    --dl-bg-page: #0b0e14;
-    --dl-bg-card: #121721;
-    --dl-bg-hover: #1a2332;
-    --dl-border: #1e2638;
-    --dl-text: #f0f4f8;
-    --dl-text-muted: #8a99ad;
-    --dl-chip-bg: #18202d;
-    --dl-primary: #4b89dc;
-    --dl-primary-bg: #1f2b3e;
-}
-
-/* === Стили компонента === */
-
+/* Основной контейнер лидерборда */
 .page-leaderboard-container {
-    display: block;
-    background-color: var(--dl-bg-page);
-    color: var(--dl-text);
-    padding: 2rem 1rem;
-    font-family: system-ui, -apple-system, sans-serif;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.page-leaderboard {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: max-content 1fr;
-    gap: 1.5rem;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.error-container {
-    grid-column: 1 / -1;
+/* Левая колонка со списком */
+.board-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.error-container .error {
-    padding: 1rem;
-    background-color: #ef4444;
-    color: #ffffff;
-    border-radius: 0.5rem;
+.search-bar input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #1e2530;
+    border: 1px solid #2e3846;
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    box-sizing: border-box;
 }
 
-/* Сайдбар */
-.page-leaderboard .board-container {
-    background-color: var(--dl-bg-card);
-    border-radius: 0.75rem;
-    padding: 0.5rem;
-    border: 1px solid var(--dl-border);
-    max-height: 85vh;
+.players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 80vh;
     overflow-y: auto;
 }
 
-.board-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.board-item {
+.player-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    padding: 10px 14px;
+    background: #181f2a;
+    border: 1px solid transparent;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.15s ease;
-    user-select: none;
+    transition: all 0.2s ease;
 }
 
-.board-item:hover {
-    background-color: var(--dl-bg-hover);
+.player-item:hover {
+    background: #222c3c;
 }
 
-.board-item.active {
-    background-color: var(--dl-primary-bg);
-    border: 1px solid var(--dl-primary);
+.player-item.active {
+    background: #222c3c;
+    border-color: #4a6fa5;
 }
 
-.board-item .rank-label {
-    font-weight: 700;
-    color: var(--dl-primary);
-    width: 3.5rem;
-    font-size: 0.9rem;
+.player-rank {
+    font-weight: bold;
+    color: #4a6fa5;
+    width: 35px;
 }
 
-.board-item .user-name {
-    flex: 1;
-    font-weight: 600;
-    color: var(--dl-text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.board-item .total-score {
-    font-size: 0.85rem;
-    color: var(--dl-text-muted);
+.player-name {
+    flex-grow: 1;
     font-weight: 500;
 }
 
-/* Профиль */
-.page-leaderboard .player-container {
-    background-color: var(--dl-bg-card);
-    border-radius: 0.75rem;
-    padding: 2rem;
-    border: 1px solid var(--dl-border);
+.player-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.player-profile {
+.player-score {
+    color: #8a99ad;
+    font-size: 0.9em;
+}
+
+.avatar-small {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Правая колонка с карточками */
+.board-main {
+    flex-grow: 1;
+    background: #181f2a;
+    border: 1px solid #283243;
+    border-radius: 12px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 20px;
 }
 
+/* Шапка профиля */
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 0.5rem;
+    gap: 16px;
 }
 
-.profile-avatar {
-    width: 48px;
-    height: 48px;
-    background-color: var(--dl-bg-hover);
+.avatar-large {
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
+    object-fit: cover;
 }
 
-.profile-name {
-    font-size: 1.75rem;
-    font-weight: 700;
+.profile-header h2 {
     margin: 0;
-    color: var(--dl-text);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
+/* Карточки Rank и Score */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 12px;
 }
 
 .stat-card {
-    background-color: var(--dl-chip-bg);
-    border-radius: 0.6rem;
-    padding: 1.25rem 1.5rem;
+    background: #1e2736;
+    border: 1px solid #2c384c;
+    border-radius: 10px;
+    padding: 16px;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    border: 1px solid var(--dl-border);
+    gap: 14px;
 }
 
 .stat-icon {
     font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    background-color: var(--dl-bg-card);
-    border-radius: 0.5rem;
 }
-
-.trophy-icon { color: #e5a93c; }
-.score-icon { color: #4a90e2; }
 
 .stat-value {
     font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--dl-text);
-    line-height: 1.2;
+    font-weight: bold;
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: var(--dl-text-muted);
+    color: #8a99ad;
 }
 
+/* Блок Hardest Level */
 .hardest-card {
-    background-color: var(--dl-chip-bg);
-    border: 1px solid rgba(255, 118, 77, 0.4);
-    border-radius: 0.6rem;
-    padding: 1rem 1.25rem;
+    background: #252024;
+    border: 1px solid #4a2d33;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.hardest-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff6b6b;
+    margin-top: 4px;
+}
+
+/* Блоки с плашками уровней (Main / Extended) */
+.levels-section {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 10px;
 }
 
-.hardest-header {
+.section-header {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #ff764d;
+    gap: 8px;
 }
 
-.hardest-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.hardest-rank {
-    font-weight: 700;
-    color: #ff764d;
-    font-size: 1.1rem;
-}
-
-.hardest-title {
-    color: var(--dl-text);
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.hardest-title:hover {
-    text-decoration: underline;
-}
-
-.levels-category {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.category-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.category-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.section-title {
+    font-weight: bold;
     font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--dl-text-muted);
+    color: #c5d1e0;
 }
-
-.star-icon { color: #e55353; }
-.infinity-icon { color: #4b89dc; }
 
 .badge {
-    background-color: var(--dl-bg-hover);
-    color: var(--dl-text-muted);
+    background: #283446;
+    color: #8a99ad;
     font-size: 0.8rem;
-    padding: 0.15rem 0.6rem;
-    border-radius: 1rem;
-    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
 }
 
-.chips-container {
+.tags-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
-.level-chip {
-    background-color: var(--dl-chip-bg);
-    color: var(--dl-text);
-    border: 1px solid var(--dl-border);
-    padding: 0.4rem 0.8rem;
-    border-radius: 0.4rem;
-    font-size: 0.85rem;
-    text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+.level-tag {
+    background: #222b3a;
+    border: 1px solid #313d52;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    transition: background 0.2s ease;
 }
 
-.level-chip:hover {
-    background-color: var(--dl-bg-hover);
-    border-color: var(--dl-primary);
-}
-
-.chip-progress {
-    color: var(--dl-text-muted);
-    border-style: dashed;
+.level-tag:hover {
+    background: #2b374a;
 }
