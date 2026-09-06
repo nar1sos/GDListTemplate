@@ -67,13 +67,35 @@ export async function fetchLeaderboard() {
     list.forEach(([level, rank]) => {
         if (!level) return;
 
+        const levelName = level.name || level.path;
         const allRecords = [...(level.records || [])];
 
+        // Добавляем верификатора как игрока
         if (level.verifier) {
-            const hasVerifierRecord = allRecords.some(r => r.user === level.verifier);
+            const verifierName = level.verifier;
+            
+            if (!scoreMap[verifierName]) {
+                scoreMap[verifierName] = {
+                    user: verifierName,
+                    nationality: level.verifierNationality || level.nationality || level.country || null,
+                    avatar: level.verifierAvatar || level.avatar || null,
+                    totalScore: 0,
+                    hardest: null,
+                    hardestRank: Infinity,
+                    records: [],
+                    verified: []
+                };
+            }
+
+            // Добавляем уровень в список верифицированных
+            if (!scoreMap[verifierName].verified.includes(levelName)) {
+                scoreMap[verifierName].verified.push(levelName);
+            }
+
+            const hasVerifierRecord = allRecords.some(r => r.user === verifierName);
             if (!hasVerifierRecord) {
                 allRecords.push({
-                    user: level.verifier,
+                    user: verifierName,
                     percent: 100,
                     nationality: level.verifierNationality || level.nationality || level.country || null,
                     avatar: level.verifierAvatar || level.avatar || null
@@ -97,6 +119,7 @@ export async function fetchLeaderboard() {
                     hardest: null,
                     hardestRank: Infinity,
                     records: [],
+                    verified: []
                 };
             }
 
@@ -113,14 +136,14 @@ export async function fetchLeaderboard() {
             if (Number(record.percent) === 100) {
                 if (rank < scoreMap[user].hardestRank) {
                     scoreMap[user].hardestRank = rank;
-                    scoreMap[user].hardest = level.name || level.path;
+                    scoreMap[user].hardest = levelName;
                 }
             }
 
-            const alreadyHasLevel = scoreMap[user].records.some(r => r.levelName === (level.name || level.path));
+            const alreadyHasLevel = scoreMap[user].records.some(r => r.levelName === levelName);
             if (!alreadyHasLevel) {
                 scoreMap[user].records.push({
-                    levelName: level.name || level.path,
+                    levelName: levelName,
                     percent: Number(record.percent),
                     rank: rank
                 });
