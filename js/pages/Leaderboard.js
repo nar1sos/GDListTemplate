@@ -1,5 +1,264 @@
 import { fetchLeaderboard } from "../content.js";
 
+const styles = `
+.leaderboard-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 24px;
+    padding: 24px 32px;
+    width: 100%;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #ffffff;
+}
+
+.sidebar-list {
+    width: 380px;
+    flex-shrink: 0;
+    background: #0f141d;
+    border: 1px solid #1a2233;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: fit-content;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #131924;
+    cursor: pointer;
+    font-size: 1.05rem;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.sidebar-item:hover {
+    background: #1a2333;
+}
+
+.sidebar-item.active {
+    background: #1a253b;
+    border: 1px solid #283754;
+}
+
+.rank-num {
+    color: #3b82f6;
+    font-size: 0.95rem;
+    font-weight: 700;
+    width: 38px;
+}
+
+.user-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #202b3d;
+    flex-shrink: 0;
+}
+
+.flag-img-mini {
+    width: 22px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.user-block .username {
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.user-score {
+    color: #8b9bb4;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.profile-card {
+    flex-grow: 1;
+    background: #0f141d;
+    border: 1px solid #1a2233;
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.profile-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-large {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #283754;
+    flex-shrink: 0;
+}
+
+.flag-img-large {
+    width: 38px;
+    height: 26px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    box-shadow: 0 0 4px rgba(0,0,0,0.6);
+}
+
+.profile-title h1 {
+    margin: 0;
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.grid-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.card-stat {
+    background: #131926;
+    border: 1px solid #1e283d;
+    border-radius: 12px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.card-stat .icon {
+    font-size: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-stat .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-stat .val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+}
+
+.card-stat .lbl {
+    font-size: 0.85rem;
+    color: #5d739c;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-top: 6px;
+}
+
+.card-hardest {
+    background: #131926;
+    border: 1px solid #3d2325;
+    border-radius: 12px;
+    padding: 20px 24px;
+}
+
+.hardest-title {
+    color: #ff5252;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hardest-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-top: 8px;
+}
+
+.section-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-top .title {
+    color: #ff5252;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.count-badge {
+    background: #1a2336;
+    color: #627ca8;
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.pills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.level-pill {
+    background: #141c2e;
+    border: 1px solid #202d4a;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    transition: background 0.15s ease;
+}
+
+.level-pill:hover {
+    background: #1c2740;
+}
+`;
+
+if (!document.getElementById("leaderboard-styles-wide")) {
+    const styleSheet = document.createElement("style");
+    styleSheet.id = "leaderboard-styles-wide";
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+}
+
 export default {
     template: `
         <main v-if="loading" class="gdl-loading">
@@ -7,7 +266,7 @@ export default {
         </main>
 
         <main v-else class="leaderboard-wrapper">
-            <!-- СПИСОК ИГРОКОВ СПРАВА -->
+            <!-- СПИСОК ИГРОКОВ (СПРАВА) -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, i) in players" 
@@ -18,6 +277,7 @@ export default {
                 >
                     <span class="rank-num">#{{ i + 1 }}</span>
                     <div class="user-block">
+                        <!-- Иконка аватарки -->
                         <img 
                             v-if="player.avatar" 
                             :src="player.avatar" 
@@ -25,13 +285,13 @@ export default {
                             @error="$event.target.style.display='none'"
                         />
                         
-                        <!-- Отображение флага -->
+                        <!-- Картинка флага по коду страны -->
                         <img 
-                            v-if="isUrl(player.nationality)" 
-                            :src="player.nationality" 
+                            v-if="player.nationality" 
+                            :src="getFlagUrl(player.nationality)" 
                             class="flag-img-mini" 
+                            @error="$event.target.style.display='none'"
                         />
-                        <span v-else-if="player.nationality" class="flag">{{ renderFlag(player.nationality) }}</span>
 
                         <span class="username">{{ player.user }}</span>
                     </div>
@@ -39,7 +299,7 @@ export default {
                 </div>
             </div>
 
-            <!-- ПРОФИЛЬ ИГРОКА СЛЕВА -->
+            <!-- ПРОФИЛЬ ИГРОКА (СЛЕВА) -->
             <div class="profile-card" v-if="currentPlayer">
                 <div class="profile-title">
                     <img 
@@ -50,11 +310,11 @@ export default {
                     />
 
                     <img 
-                        v-if="isUrl(currentPlayer.nationality)" 
-                        :src="currentPlayer.nationality" 
+                        v-if="currentPlayer.nationality" 
+                        :src="getFlagUrl(currentPlayer.nationality)" 
                         class="flag-img-large" 
+                        @error="$event.target.style.display='none'"
                     />
-                    <span v-else-if="currentPlayer.nationality" class="flag-main">{{ renderFlag(currentPlayer.nationality) }}</span>
 
                     <h1>{{ currentPlayer.user }}</h1>
                 </div>
@@ -144,20 +404,12 @@ export default {
             return parts.join(',');
         },
 
-        isUrl(str) {
-            return typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('/'));
-        },
-
-        renderFlag(country) {
-            if (!country) return '';
-            if (country.length === 2) {
-                const codePoints = country
-                    .toUpperCase()
-                    .split('')
-                    .map(char => 127397 + char.charCodeAt(0));
-                return String.fromCodePoint(...codePoints);
+        getFlagUrl(countryCode) {
+            if (!countryCode) return '';
+            if (countryCode.startsWith('http://') || countryCode.startsWith('https://')) {
+                return countryCode;
             }
-            return country;
+            return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
         }
     }
 };
