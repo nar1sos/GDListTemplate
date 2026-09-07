@@ -15,6 +15,13 @@
             "country": "ru",
             "avatar": "https://i.postimg.cc/2SkQd7HZ/E8646F9E-42CC-426A-9450-978B2EA4115A.png",
             "hz": 120
+        },
+        {
+            "user": "nar1",
+            "link": "",
+            "percent": 100,
+            "country": "ua",
+            "hz": 60
         }
     ]
 }
