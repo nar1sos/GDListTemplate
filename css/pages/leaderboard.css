@@ -1,4 +1,4 @@
-/* Контейнер в стиле Global Demon List */
+/* Основной контейнер */
 .leaderboard-container {
     display: flex;
     gap: 20px;
@@ -59,7 +59,7 @@
     line-height: 1;
 }
 
-/* Стилизация флагов */
+/* Флаги */
 .flag-img {
     width: 24px;
     height: 16px;
@@ -73,7 +73,7 @@
     height: 14px;
     object-fit: cover;
     border-radius: 2px;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 
 /* Карточки статистики */
@@ -115,7 +115,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Общие карточки секций */
+/* Секции карточек */
 .section-box {
     background: #121824;
     border: 1px solid #1b2436;
@@ -159,7 +159,7 @@
     font-weight: 700;
 }
 
-/* Плашки уровней */
+/* Сетка плашек */
 .pills-flex {
     display: flex;
     flex-wrap: wrap;
@@ -180,7 +180,7 @@
     color: #3b82f6;
 }
 
-/* ЗЕЛЕНЫЙ БЛОК "WHICH ARE VERIFIED" (В ТОЧНОСТИ КАК НА ОРИГИНАЛЕ) */
+/* ЗЕЛЕНЫЙ БЛОК "WHICH ARE VERIFIED" */
 .verified-box {
     background: rgba(16, 185, 129, 0.05) !important;
     border: 1px solid rgba(16, 185, 129, 0.25) !important;
@@ -260,10 +260,4 @@
     font-weight: 700;
     font-size: 0.88rem;
     color: #ffffff;
-}
-
-.user-score {
-    color: #94a3b8;
-    font-size: 0.82rem;
-    font-weight: 600;
 }
