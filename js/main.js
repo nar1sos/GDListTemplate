@@ -12,11 +12,15 @@ const app = Vue.createApp({
     data: () => ({ store }),
 });
 
-const router = VueRouter.createRouter({
-    history: VueRouter.createWebHashHistory(),
-    routes,
-});
-
-app.use(router);
+// Проверяем, что VueRouter существует и массив routes валиден
+if (typeof VueRouter !== 'undefined' && Array.isArray(routes)) {
+    const router = VueRouter.createRouter({
+        history: VueRouter.createWebHashHistory(),
+        routes,
+    });
+    app.use(router);
+} else {
+    console.error("Ошибка инициализации VueRouter или routes.js");
+}
 
 app.mount('#app');
