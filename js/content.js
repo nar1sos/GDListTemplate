@@ -5,7 +5,7 @@
 // 1. Загрузка списка всех демонов для листа уровней
 export async function fetchList() {
     try {
-        const listRes = await fetch('/data/list.json');
+        const listRes = await fetch('./data/list.json');
         if (!listRes.ok) return [];
         const levelNames = await listRes.json();
 
@@ -13,13 +13,18 @@ export async function fetchList() {
         const list = await Promise.all(
             levelNames.map(async (name, index) => {
                 try {
-                    const res = await fetch(`/data/${name}.json`);
+                    const res = await fetch(`./data/${name}.json`);
                     if (!res.ok) return null;
                     const data = await res.json();
                     return {
                         ...data,
                         rank: index + 1,
-                        path: name
+                        path: name,
+                        name: data.name || name,
+                        author: data.author || 'Unknown',
+                        verifier: data.verifier || 'Unknown',
+                        creators: data.creators || [],
+                        records: data.records || data.vids || []
                     };
                 } catch (e) {
                     console.warn(`Не удалось загрузить уровень: ${name}`, e);
@@ -38,7 +43,7 @@ export async function fetchList() {
 // 2. Загрузка списка эдиторов (модераторов)
 export async function fetchEditors() {
     try {
-        const res = await fetch('/data/editors.json');
+        const res = await fetch('./data/editors.json');
         if (!res.ok) return [];
         return await res.json();
     } catch (e) {
@@ -53,31 +58,31 @@ export async function fetchLeaderboard() {
         // 1. Загружаем твой ручной порядок игроков из players.json
         let playersOrder = [];
         try {
-            const playersOrderRes = await fetch('/data/players.json');
+            const playersOrderRes = await fetch('./data/players.json');
             if (playersOrderRes.ok) playersOrder = await playersOrderRes.json();
         } catch (e) {
-            console.error("Не удалось загрузить /data/players.json", e);
+            console.error("Не удалось загрузить players.json", e);
         }
 
         // 2. Загружаем кастомные профили (аватарки и флаги)
         let profiles = {};
         try {
-            const profRes = await fetch('/data/profiles.json');
+            const profRes = await fetch('./data/profiles.json');
             if (profRes.ok) profiles = await profRes.json();
         } catch (e) {}
 
-        // 3. Загружаем список уровней (с защитой от 404)
+        // 3. Загружаем список уровней
         let levelNames = [];
         try {
-            const listRes = await fetch('/data/list.json');
+            const listRes = await fetch('./data/list.json');
             if (listRes.ok) levelNames = await listRes.json();
         } catch (e) {
-            console.warn("Файл /data/list.json не найден, продолжение без уровней");
+            console.warn("Файл list.json не найден");
         }
 
         const playersMap = {};
 
-        // Инициализируем ВСЕХ игроков из players.json (даже с 0 рекордов)
+        // Инициализируем ВСЕХ игроков из players.json (включая игроков с 0 рекордов)
         playersOrder.forEach(name => {
             const key = name.toLowerCase();
             const prof = profiles[key] || profiles[name] || {};
@@ -100,7 +105,7 @@ export async function fetchLeaderboard() {
             const levelRank = i + 1;
 
             try {
-                const levelRes = await fetch(`/data/${levelName}.json`);
+                const levelRes = await fetch(`./data/${levelName}.json`);
                 if (!levelRes.ok) continue;
                 const levelData = await levelRes.json();
                 const levelPoints = levelData.points || levelData.score || 100;
@@ -130,7 +135,6 @@ export async function fetchLeaderboard() {
                     const userKey = rec.user ? rec.user.toLowerCase() : '';
                     if (!userKey) return;
 
-                    // Если игрока еще не было в карте, создаем его
                     if (!playersMap[userKey]) {
                         const prof = profiles[userKey] || {};
                         playersMap[userKey] = {
@@ -173,7 +177,7 @@ export async function fetchLeaderboard() {
             }
         }
 
-        // 5. Формируем итоговый массив СТРОГО в твоем порядке из players.json
+        // 5. Формируем итоговый массив СТРОГО по твоему порядку в players.json
         const result = [];
         const addedKeys = new Set();
 
@@ -185,7 +189,7 @@ export async function fetchLeaderboard() {
             }
         });
 
-        // Добавляем игроков, которые есть в уровнях, но отсутствуют в players.json
+        // Если в уровнях нашли кого-то, кто не указан в players.json — докидываем в конец
         Object.keys(playersMap).forEach(key => {
             if (!addedKeys.has(key)) {
                 result.push(playersMap[key]);
