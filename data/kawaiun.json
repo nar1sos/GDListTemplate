@@ -9,6 +9,11 @@
     "password": "Free Copy",
     "records": [
         {
+            "user": "L1steN",
+            "link": "",
+            "percent": 49,
+            "country": "ru",
+            "hz": 60
         }
     ]
 }
