@@ -12,9 +12,9 @@
 /* Левая часть — Профиль */
 .profile-card {
     flex: 1;
-    background: #0b0e14;
-    border: 1px solid #161c24;
-    border-radius: 14px;
+    background: #090c10;
+    border: 1px solid #161b22;
+    border-radius: 12px;
     padding: 32px;
     display: flex;
     flex-direction: column;
@@ -26,16 +26,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .avatar-ring {
     width: 110px;
     height: 110px;
     border-radius: 50%;
-    border: 3px solid #1f2937;
+    border: 3px solid #21262d;
     overflow: hidden;
-    background: #151d2a;
+    background: #161b22;
 }
 
 .profile-avatar {
@@ -47,23 +47,25 @@
 .profile-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: 10px;
 }
 
 .profile-title h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #ffffff;
     margin: 0;
+    line-height: 1;
 }
 
 /* Флаги */
 .flag-img {
-    width: 28px;
+    width: 26px;
     height: 18px;
     object-fit: cover;
-    border-radius: 3px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    border-radius: 2px;
+    display: inline-block;
 }
 
 .list-flag-img {
@@ -81,9 +83,9 @@
 }
 
 .card-stat {
-    background: #111620;
-    border: 1px solid #1c2433;
-    border-radius: 10px;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
     padding: 16px 20px;
     display: flex;
     align-items: center;
@@ -91,7 +93,7 @@
 }
 
 .stat-icon {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
 }
 
 .stat-info {
@@ -100,23 +102,22 @@
 }
 
 .stat-info .val {
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: #ffffff;
 }
 
 .stat-info .lbl {
-    font-size: 0.72rem;
-    color: #6b7280;
+    font-size: 0.7rem;
+    color: #8b949e;
     font-weight: 700;
-    letter-spacing: 0.5px;
 }
 
 /* Секции карточек */
 .section-box {
-    background: #111620;
-    border: 1px solid #1c2433;
-    border-radius: 10px;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
@@ -131,33 +132,32 @@
 
 .box-title {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.red-title { color: #f87171; }
-.blue-title { color: #60a5fa; }
-.green-title { color: #10b981; }
+.red-title { color: #ff5555; }
+.blue-title { color: #58a6ff; }
+.green-title { color: #2ea043; }
 
 .hardest-name {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #ffffff;
 }
 
-/* Счетчики элементов (Badge) */
 .badge-count {
-    background: #1b2433;
-    color: #9ca3af;
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 0.78rem;
+    background: #21262d;
+    color: #8b949e;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
-/* Сетка плашек уровней */
+/* Сетка плашек */
 .pills-flex {
     display: flex;
     flex-wrap: wrap;
@@ -165,102 +165,102 @@
 }
 
 .pill-btn {
-    background: #0b0e14;
-    border: 1px solid #283347;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.88rem;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #e5e7eb;
+    color: #c9d1d9;
 }
 
 .blue-text {
-    color: #60a5fa;
+    color: #58a6ff;
 }
 
 /* ЗЕЛЕНЫЙ БЛОК "WHICH ARE VERIFIED" */
 .verified-box {
-    background: #071915 !important;
-    border: 1px solid #0f3d32 !important;
+    background: #061a14 !important;
+    border: 1px solid #0d382c !important;
 }
 
 .green-badge {
-    background: #0d2e26 !important;
-    color: #10b981 !important;
+    background: #0d382c !important;
+    color: #2ea043 !important;
 }
 
 .check-circle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #10b981;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #2ea043;
     border-radius: 50%;
-    font-size: 10px;
-    color: #10b981;
+    font-size: 9px;
+    color: #2ea043;
 }
 
 .verified-pill {
-    background: #0a221b !important;
-    border: 1px solid #134e3f !important;
-    color: #e5e7eb !important;
+    background: #09231b !important;
+    border: 1px solid #114735 !important;
+    color: #c9d1d9 !important;
 }
 
 /* Правая колонка — Список игроков */
 .sidebar-list {
-    width: 310px;
+    width: 300px;
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
 .sidebar-item {
-    background: #0b0e14;
-    border: 1px solid #161c24;
-    border-radius: 10px;
-    padding: 12px 16px;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .sidebar-item:hover, .sidebar-item.active {
-    background: #111620;
-    border-color: #2563eb;
+    background: #161b22;
+    border-color: #388bfd;
 }
 
 .rank-num {
-    color: #3b82f6;
+    color: #58a6ff;
     font-weight: 800;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     min-width: 26px;
 }
 
 .user-block {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex: 1;
 }
 
 .list-avatar {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .username {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: #ffffff;
 }
 
 .user-score {
-    color: #9ca3af;
-    font-size: 0.85rem;
+    color: #8b949e;
+    font-size: 0.82rem;
     font-weight: 600;
 }
