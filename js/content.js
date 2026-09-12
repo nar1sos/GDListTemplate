@@ -1,14 +1,20 @@
-// Функция извлечения YouTube ID из любых ссылок или строк
-function extractYtId(urlOrId) {
+// Функция, которая достает чистый ID (например, "TaFpNLy8ZBU") из ЛЮБОЙ ссылки
+function parseYoutubeId(urlOrId) {
     if (!urlOrId) return '';
     if (typeof urlOrId !== 'string') return '';
+    
     const str = urlOrId.trim();
+    
+    // Если уже передан 11-значный ID без слэшей
     if (str.length === 11 && !str.includes('/') && !str.includes('.')) {
         return str;
     }
-    const regExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    
+    // Регулярное выражение для всех типов YouTube ссылок (youtu.be, watch?v=, embed и т.д.)
+    const regExp = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/;
     const match = str.match(regExp);
-    return (match && match[1].length === 11) ? match[1] : str;
+    
+    return (match && match[1]) ? match[1] : '';
 }
 
 // Загрузка списка уровней (_list.json)
@@ -25,11 +31,12 @@ export async function fetchList() {
                     if (!res.ok) return null;
                     const data = await res.json();
                     
-                    const rawYt = data.ytid || data.video || data.link || data.youtube || '';
+                    // Берем ссылку из любого возможного поля (verification, ytid, video, link, youtube)
+                    const rawYt = data.verification || data.ytid || data.video || data.link || data.youtube || '';
                     
                     return {
                         ...data,
-                        ytid: extractYtId(rawYt),
+                        ytid: parseYoutubeId(rawYt), // Здесь получаются чистые 11 символов ID
                         rank: index + 1,
                         path: file
                     };
@@ -64,7 +71,7 @@ export async function fetchLeaderboard() {
     try {
         const playersMap = {};
 
-        // 1. Читаем файлы игроков (добавлены exact paths из папки data)
+        // 1. Читаем файлы игроков из папки data
         const possiblePlayerFiles = [
             './data/players.json',
             './data/profiles.json',
@@ -96,7 +103,7 @@ export async function fetchLeaderboard() {
             } catch (err) {}
         }
 
-        // 2. Дополняем данными из JSON-файлов уровней
+        // 2. Сканируем уровни
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -113,7 +120,7 @@ export async function fetchLeaderboard() {
                         const levelData = await res.json();
                         const levelName = levelData.name || file;
 
-                        // Учитываем верификатора
+                        // Верификатор
                         if (levelData.verifier) {
                             const vName = levelData.verifier;
                             if (!playersMap[vName]) {
@@ -137,7 +144,7 @@ export async function fetchLeaderboard() {
                             }
                         }
 
-                        // Учитываем рекорды
+                        // Рекорды
                         if (Array.isArray(levelData.records)) {
                             for (const rec of levelData.records) {
                                 const pName = rec.user || rec.name || rec.username;
@@ -147,10 +154,13 @@ export async function fetchLeaderboard() {
                                     playersMap[pName] = {
                                         user: pName,
                                         country: rec.country || rec.nationality || rec.nation || null,
+                                        avatar: rec.avatar || null,
                                         verified: [],
                                         records: [],
                                         score: 0
                                     };
+                                } else if (!playersMap[pName].avatar && rec.avatar) {
+                                    playersMap[pName].avatar = rec.avatar;
                                 }
 
                                 const existsInRecords = playersMap[pName].records.some(
@@ -174,7 +184,7 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Расчет очков и сортировка
+        // 3. Расчет очков
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
