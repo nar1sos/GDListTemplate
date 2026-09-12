@@ -1,8 +1,8 @@
 import { fetchLeaderboard } from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// Карта стран для обработки любых форматов из JSON
-const COUNTRY_MAP = {
+// Карта стран для конвертации имён или кодов
+const COUNTRY_CODES = {
     'russia': 'ru', 'russian': 'ru', 'россия': 'ru', 'ru': 'ru',
     'ukraine': 'ua', 'ukrainian': 'ua', 'украина': 'ua', 'ua': 'ua',
     'kazakhstan': 'kz', 'казахстан': 'kz', 'kz': 'kz',
@@ -32,8 +32,8 @@ export default {
                     </div>
                     <div class="profile-title">
                         <img 
-                            v-if="getPlayerNationality(selectedPlayer)" 
-                            :src="getFlagUrl(getPlayerNationality(selectedPlayer))" 
+                            v-if="getPlayerFlag(selectedPlayer)" 
+                            :src="getPlayerFlag(selectedPlayer)" 
                             class="flag-img" 
                             @error="onFlagError"
                         />
@@ -146,8 +146,8 @@ export default {
                             @error="onAvatarError"
                         />
                         <img 
-                            v-if="getPlayerNationality(player)" 
-                            :src="getFlagUrl(getPlayerNationality(player))" 
+                            v-if="getPlayerFlag(player)" 
+                            :src="getPlayerFlag(player)" 
                             class="list-flag-img" 
                             @error="onFlagError"
                         />
@@ -209,28 +209,39 @@ export default {
             if (score === undefined || score === null) return '0';
             return Math.round(Number(score)).toLocaleString('ru-RU');
         },
-        getPlayerNationality(player) {
+        getPlayerFlag(player) {
             if (!player) return null;
-            return player.nationality || player.nation || player.country || null;
+
+            // Поиск кода страны в объекте или его внутренних записях
+            let rawNation = player.nationality || player.nation || player.country;
+            
+            if (!rawNation && player.records && player.records.length > 0) {
+                const rec = player.records.find(r => r.nationality || r.nation || r.country);
+                if (rec) rawNation = rec.nationality || rec.nation || rec.country;
+            }
+
+            if (!rawNation) return null;
+
+            let str = String(rawNation).trim().toLowerCase();
+            let code = COUNTRY_CODES[str] || str;
+
+            // Если передана полная ссылка на картинку
+            if (code.startsWith('http') || code.startsWith('/')) {
+                return rawNation;
+            }
+
+            // Извлечение чистого 2-буквенного кода (например, 'ru')
+            if (code.length >= 2) {
+                code = code.substring(0, 2);
+                return `https://flagcdn.com/w40/${code}.png`;
+            }
+
+            return null;
         },
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
             if (player?.icon) return player.icon;
             return `https://github.com/${player?.user}.png`;
-        },
-        getFlagUrl(nationality) {
-            if (!nationality) return '';
-            let raw = String(nationality).trim().toLowerCase();
-            
-            let code = COUNTRY_MAP[raw] || raw;
-            
-            if (code.length === 2) {
-                return `https://flagcdn.com/w40/${code}.png`;
-            }
-            if (code.startsWith('http') || code.startsWith('/')) {
-                return nationality;
-            }
-            return `https://flagcdn.com/w40/${code}.png`;
         },
         onAvatarError(e) {
             e.target.src = this.defaultAvatar;
