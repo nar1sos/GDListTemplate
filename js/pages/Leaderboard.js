@@ -49,7 +49,8 @@ export default {
                         🔥 Hardest level
                     </div>
                     <div class="hardest-name">
-                        #{{ selectedPlayer.hardestRank || 1 }} {{ selectedPlayer.hardest }}
+                        <!-- ЗДЕСЬ УБРАНА РЕШЁТКА, чтобы выводился формат "1 Astrahell" -->
+                        {{ selectedPlayer.hardestRank || 1 }} {{ selectedPlayer.hardest }}
                     </div>
                 </div>
 
