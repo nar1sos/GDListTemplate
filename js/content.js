@@ -5,7 +5,7 @@
 // 1. Загрузка списка всех демонов для листа уровней
 export async function fetchList() {
     try {
-        const listRes = await fetch('/data/list.json');
+        const listRes = await fetch('./data/_list.json'); // Изменено на _list.json
         if (!listRes.ok) return [];
         const levelNames = await listRes.json();
 
@@ -13,7 +13,7 @@ export async function fetchList() {
         const list = await Promise.all(
             levelNames.map(async (name, index) => {
                 try {
-                    const res = await fetch(`/data/${name}.json`);
+                    const res = await fetch(`./data/${name}.json`);
                     if (!res.ok) return null;
                     const data = await res.json();
                     return {
@@ -43,46 +43,42 @@ export async function fetchList() {
 // 2. Загрузка списка эдиторов (модераторов)
 export async function fetchEditors() {
     try {
-        const res = await fetch('/data/editors.json');
+        const res = await fetch('./data/_editors.json'); // Изменено на _editors.json
         if (!res.ok) return [];
         return await res.json();
     } catch (e) {
-        console.warn("Файл /data/editors.json не найден");
+        console.warn("Файл ./data/_editors.json не найден");
         return [];
     }
 }
 
-// 3. Загрузка лидерборда игроков (порядок СТРОГО из players.json)
+// 3. Загрузка лидерборда игроков
 export async function fetchLeaderboard() {
     try {
-        // 1. Загружаем ручной порядок игроков из players.json
         let playersOrder = [];
         try {
-            const playersOrderRes = await fetch('/data/players.json');
+            const playersOrderRes = await fetch('./data/players.json');
             if (playersOrderRes.ok) playersOrder = await playersOrderRes.json();
         } catch (e) {
-            console.error("Не удалось загрузить /data/players.json", e);
+            console.error("Не удалось загрузить ./data/players.json", e);
         }
 
-        // 2. Загружаем профили (аватарки и флаги)
         let profiles = {};
         try {
-            const profRes = await fetch('/data/profiles.json');
+            const profRes = await fetch('./data/profiles.json');
             if (profRes.ok) profiles = await profRes.json();
         } catch (e) {}
 
-        // 3. Загружаем список уровней
         let levelNames = [];
         try {
-            const listRes = await fetch('/data/list.json');
+            const listRes = await fetch('./data/_list.json'); // Изменено на _list.json
             if (listRes.ok) levelNames = await listRes.json();
         } catch (e) {
-            console.warn("Файл /data/list.json не найден");
+            console.warn("Файл ./data/_list.json не найден");
         }
 
         const playersMap = {};
 
-        // Инициализируем ВСЕХ игроков из players.json (даже с 0 рекордов)
         playersOrder.forEach(name => {
             const key = name.toLowerCase();
             const prof = profiles[key] || profiles[name] || {};
@@ -99,18 +95,16 @@ export async function fetchLeaderboard() {
             };
         });
 
-        // 4. Сканируем файлы уровней и привязываем рекорды к игрокам
         for (let i = 0; i < levelNames.length; i++) {
             const levelName = levelNames[i];
             const levelRank = i + 1;
 
             try {
-                const levelRes = await fetch(`/data/${levelName}.json`);
+                const levelRes = await fetch(`./data/${levelName}.json`);
                 if (!levelRes.ok) continue;
                 const levelData = await levelRes.json();
                 const levelPoints = levelData.points || levelData.score || 100;
 
-                // --- Верификатор ---
                 if (levelData.verifier) {
                     const verifierKey = levelData.verifier.toLowerCase();
                     if (!playersMap[verifierKey]) {
@@ -129,7 +123,6 @@ export async function fetchLeaderboard() {
                     playersMap[verifierKey].verified.push(levelData.name || levelName);
                 }
 
-                // --- Рекорды ---
                 const recordsList = levelData.records || levelData.vids || [];
                 recordsList.forEach(rec => {
                     const userKey = rec.user ? rec.user.toLowerCase() : '';
@@ -177,7 +170,6 @@ export async function fetchLeaderboard() {
             }
         }
 
-        // 5. Формируем итоговый массив СТРОГО в порядке из players.json
         const result = [];
         const addedKeys = new Set();
 
@@ -189,7 +181,6 @@ export async function fetchLeaderboard() {
             }
         });
 
-        // Игроки из уровней, которых нет в players.json — в конец
         Object.keys(playersMap).forEach(key => {
             if (!addedKeys.has(key)) {
                 result.push(playersMap[key]);
