@@ -144,7 +144,7 @@ export async function fetchLeaderboard() {
                         const levelData = await res.json();
                         const levelName = levelData.name || file;
 
-                        // Верификатор
+                        // Верификатор (всегда 100%)
                         if (levelData.verifier) {
                             const pObj = registerPlayer(levelData.verifier, {
                                 country: levelData.verifierCountry || levelData.country
@@ -198,14 +198,14 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (наименьший rank)
+        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (ТОЛЬКО 100% ПРОХОЖДЕНИЯ)
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
             let total = p.score || 0;
             let hardestItem = null;
 
-            // Обработка пройденных / верифицированных уровней
+            // Верифицированные уровни (100%)
             if (Array.isArray(p.verified)) {
                 p.verified.forEach(v => {
                     const pts = typeof v === 'object' && v.pts ? v.pts : 50;
@@ -219,25 +219,30 @@ export async function fetchLeaderboard() {
                 });
             }
 
-            // Обработка рекордов
+            // Рекорды (фильтруем: ТОЛЬКО 100%)
             if (Array.isArray(p.records)) {
                 p.records.forEach(r => {
                     const pts = typeof r === 'object' && r.pts ? r.pts : 10;
                     const rank = typeof r === 'object' && r.rank ? r.rank : 999;
                     const levelName = typeof r === 'object' ? r.levelName : r;
+                    const percent = typeof r === 'object' && r.percent !== undefined ? r.percent : 100;
+
                     total += pts;
 
-                    if (!hardestItem || rank < hardestItem.rank) {
-                        hardestItem = { levelName, rank };
+                    // Учитываем в Hardest ТОЛЬКО если 100%
+                    if (percent === 100) {
+                        if (!hardestItem || rank < hardestItem.rank) {
+                            hardestItem = { levelName, rank };
+                        }
                     }
                 });
             }
 
             p.totalScore = total;
 
-            // Форматируем корректное отображение ранга (например "#5 Just give up")
+            // Форматируем без встроенной решётки (выдаёт формат "1 Astrahell")
             if (hardestItem) {
-                p.hardest = `#${hardestItem.rank} ${hardestItem.levelName}`;
+                p.hardest = `${hardestItem.rank} ${hardestItem.levelName}`;
             } else {
                 p.hardest = 'None';
             }
