@@ -1,7 +1,53 @@
-// Функция загрузки лидерборда с переносом страны (country) из уровней к игроку
+// Функция загрузки списка уровней для главной страницы (List.js)
+export async function fetchList() {
+    try {
+        const listReq = await fetch('./data/_list.json');
+        const levelFiles = await listReq.json();
+
+        const levels = await Promise.all(
+            levelFiles.map(async (file, index) => {
+                try {
+                    const res = await fetch(`./data/${file}.json`);
+                    const data = await res.json();
+                    return {
+                        rank: index + 1,
+                        name: data.name || file,
+                        author: data.author || "Unknown",
+                        verifier: data.verifier || "Unknown",
+                        ytid: data.ytid || "",
+                        percentToQualify: data.percentToQualify || 100,
+                        records: data.records || [],
+                        path: file
+                    };
+                } catch (e) {
+                    console.error(`Ошибка чтения файла уровня ${file}:`, e);
+                    return null;
+                }
+            })
+        );
+
+        return levels.filter(lvl => lvl !== null);
+    } catch (e) {
+        console.error("Ошибка загрузки _list.json:", e);
+        return [];
+    }
+}
+
+// Функция загрузки списка редакторов/модераторов (List.js / Routers)
+export async function fetchEditors() {
+    try {
+        const res = await fetch('./data/_editors.json');
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        console.warn("Файл _editors.json не найден или пуст.");
+        return [];
+    }
+}
+
+// Функция сборки лидерборда с переносом страны (country) из уровней к игроку
 export async function fetchLeaderboard() {
     try {
-        // Загружаем список всех файлов уровней из /data/_list.json или напрямую
         const listReq = await fetch('./data/_list.json');
         const levelFiles = await listReq.json();
 
@@ -45,12 +91,10 @@ export async function fetchLeaderboard() {
                             };
                         }
 
-                        // Сохраняем страну, если она есть в рекорде
                         if (!playersMap[pName].country && (rec.country || rec.nationality || rec.nation)) {
                             playersMap[pName].country = rec.country || rec.nationality || rec.nation;
                         }
 
-                        // Сохраняем аватар, если есть
                         if (!playersMap[pName].avatar && rec.avatar) {
                             playersMap[pName].avatar = rec.avatar;
                         }
@@ -59,7 +103,8 @@ export async function fetchLeaderboard() {
                             levelName: levelData.name || file,
                             percent: rec.percent || 100,
                             hz: rec.hz || 60,
-                            link: rec.link || ''
+                            link: rec.link || '',
+                            country: rec.country || rec.nationality || rec.nation || null
                         });
                     }
                 }
@@ -68,17 +113,14 @@ export async function fetchLeaderboard() {
             }
         }
 
-        // Преобразуем объект в массив и сортируем
         const leaderboard = Object.values(playersMap);
 
-        // Пример простейшей сортировки: по количеству рекордов + верификаций
         leaderboard.sort((a, b) => {
             const scoreA = (a.verified ? a.verified.length * 2 : 0) + (a.records ? a.records.length : 0);
             const scoreB = (b.verified ? b.verified.length * 2 : 0) + (b.records ? b.records.length : 0);
             return scoreB - scoreA;
         });
 
-        // Назначаем hardest уровень для каждого
         leaderboard.forEach(p => {
             if (p.verified && p.verified.length > 0) {
                 p.hardest = p.verified[0];
