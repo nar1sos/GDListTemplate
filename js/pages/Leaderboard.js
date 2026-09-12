@@ -1,523 +1,162 @@
 import { fetchLeaderboard } from "../content.js";
-
-const styles = `
-.leaderboard-wrapper {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 24px;
-    padding: 24px 32px;
-    width: 100%;
-    min-height: calc(100vh - 80px);
-    box-sizing: border-box;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #ffffff;
-}
-
-.sidebar-list {
-    width: 380px;
-    flex-shrink: 0;
-    background: #0f141d;
-    border: 1px solid #1a2233;
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    height: fit-content;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    border-radius: 8px;
-    background: #131924;
-    cursor: pointer;
-    font-size: 1.05rem;
-    transition: all 0.15s ease;
-    border: 1px solid transparent;
-}
-
-.sidebar-item:hover {
-    background: #1a2333;
-}
-
-.sidebar-item.active {
-    background: #1a253b;
-    border: 1px solid #283754;
-}
-
-.rank-num {
-    color: #3b82f6;
-    font-size: 0.95rem;
-    font-weight: 700;
-    width: 38px;
-}
-
-.user-block {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-grow: 1;
-}
-
-.avatar-mini {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #202b3d;
-    flex-shrink: 0;
-}
-
-.flag-img-mini {
-    width: 22px;
-    height: 15px;
-    object-fit: cover;
-    border-radius: 2px;
-    flex-shrink: 0;
-    box-shadow: 0 0 2px rgba(0,0,0,0.5);
-}
-
-.user-block .username {
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.user-score {
-    color: #8b9bb4;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.profile-card {
-    flex-grow: 1;
-    background: #0f141d;
-    border: 1px solid #1a2233;
-    border-radius: 12px;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-}
-
-.profile-title {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.avatar-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #283754;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    flex-shrink: 0;
-}
-
-.flag-img-large {
-    width: 38px;
-    height: 26px;
-    object-fit: cover;
-    border-radius: 4px;
-    flex-shrink: 0;
-    box-shadow: 0 0 4px rgba(0,0,0,0.6);
-}
-
-.profile-title h1 {
-    margin: 0;
-    font-size: 2.8rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-}
-
-.grid-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.card-stat {
-    background: #131926;
-    border: 1px solid #1e283d;
-    border-radius: 12px;
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.card-stat .icon {
-    font-size: 2.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-stat .info {
-    display: flex;
-    flex-direction: column;
-}
-
-.card-stat .val {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ffffff;
-    line-height: 1.1;
-}
-
-.card-stat .lbl {
-    font-size: 0.85rem;
-    color: #5d739c;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-top: 6px;
-}
-
-.card-hardest {
-    background: #131926;
-    border: 1px solid #3d2325;
-    border-radius: 12px;
-    padding: 20px 24px;
-}
-
-.hardest-title {
-    color: #ff5252;
-    font-size: 1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.hardest-value {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-top: 8px;
-}
-
-.section-levels {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.section-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.section-top .title {
-    color: #ff5252;
-    font-size: 1.1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.count-badge {
-    background: #1a2336;
-    color: #627ca8;
-    border-radius: 12px;
-    padding: 4px 12px;
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.pills-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.level-pill {
-    background: #141c2e;
-    border: 1px solid #202d4a;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #ffffff;
-    transition: background 0.15s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.level-pill:hover {
-    background: #1c2740;
-}
-
-.pill-percent {
-    color: #3b82f6;
-    font-weight: 800;
-}
-
-.verified-card {
-    background: #122125;
-    border-radius: 12px;
-    padding: 20px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.verified-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.verified-card-title {
-    color: #20d38b;
-    font-size: 1.05rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.verified-count-badge {
-    background: #1c3237;
-    color: #9cb1b5;
-    border-radius: 12px;
-    padding: 3px 10px;
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.verified-pills-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 10px;
-}
-
-.verified-level-pill {
-    background: #0e171b;
-    border: 1.5px solid #1ba36a;
-    color: #d1e2e5;
-    padding: 6px 14px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    transition: all 0.15s ease;
-}
-
-.verified-level-pill:hover {
-    background: #142228;
-    border-color: #22c57d;
-    color: #ffffff;
-}
-`;
-
-if (!document.getElementById("leaderboard-styles-wide")) {
-    const styleSheet = document.createElement("style");
-    styleSheet.id = "leaderboard-styles-wide";
-    styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
-}
+import Spinner from "../components/Spinner.js";
 
 export default {
+    components: { Spinner },
     template: `
         <main v-if="loading" class="gdl-loading">
-            <p style="padding: 20px; text-align: center; color: #fff;">Загрузка данных...</p>
+            <Spinner></Spinner>
         </main>
+        <div v-else class="gdl-wrapper">
+            <!-- Поиск по игрокам -->
+            <div class="gdl-search-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        placeholder="Search player..." 
+                        class="gdl-input"
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">✕</button>
+                </div>
+            </div>
 
-        <main v-else class="leaderboard-wrapper">
-            <!-- СПИСОК ИГРОКОВ (СПРАВА) -->
-            <div class="sidebar-list">
-                <div 
-                    v-for="(player, i) in players" 
-                    :key="player.user"
-                    class="sidebar-item"
-                    :class="{ 'active': selectedUser === player.user }"
-                    @click="selectedUser = player.user"
-                >
-                    <span class="rank-num">#{{ i + 1 }}</span>
-                    <div class="user-block">
-                        <img 
-                            v-if="player.avatar" 
-                            :src="player.avatar" 
-                            class="avatar-mini" 
-                            @error="$event.target.style.display='none'"
-                        />
+            <div class="gdl-leaderboard-grid">
+                <!-- Слева: Список игроков -->
+                <div class="gdl-players-list">
+                    <div 
+                        v-for="(player, index) in filteredLeaderboard" 
+                        :key="player.user"
+                        class="gdl-player-card"
+                        :class="{ 'active': selectedPlayer?.user === player.user }"
+                        @click="selectedPlayer = player"
+                    >
+                        <span class="player-rank">#{{ getOriginalRank(player) }}</span>
                         
-                        <img 
-                            v-if="player.nationality" 
-                            :src="getFlagUrl(player.nationality)" 
-                            class="flag-img-mini" 
-                            @error="$event.target.style.display='none'"
-                        />
+                        <div class="player-avatar-wrapper">
+                            <img 
+                                :src="player.avatar || '/assets/no-avatar.png'" 
+                                alt="avatar" 
+                                class="player-avatar"
+                                @error="handleAvatarError"
+                            />
+                        </div>
 
-                        <span class="username">{{ player.user }}</span>
-                    </div>
-                    <span class="user-score">{{ formatScore(player.totalScore) }}</span>
-                </div>
-            </div>
-
-            <!-- ПРОФИЛЬ ИГРОКА (СЛЕВА) -->
-            <div class="profile-card" v-if="currentPlayer">
-                <div class="profile-title">
-                    <img 
-                        v-if="currentPlayer.avatar" 
-                        :src="currentPlayer.avatar" 
-                        class="avatar-large" 
-                        @error="$event.target.style.display='none'"
-                    />
-
-                    <img 
-                        v-if="currentPlayer.nationality" 
-                        :src="getFlagUrl(currentPlayer.nationality)" 
-                        class="flag-img-large" 
-                        @error="$event.target.style.display='none'"
-                    />
-
-                    <h1>{{ currentPlayer.user }}</h1>
-                </div>
-
-                <div class="grid-stats">
-                    <div class="card-stat">
-                        <span class="icon">🏆</span>
-                        <div class="info">
-                            <div class="val">#{{ currentRank }}</div>
-                            <div class="lbl">RANK</div>
+                        <div class="player-main-info">
+                            <div class="player-name-row">
+                                <span class="player-name">{{ player.user }}</span>
+                                <span v-if="player.nationality" class="player-flag" :title="player.nationality">
+                                    {{ getFlagEmoji(player.nationality) }}
+                                </span>
+                            </div>
+                            <span class="player-score">{{ player.totalScore.toFixed(2) }} pts</span>
                         </div>
                     </div>
 
-                    <div class="card-stat">
-                        <span class="icon">✦</span>
-                        <div class="info">
-                            <div class="val">{{ formatScore(currentPlayer.totalScore) }}</div>
-                            <div class="lbl">SCORE</div>
-                        </div>
+                    <div v-if="filteredLeaderboard.length === 0" class="empty-results">
+                        Игрок "{{ searchQuery }}" не найден
                     </div>
                 </div>
 
-                <div class="card-hardest" v-if="currentPlayer.hardest">
-                    <div class="hardest-title">🔥 Hardest level</div>
-                    <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
-                </div>
-
-                <!-- 1. MAIN LEVELS -->
-                <div class="section-levels" v-if="mainLevels.length">
-                    <div class="section-top">
-                        <span class="title">★ Main levels</span>
-                        <span class="count-badge">{{ mainLevels.length }}</span>
-                    </div>
-                    <div class="pills-grid">
-                        <div v-for="rec in mainLevels" :key="rec.levelName" class="level-pill">
-                            {{ rec.levelName }}
+                <!-- Справа: Карточка выбранного игрока -->
+                <div class="gdl-player-details" v-if="selectedPlayer">
+                    <div class="gdl-meta-box">
+                        <div class="details-header">
+                            <img 
+                                :src="selectedPlayer.avatar || '/assets/no-avatar.png'" 
+                                alt="avatar" 
+                                class="details-avatar"
+                                @error="handleAvatarError"
+                            />
+                            <div class="details-user-info">
+                                <h2>
+                                    {{ selectedPlayer.user }}
+                                    <span v-if="selectedPlayer.nationality" class="player-flag">
+                                        {{ getFlagEmoji(selectedPlayer.nationality) }}
+                                    </span>
+                                </h2>
+                                <p class="details-score">Total Score: <strong>{{ selectedPlayer.totalScore.toFixed(2) }} pts</strong></p>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 2. PROGRESSES -->
-                <div class="section-levels" v-if="progressLevels.length">
-                    <div class="section-top">
-                        <span class="title" style="color: #3b82f6;">📊 Progresses</span>
-                        <span class="count-badge">{{ progressLevels.length }}</span>
-                    </div>
-                    <div class="pills-grid">
-                        <div v-for="rec in progressLevels" :key="rec.levelName" class="level-pill">
-                            <span>{{ rec.levelName }}</span>
-                            <span class="pill-percent">({{ rec.percent }}%)</span>
+                        <!-- Самый сложный пройденный уровень -->
+                        <div class="details-hardest" v-if="selectedPlayer.hardest">
+                            <span class="hardest-label">Hardest Demon:</span>
+                            <span class="hardest-value">#{{ selectedPlayer.hardestRank }} — {{ selectedPlayer.hardest }}</span>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 3. WHICH ARE VERIFIED -->
-                <div class="verified-card" v-if="verifiedLevels.length">
-                    <div class="verified-card-top">
-                        <div class="verified-card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            <span>Which are verified</span>
+                        <!-- Верифицированные уровни -->
+                        <div class="details-section" v-if="selectedPlayer.verified && selectedPlayer.verified.length">
+                            <h3>Verified Demons ({{ selectedPlayer.verified.length }})</h3>
+                            <ul class="verified-list">
+                                <li v-for="lvl in selectedPlayer.verified" :key="lvl">
+                                    🏆 {{ lvl }}
+                                </li>
+                            </ul>
                         </div>
-                        <span class="verified-count-badge">{{ verifiedLevels.length }}</span>
-                    </div>
-                    <div class="verified-pills-grid">
-                        <div v-for="lvl in verifiedLevels" :key="lvl" class="verified-level-pill">
-                            {{ lvl }}
+
+                        <!-- Рекорды игрока -->
+                        <div class="details-section">
+                            <h3>Records ({{ selectedPlayer.records.length }})</h3>
+                            <div class="player-records-list" v-if="selectedPlayer.records.length">
+                                <div 
+                                    v-for="(rec, rIdx) in selectedPlayer.records" 
+                                    :key="rIdx" 
+                                    class="player-record-card"
+                                >
+                                    <span class="record-level-rank">#{{ rec.rank }}</span>
+                                    <span class="record-level-name">{{ rec.levelName }}</span>
+                                    <span class="record-percent" :class="{ 'hundred': rec.percent === 100 }">
+                                        {{ rec.percent }}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">У игрока пока нет подтвержденных рекордов</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     `,
 
     data: () => ({
-        players: [],
-        selectedUser: null,
-        loading: true
+        leaderboard: [],
+        loading: true,
+        searchQuery: "",
+        selectedPlayer: null
     }),
 
     computed: {
-        currentPlayer() {
-            if (!this.players.length) return null;
-            return this.players.find(p => p.user?.toLowerCase() === this.selectedUser?.toLowerCase()) || this.players[0];
-        },
-
-        currentRank() {
-            if (!this.currentPlayer) return 0;
-            return this.players.findIndex(p => p.user?.toLowerCase() === this.currentPlayer.user?.toLowerCase()) + 1;
-        },
-
-        verifiedLevels() {
-            if (!this.currentPlayer || !this.currentPlayer.verified) return [];
-            return this.currentPlayer.verified;
-        },
-
-        mainLevels() {
-            if (!this.currentPlayer || !this.currentPlayer.records) return [];
-            return this.currentPlayer.records.filter(r => Number(r.percent) === 100);
-        },
-
-        progressLevels() {
-            if (!this.currentPlayer || !this.currentPlayer.records) return [];
-            return this.currentPlayer.records.filter(r => Number(r.percent) < 100);
+        filteredLeaderboard() {
+            if (!this.searchQuery.trim()) return this.leaderboard;
+            const q = this.searchQuery.toLowerCase().trim();
+            return this.leaderboard.filter(p => p.user.toLowerCase().includes(q));
         }
     },
 
     async mounted() {
-        try {
-            this.loading = true;
-            const res = await fetchLeaderboard();
-            this.players = Array.isArray(res) ? res : [];
-            if (this.players.length > 0) {
-                this.selectedUser = this.players[0].user;
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки лидерборда:", e);
-            this.players = [];
-        } finally {
-            this.loading = false;
+        this.leaderboard = await fetchLeaderboard();
+        if (this.leaderboard.length > 0) {
+            this.selectedPlayer = this.leaderboard[0];
         }
+        this.loading = false;
     },
 
     methods: {
-        formatScore(val) {
-            if (!val && val !== 0) return '0';
-            const parts = Number(val).toFixed(3).split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-            return parts.join(',');
+        getOriginalRank(player) {
+            return this.leaderboard.findIndex(p => p.user === player.user) + 1;
         },
-
-        getFlagUrl(countryCode) {
-            if (!countryCode) return '';
-            if (countryCode.startsWith('http://') || countryCode.startsWith('https://')) {
-                return countryCode;
-            }
-            return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+        handleAvatarError(e) {
+            e.target.src = 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg';
+        },
+        getFlagEmoji(countryCode) {
+            if (!countryCode || countryCode.length !== 2) return countryCode || '';
+            const codePoints = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 127397 + char.charCodeAt(0));
+            return String.fromCodePoint(...codePoints);
         }
     }
 };
