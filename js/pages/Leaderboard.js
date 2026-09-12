@@ -201,7 +201,6 @@ const styles = `
     margin-top: 8px;
 }
 
-/* ОБЩИЕ СЕКЦИИ ДЛЯ СТАНДАРТНЫХ УРОВНЕЙ */
 .section-levels {
     display: flex;
     flex-direction: column;
@@ -261,7 +260,6 @@ const styles = `
     font-weight: 800;
 }
 
-/* VERIFIED КАРТОЧКА */
 .verified-card {
     background: #122125;
     border-radius: 12px;
@@ -408,7 +406,7 @@ export default {
                     <div class="hardest-value">#{{ currentPlayer.hardestRank }} {{ currentPlayer.hardest }}</div>
                 </div>
 
-                <!-- 1. MAIN LEVELS (100%) -->
+                <!-- 1. MAIN LEVELS -->
                 <div class="section-levels" v-if="mainLevels.length">
                     <div class="section-top">
                         <span class="title">★ Main levels</span>
@@ -421,7 +419,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- 2. PROGRESSES (МЕНЬШЕ 100%) -->
+                <!-- 2. PROGRESSES -->
                 <div class="section-levels" v-if="progressLevels.length">
                     <div class="section-top">
                         <span class="title" style="color: #3b82f6;">📊 Progresses</span>
@@ -435,7 +433,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- 3. WHICH ARE VERIFIED (ПОСЛЕДНЯЯ КАТЕГОРИЯ) -->
+                <!-- 3. WHICH ARE VERIFIED -->
                 <div class="verified-card" v-if="verifiedLevels.length">
                     <div class="verified-card-top">
                         <div class="verified-card-title">
@@ -466,12 +464,12 @@ export default {
     computed: {
         currentPlayer() {
             if (!this.players.length) return null;
-            return this.players.find(p => p.user === this.selectedUser) || this.players[0];
+            return this.players.find(p => p.user?.toLowerCase() === this.selectedUser?.toLowerCase()) || this.players[0];
         },
 
         currentRank() {
             if (!this.currentPlayer) return 0;
-            return this.players.findIndex(p => p.user === this.currentPlayer.user) + 1;
+            return this.players.findIndex(p => p.user?.toLowerCase() === this.currentPlayer.user?.toLowerCase()) + 1;
         },
 
         verifiedLevels() {
