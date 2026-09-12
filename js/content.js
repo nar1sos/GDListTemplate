@@ -65,7 +65,6 @@ export async function fetchLeaderboard() {
     try {
         const playersMap = {};
 
-        // Функция добавления/обновления игрока в общем списке
         const registerPlayer = (rawName, pData = {}) => {
             if (!rawName) return null;
             const name = String(rawName).trim();
@@ -81,7 +80,6 @@ export async function fetchLeaderboard() {
                     score: pData.score || pData.points || 0
                 };
             } else {
-                // Если игрок уже был создан через уровень, дополняем его данные из файла профилей
                 if (!playersMap[name].country && (pData.country || pData.nationality || pData.nation)) {
                     playersMap[name].country = pData.country || pData.nationality || pData.nation;
                 }
@@ -95,7 +93,7 @@ export async function fetchLeaderboard() {
             return playersMap[name];
         };
 
-        // 1. Читаем файлы игроков (players.json, profiles.json)
+        // 1. Читаем файлы игроков
         const possiblePlayerFiles = [
             './data/players.json',
             './data/profiles.json',
@@ -108,29 +106,17 @@ export async function fetchLeaderboard() {
                 const res = await fetch(filePath);
                 if (res.ok) {
                     const data = await res.json();
-
-                    // Вариант А: Файл это Массив [{ name: "Player1" }, ...]
                     if (Array.isArray(data)) {
-                        data.forEach(p => {
-                            const name = p.name || p.user || p.username || p.player;
-                            registerPlayer(name, p);
-                        });
-                    } 
-                    // Вариант Б: Файл это Объект со списком внутри { "players": [...] } или { "profiles": [...] }
-                    else if (typeof data === 'object' && data !== null) {
+                        data.forEach(p => registerPlayer(p.name || p.user || p.username || p.player, p));
+                    } else if (typeof data === 'object' && data !== null) {
                         const innerArray = data.players || data.users || data.profiles || data.leaderboard;
                         if (Array.isArray(innerArray)) {
-                            innerArray.forEach(p => {
-                                const name = p.name || p.user || p.username || p.player;
-                                registerPlayer(name, p);
-                            });
+                            innerArray.forEach(p => registerPlayer(p.name || p.user || p.username || p.player, p));
                         } else {
-                            // Вариант В: Файл это Словарь объектов { "nar1": { "country": "ua" }, "neru": { ... } }
                             Object.keys(data).forEach(key => {
                                 const item = data[key];
                                 if (typeof item === 'object' && item !== null) {
-                                    const name = item.name || item.user || item.username || key;
-                                    registerPlayer(name, item);
+                                    registerPlayer(item.name || item.user || item.username || key, item);
                                 } else if (typeof item === 'string') {
                                     registerPlayer(item, {});
                                 }
@@ -138,12 +124,10 @@ export async function fetchLeaderboard() {
                         }
                     }
                 }
-            } catch (err) {
-                console.warn(`Ошибка при чтении ${filePath}:`, err);
-            }
+            } catch (err) {}
         }
 
-        // 2. Сканируем файлы уровней и привязываем верификации / рекорды
+        // 2. Сканируем уровни
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -160,7 +144,7 @@ export async function fetchLeaderboard() {
                         const levelData = await res.json();
                         const levelName = levelData.name || file;
 
-                        // Верификатор уровня
+                        // Верификатор
                         if (levelData.verifier) {
                             const pObj = registerPlayer(levelData.verifier, {
                                 country: levelData.verifierCountry || levelData.country
@@ -180,7 +164,7 @@ export async function fetchLeaderboard() {
                             }
                         }
 
-                        // Рекорды на уровне
+                        // Рекорды
                         if (Array.isArray(levelData.records)) {
                             for (const rec of levelData.records) {
                                 const recUser = rec.user || rec.name || rec.username;
@@ -214,36 +198,51 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Расчет очков и подготовка списка
+        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (наименьший rank)
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
             let total = p.score || 0;
+            let hardestItem = null;
 
+            // Обработка пройденных / верифицированных уровней
             if (Array.isArray(p.verified)) {
                 p.verified.forEach(v => {
-                    total += typeof v === 'object' && v.pts ? v.pts : 50;
+                    const pts = typeof v === 'object' && v.pts ? v.pts : 50;
+                    const rank = typeof v === 'object' && v.rank ? v.rank : 999;
+                    const levelName = typeof v === 'object' ? v.levelName : v;
+                    total += pts;
+
+                    if (!hardestItem || rank < hardestItem.rank) {
+                        hardestItem = { levelName, rank };
+                    }
                 });
             }
 
+            // Обработка рекордов
             if (Array.isArray(p.records)) {
                 p.records.forEach(r => {
-                    total += typeof r === 'object' && r.pts ? r.pts : 10;
+                    const pts = typeof r === 'object' && r.pts ? r.pts : 10;
+                    const rank = typeof r === 'object' && r.rank ? r.rank : 999;
+                    const levelName = typeof r === 'object' ? r.levelName : r;
+                    total += pts;
+
+                    if (!hardestItem || rank < hardestItem.rank) {
+                        hardestItem = { levelName, rank };
+                    }
                 });
             }
 
             p.totalScore = total;
 
-            if (p.verified && p.verified.length > 0) {
-                p.hardest = typeof p.verified[0] === 'string' ? p.verified[0] : p.verified[0].levelName;
-            } else if (p.records && p.records.length > 0) {
-                p.hardest = typeof p.records[0] === 'string' ? p.records[0] : p.records[0].levelName;
+            // Форматируем корректное отображение ранга (например "#5 Just give up")
+            if (hardestItem) {
+                p.hardest = `#${hardestItem.rank} ${hardestItem.levelName}`;
             } else {
                 p.hardest = 'None';
             }
         });
 
-        // Сортируем: сначала те, у кого больше очков
         leaderboard.sort((a, b) => b.totalScore - a.totalScore);
 
         return leaderboard;
