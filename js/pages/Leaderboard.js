@@ -32,7 +32,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- Статистика: ОСТАЛСЯ ТОЛЬКО RANK -->
+                <!-- Статистика: RANK -->
                 <div class="single-stat-container">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
@@ -158,17 +158,17 @@ export default {
             if (!this.selectedPlayer) return [];
             
             const records = (this.selectedPlayer.records || [])
-                .filter(r => !r.percent || r.percent === 100)
-                .map(r => r.levelName || r);
+                .filter(r => typeof r === 'string' || !r.percent || r.percent === 100)
+                .map(r => typeof r === 'string' ? r : r.levelName);
                 
             const verified = (this.selectedPlayer.verified || [])
-                .map(v => v.levelName || v);
+                .map(v => typeof v === 'string' ? v : v.levelName);
 
             return [...new Set([...records, ...verified])];
         },
         progresses() {
             if (!this.selectedPlayer?.records) return [];
-            return this.selectedPlayer.records.filter(r => r.percent && r.percent < 100);
+            return this.selectedPlayer.records.filter(r => typeof r === 'object' && r.percent && r.percent < 100);
         },
         verifiedLevels() {
             if (!this.selectedPlayer) return [];
@@ -189,29 +189,14 @@ export default {
         getPlayerFlag(player) {
             if (!player) return null;
 
-            // 1. Поиск прямой страны
+            // Берутся поля страны игрока или из его рекордов
             let raw = player.country || player.nationality || player.nation;
 
-            // 2. Поиск в массиве рекордов игрока
             if (!raw && Array.isArray(player.records)) {
                 for (const rec of player.records) {
-                    if (rec && typeof rec === 'object') {
-                        if (rec.country || rec.nationality || rec.nation) {
-                            raw = rec.country || rec.nationality || rec.nation;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 3. Поиск в верифицированных уровнях
-            if (!raw && Array.isArray(player.verified)) {
-                for (const ver of player.verified) {
-                    if (ver && typeof ver === 'object') {
-                        if (ver.country || ver.nationality || ver.nation) {
-                            raw = ver.country || ver.nationality || ver.nation;
-                            break;
-                        }
+                    if (rec && typeof rec === 'object' && (rec.country || rec.nationality || rec.nation)) {
+                        raw = rec.country || rec.nationality || rec.nation;
+                        break;
                     }
                 }
             }
