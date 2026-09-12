@@ -20,7 +20,7 @@ export default {
                             @error="onAvatarError"
                         />
                     </div>
-                    <!-- Флаг строго ПЕРЕД ником -->
+                    <!-- Имя с флагом СЛЕВА -->
                     <div class="profile-title">
                         <img 
                             v-if="getPlayerFlag(selectedPlayer)" 
@@ -32,7 +32,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- Статистика: RANK -->
+                <!-- Статистика: ОСТАЛСЯ ТОЛЬКО RANK -->
                 <div class="single-stat-container">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
@@ -189,35 +189,29 @@ export default {
         getPlayerFlag(player) {
             if (!player) return null;
 
-            // 1. Ищем напрямую у игрока
+            // 1. Поиск прямой страны
             let raw = player.country || player.nationality || player.nation;
 
-            // 2. Ищем в массиве рекордов игрока
+            // 2. Поиск в массиве рекордов игрока
             if (!raw && Array.isArray(player.records)) {
                 for (const rec of player.records) {
-                    if (rec && (rec.country || rec.nationality || rec.nation)) {
-                        raw = rec.country || rec.nationality || rec.nation;
-                        break;
+                    if (rec && typeof rec === 'object') {
+                        if (rec.country || rec.nationality || rec.nation) {
+                            raw = rec.country || rec.nationality || rec.nation;
+                            break;
+                        }
                     }
                 }
             }
 
-            // 3. Ищем в верифицированных уровнях
+            // 3. Поиск в верифицированных уровнях
             if (!raw && Array.isArray(player.verified)) {
                 for (const ver of player.verified) {
-                    if (ver && (ver.country || ver.nationality || ver.nation)) {
-                        raw = ver.country || ver.nationality || ver.nation;
-                        break;
-                    }
-                }
-            }
-
-            // 4. Ищем в объекте уровня / верификатора, если структуры вложенные
-            if (!raw && player.levels && Array.isArray(player.levels)) {
-                for (const lvl of player.levels) {
-                    if (lvl.country || lvl.nationality) {
-                        raw = lvl.country || lvl.nationality;
-                        break;
+                    if (ver && typeof ver === 'object') {
+                        if (ver.country || ver.nationality || ver.nation) {
+                            raw = ver.country || ver.nationality || ver.nation;
+                            break;
+                        }
                     }
                 }
             }
@@ -226,22 +220,23 @@ export default {
 
             let code = String(raw).trim().toLowerCase();
 
-            // Если передана полная ссылка
             if (code.startsWith('http') || code.startsWith('/')) {
                 return raw;
             }
 
-            // Запрашиваем 2-буквенный ISO-код (ua, mn, ru, us и т.д.) у FlagCDN
             return `https://flagcdn.com/w40/${code.slice(0, 2)}.png`;
         },
+
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
             if (player?.icon) return player.icon;
             return `https://github.com/${player?.user}.png`;
         },
+
         onAvatarError(e) {
             e.target.src = this.defaultAvatar;
         },
+
         onFlagError(e) {
             e.target.style.display = 'none';
         }
