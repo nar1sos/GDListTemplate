@@ -131,7 +131,7 @@ export default {
                                 <div class="records-header-text">
                                     <h3 class="section-subtitle">Records</h3>
                                     <p class="records-count-info">
-                                        <span class="highlight-100">{{ 100 }}%</span> required to qualify
+                                        <span class="highlight-100">{{ selectedLevel.percentToQualify || 100 }}%</span> required to qualify
                                     </p>
                                 </div>
                             </div>
@@ -205,25 +205,25 @@ export default {
     },
 
     methods: {
+        getYoutubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(?:youtu.be\/|v\/|e\/|u\/\w\/|embed\/|v=)([^#&?]*).*/;
+            const match = String(url).match(regExp);
+            return (match && match[1].length === 11) ? match[1] : null;
+        },
+
         embed(ytid) {
-            if (!ytid) return '';
-            if (ytid.includes('youtube.com') || ytid.includes('youtu.be')) {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = ytid.match(regExp);
-                return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : ytid;
-            }
-            return `https://www.youtube.com/embed/${ytid}`;
+            const id = this.getYoutubeId(ytid) || ytid;
+            if (!id) return '';
+            return `https://www.youtube.com/embed/${id}`;
         },
 
         getThumbnail(ytid) {
-            if (!ytid) return 'https://i.ytimg.com/vi/placeholder/hqdefault.jpg';
-            let id = ytid;
-            if (ytid.includes('youtube.com') || ytid.includes('youtu.be')) {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = ytid.match(regExp);
-                if (match && match[2].length === 11) id = match[2];
+            const id = this.getYoutubeId(ytid) || (typeof ytid === 'string' && ytid.length === 11 ? ytid : null);
+            if (!id) {
+                return 'https://i.imgur.com/6VBx3io.png';
             }
-            return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+            return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
         },
 
         onThumbError(e) {
