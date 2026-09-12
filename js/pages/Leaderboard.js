@@ -1,16 +1,6 @@
 import { fetchLeaderboard } from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// Словарь стран (поддерживает русский, английский и 2-буквенные ISO-коды)
-const COUNTRY_MAP = {
-    'russia': 'ru', 'russian': 'ru', 'россия': 'ru', 'ru': 'ru',
-    'ukraine': 'ua', 'ukrainian': 'ua', 'украина': 'ua', 'ua': 'ua',
-    'kazakhstan': 'kz', 'казахстан': 'kz', 'kz': 'kz',
-    'usa': 'us', 'united states': 'us', 'us': 'us',
-    'germany': 'de', 'de': 'de',
-    'japan': 'jp', 'jp': 'jp'
-};
-
 export default {
     components: { Spinner },
     template: `
@@ -21,7 +11,7 @@ export default {
         <div v-else class="leaderboard-container">
             <!-- ЛЕВАЯ КОЛОНКА: ПРОФИЛЬ -->
             <div class="profile-card" v-if="selectedPlayer">
-                <!-- Аватарка и имя -->
+                <!-- Аватарка -->
                 <div class="profile-header">
                     <div class="avatar-ring">
                         <img 
@@ -30,6 +20,7 @@ export default {
                             @error="onAvatarError"
                         />
                     </div>
+                    <!-- Имя и флаг ПЕРЕД ником -->
                     <div class="profile-title">
                         <img 
                             v-if="getPlayerFlag(selectedPlayer)" 
@@ -128,7 +119,7 @@ export default {
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ (ПОИНТЫ УБРАНЫ) -->
+            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, index) in leaderboard" 
@@ -210,32 +201,25 @@ export default {
         getPlayerFlag(player) {
             if (!player) return null;
 
-            // Извлекаем значение из всех возможных полей (на уровне объекта или рекордов)
-            let rawNation = player.nationality || player.nation || player.country;
+            // Берутся любые поля страны (в объекте игрока или его записях)
+            let raw = player.nationality || player.nation || player.country;
 
-            if (!rawNation && player.records && player.records.length > 0) {
+            if (!raw && player.records && player.records.length > 0) {
                 const rec = player.records.find(r => r.nationality || r.nation || r.country);
-                if (rec) rawNation = rec.nationality || rec.nation || rec.country;
+                if (rec) raw = rec.nationality || rec.nation || rec.country;
             }
 
-            // Если страна нигде не прописана в JSON, ставим по умолчанию RU (или замените при необходимости)
-            if (!rawNation) {
-                rawNation = 'ru';
-            }
+            if (!raw) return null;
 
-            let str = String(rawNation).trim().toLowerCase();
-            let code = COUNTRY_MAP[str] || str;
+            let code = String(raw).trim().toLowerCase();
 
+            // Если уже полноценный URL
             if (code.startsWith('http') || code.startsWith('/')) {
-                return rawNation;
+                return raw;
             }
 
-            if (code.length >= 2) {
-                code = code.substring(0, 2);
-                return `https://flagcdn.com/w40/${code}.png`;
-            }
-
-            return null;
+            // Прямой запрос к FlagCDN по двум буквам страны (mn, ru, ua, us и т.д.)
+            return `https://flagcdn.com/w40/${code.slice(0, 2)}.png`;
         },
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
