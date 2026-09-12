@@ -44,13 +44,13 @@
     object-fit: cover;
 }
 
-/* Заголовок с флагом строго ПЕРЕД именем */
+/* Имя и Флаг СЛЕВА перед ником */
 .profile-title {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .profile-title h1 {
@@ -61,7 +61,6 @@
     line-height: 1;
 }
 
-/* Флаги */
 .flag-img {
     width: 28px;
     height: 19px;
@@ -70,42 +69,36 @@
     flex-shrink: 0;
 }
 
-.list-flag-img {
-    width: 20px;
-    height: 14px;
-    object-fit: cover;
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-/* Карточки статистики */
-.grid-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+/* Статистика RANK (SCORE полностью удален) */
+.single-stat-container {
+    display: flex;
+    width: 100%;
 }
 
 .card-stat {
+    flex: 1;
     background: #121824;
     border: 1px solid #1b2436;
     border-radius: 10px;
     padding: 16px 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 14px;
 }
 
 .stat-icon {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
 }
 
 .stat-info {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 }
 
 .stat-info .val {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: #ffffff;
 }
@@ -117,7 +110,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Секции блоков */
+/* Секции карточек */
 .section-box {
     background: #121824;
     border: 1px solid #1b2436;
@@ -182,7 +175,7 @@
     color: #3b82f6;
 }
 
-/* Зеленый блок верифицированных уровней */
+/* Верифицированные уровни */
 .verified-box {
     background: rgba(16, 185, 129, 0.05) !important;
     border: 1px solid rgba(16, 185, 129, 0.25) !important;
@@ -256,6 +249,14 @@
     height: 26px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.list-flag-img {
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
 .username {
