@@ -2,19 +2,40 @@
  * js/content.js
  */
 
-// 1. Загрузка списка уровней
+// 1. Загрузка списка всех демонов для листа уровней
 export async function fetchList() {
     try {
-        const res = await fetch('./data/list.json');
-        if (!res.ok) return [];
-        return await res.json();
+        const listRes = await fetch('./data/list.json');
+        if (!listRes.ok) return [];
+        const levelNames = await listRes.json();
+
+        // Загружаем данные каждого уровня параллельно
+        const list = await Promise.all(
+            levelNames.map(async (name, index) => {
+                try {
+                    const res = await fetch(`./data/${name}.json`);
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return {
+                        ...data,
+                        rank: index + 1,
+                        path: name
+                    };
+                } catch (e) {
+                    console.warn(`Не удалось загрузить уровень: ${name}`, e);
+                    return null;
+                }
+            })
+        );
+
+        return list.filter(item => item !== null);
     } catch (e) {
-        console.error("Ошибка при загрузке list.json:", e);
+        console.error("Ошибка при загрузке листа уровней:", e);
         return [];
     }
 }
 
-// 2. Загрузка списка эдиторов (редакторов/модераторов)
+// 2. Загрузка списка эдиторов (модераторов)
 export async function fetchEditors() {
     try {
         const res = await fetch('./data/editors.json');
@@ -26,27 +47,33 @@ export async function fetchEditors() {
     }
 }
 
-// 3. Загрузка лидерборда игроков
+// 3. Загрузка лидерборда игроков (порядок СТРОГО из players.json)
 export async function fetchLeaderboard() {
     try {
-        // 1. Порядок игроков
-        const playersOrderRes = await fetch('./data/players.json');
-        if (!playersOrderRes.ok) throw new Error('Не удалось загрузить data/players.json');
-        const playersOrder = await playersOrderRes.json();
+        // 1. Загружаем твой ручной порядок игроков из players.json
+        let playersOrder = [];
+        try {
+            const playersOrderRes = await fetch('./data/players.json');
+            if (playersOrderRes.ok) playersOrder = await playersOrderRes.json();
+        } catch (e) {
+            console.error("Не удалось загрузить data/players.json", e);
+        }
 
-        // 2. Кастомные профили (для тех, у кого 0 рекордов)
+        // 2. Загружаем кастомные профили (аватарки и флаги для новичков без рекордов)
         let profiles = {};
         try {
             const profRes = await fetch('./data/profiles.json');
             if (profRes.ok) profiles = await profRes.json();
         } catch (e) {}
 
-        // 3. Список уровней
-        const levelNames = await fetchList();
+        // 3. Загружаем список уровней
+        const listRes = await fetch('./data/list.json');
+        if (!listRes.ok) throw new Error('Не удалось загрузить data/list.json');
+        const levelNames = await listRes.json();
 
         const playersMap = {};
 
-        // Инициализируем карту
+        // Инициализируем ВСЕХ игроков из players.json (даже с 0 рекордов)
         playersOrder.forEach(name => {
             const key = name.toLowerCase();
             const prof = profiles[key] || profiles[name] || {};
@@ -63,7 +90,7 @@ export async function fetchLeaderboard() {
             };
         });
 
-        // 4. Сканируем файлы уровней
+        // 4. Сканируем файлы уровней и привязываем рекорды к игрокам
         for (let i = 0; i < levelNames.length; i++) {
             const levelName = levelNames[i];
             const levelRank = i + 1;
@@ -99,6 +126,7 @@ export async function fetchLeaderboard() {
                     const userKey = rec.user ? rec.user.toLowerCase() : '';
                     if (!userKey) return;
 
+                    // Если игрока еще не было в карте, создаем его
                     if (!playersMap[userKey]) {
                         const prof = profiles[userKey] || {};
                         playersMap[userKey] = {
@@ -113,8 +141,10 @@ export async function fetchLeaderboard() {
                         };
                     }
 
-                    if (rec.avatar) playersMap[userKey].avatar = rec.avatar;
-                    if (rec.hz || rec.nationality) playersMap[userKey].nationality = rec.hz || rec.nationality;
+                    if (rec.avatar && !playersMap[userKey].avatar) playersMap[userKey].avatar = rec.avatar;
+                    if ((rec.hz || rec.nationality) && !playersMap[userKey].nationality) {
+                        playersMap[userKey].nationality = rec.hz || rec.nationality;
+                    }
 
                     const percent = Number(rec.percent || 100);
 
@@ -139,20 +169,26 @@ export async function fetchLeaderboard() {
             }
         }
 
-        // 5. Возвращаем массив в порядке из players.json
-        return playersOrder.map(name => {
+        // 5. Формируем итоговый массив СТРОГО в твоем порядке из players.json
+        const result = [];
+        const addedKeys = new Set();
+
+        playersOrder.forEach(name => {
             const key = name.toLowerCase();
-            return playersMap[key] || {
-                user: name,
-                avatar: '',
-                nationality: '',
-                totalScore: 0,
-                hardest: '',
-                hardestRank: 0,
-                records: [],
-                verified: []
-            };
+            if (playersMap[key]) {
+                result.push(playersMap[key]);
+                addedKeys.add(key);
+            }
         });
+
+        // Если в файлах уровней есть кто-то, кого забыли вписать в players.json — докидываем в конец
+        Object.keys(playersMap).forEach(key => {
+            if (!addedKeys.has(key)) {
+                result.push(playersMap[key]);
+            }
+        });
+
+        return result;
 
     } catch (e) {
         console.error("Ошибка при сборке лидерборда:", e);
