@@ -1,228 +1,115 @@
-/* Общий контейнер */
+/* Перестановка колонок: Профиль слева, список справа */
 .leaderboard-wrapper {
     display: flex;
-    gap: 16px;
-    padding: 24px;
-    max-width: 1280px;
-    margin: 0 auto;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #ffffff;
-    background-color: #0b0e14;
-    box-sizing: border-box;
-}
-
-/* --- ЛЕВАЯ КОЛОНКА (СПИСОК) --- */
-.sidebar-list {
-    width: 280px;
-    background: #0f141d;
-    border: 1px solid #1a2233;
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
-    border-radius: 8px;
-    background: transparent;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.15s ease, border-color 0.15s ease;
-    border: 1px solid transparent;
-}
-
-.sidebar-item:hover {
-    background: #141b27;
-}
-
-.sidebar-item.active {
-    background: #141b2d;
-    border: 1px solid #283754;
-}
-
-.rank-num {
-    color: #3b82f6;
-    font-size: 0.85rem;
-    font-weight: 700;
-    width: 32px;
-}
-
-.user-block {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-grow: 1;
-}
-
-.user-block .flag {
-    font-size: 1.1rem;
-}
-
-.user-block .username {
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.user-score {
-    color: #8b9bb4;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-/* --- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ) --- */
-.profile-card {
-    flex-grow: 1;
-    background: #0f141d;
-    border: 1px solid #1a2233;
-    border-radius: 12px;
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-/* Шапка профиля */
-.profile-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 8px;
-}
-
-.flag-main {
-    font-size: 2.8rem;
-    line-height: 1;
-}
-
-.profile-title h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-}
-
-/* Карточки RANK и SCORE */
-.grid-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.card-stat {
-    background: #131926;
-    border: 1px solid #1e283d;
-    border-radius: 10px;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
+    flex-direction: row;
     gap: 20px;
 }
 
-.card-stat .icon {
-    font-size: 1.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.profile-card {
+    flex: 1;
 }
 
-.card-stat .info {
-    display: flex;
-    flex-direction: column;
+.sidebar-list {
+    width: 320px;
 }
 
-.card-stat .val {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #ffffff;
-    line-height: 1.1;
-}
-
-.card-stat .lbl {
-    font-size: 0.75rem;
-    color: #5d739c;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-    margin-top: 4px;
-}
-
-/* Блок Hardest level */
-.card-hardest {
-    background: #131926;
-    border: 1px solid #3d2325;
-    border-radius: 10px;
-    padding: 16px 20px;
-}
-
-.hardest-title {
-    color: #ff5252;
-    font-size: 0.85rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.hardest-value {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-top: 6px;
-}
-
-/* Блок Main levels */
-.section-levels {
+/* Шапка профиля и аватарка */
+.profile-header {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-}
-
-.section-top {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-.section-top .title {
-    color: #ff5252;
-    font-size: 0.9rem;
-    font-weight: 700;
+.avatar-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #1e293b;
+    overflow: hidden;
+    background: #1e293b;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-title {
     display: flex;
     align-items: center;
-    gap: 6px;
-}
-
-.count-badge {
-    background: #1a2336;
-    color: #627ca8;
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.pills-grid {
-    display: flex;
-    flex-wrap: wrap;
     gap: 10px;
 }
 
-.level-pill {
-    background: #141c2e;
-    border: 1px solid #202d4a;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #ffffff;
-    transition: background 0.15s ease;
+.flag-img {
+    width: 28px;
+    height: auto;
+    border-radius: 2px;
 }
 
-.level-pill:hover {
-    background: #1c2740;
+.flag-img-sm {
+    width: 18px;
+    height: auto;
+    border-radius: 2px;
+}
+
+.list-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Секции заголовков */
+.main-title {
+    color: #ff4d4d !important;
+}
+
+.progress-title {
+    color: #60a5fa !important;
+}
+
+.percent-text {
+    color: #60a5fa;
+    font-size: 0.85em;
+}
+
+/* ЗЕЛЕНЫЙ БЛОК VERIFIED */
+.verified-section {
+    background: #091c18 !important;
+    border: 1px solid #103a31 !important;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.verified-title {
+    color: #10b981 !important;
+}
+
+.check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #10b981;
+    border-radius: 50%;
+    font-size: 11px;
+}
+
+.verified-badge {
+    background: #0d2d25 !important;
+    color: #10b981 !important;
+}
+
+.verified-pill {
+    background: #0c2721 !important;
+    border: 1px solid #144e40 !important;
+    color: #e2e8f0 !important;
+}
+
+.verified-pill:hover {
+    background: #11382f !important;
 }
