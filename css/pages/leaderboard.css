@@ -26,7 +26,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .avatar-ring {
@@ -44,11 +44,13 @@
     object-fit: cover;
 }
 
+/* Заголовок с флагом строго ПЕРЕД именем */
 .profile-title {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .profile-title h1 {
@@ -61,11 +63,11 @@
 
 /* Флаги */
 .flag-img {
-    width: 24px;
-    height: 16px;
+    width: 28px;
+    height: 19px;
     object-fit: cover;
-    border-radius: 2px;
-    display: inline-block;
+    border-radius: 3px;
+    flex-shrink: 0;
 }
 
 .list-flag-img {
@@ -73,7 +75,7 @@
     height: 14px;
     object-fit: cover;
     border-radius: 2px;
-    margin-right: 4px;
+    flex-shrink: 0;
 }
 
 /* Карточки статистики */
@@ -115,7 +117,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Секции карточек */
+/* Секции блоков */
 .section-box {
     background: #121824;
     border: 1px solid #1b2436;
@@ -159,7 +161,7 @@
     font-weight: 700;
 }
 
-/* Сетка плашек */
+/* Плашки уровней */
 .pills-flex {
     display: flex;
     flex-wrap: wrap;
@@ -180,7 +182,7 @@
     color: #3b82f6;
 }
 
-/* ЗЕЛЕНЫЙ БЛОК "WHICH ARE VERIFIED" */
+/* Зеленый блок верифицированных уровней */
 .verified-box {
     background: rgba(16, 185, 129, 0.05) !important;
     border: 1px solid rgba(16, 185, 129, 0.25) !important;
