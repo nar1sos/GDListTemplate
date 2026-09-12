@@ -1,8 +1,8 @@
 import { fetchLeaderboard } from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// Карта стран для конвертации имён или кодов
-const COUNTRY_CODES = {
+// Словарь стран (поддерживает русский, английский и 2-буквенные ISO-коды)
+const COUNTRY_MAP = {
     'russia': 'ru', 'russian': 'ru', 'россия': 'ru', 'ru': 'ru',
     'ukraine': 'ua', 'ukrainian': 'ua', 'украина': 'ua', 'ua': 'ua',
     'kazakhstan': 'kz', 'казахстан': 'kz', 'kz': 'kz',
@@ -128,7 +128,7 @@ export default {
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ -->
+            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ (ПОИНТЫ УБРАНЫ) -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, index) in leaderboard" 
@@ -153,8 +153,6 @@ export default {
                         />
                         <span class="username">{{ player.user }}</span>
                     </div>
-
-                    <span class="user-score">{{ formatScore(player.totalScore) }}</span>
                 </div>
             </div>
         </div>
@@ -212,25 +210,26 @@ export default {
         getPlayerFlag(player) {
             if (!player) return null;
 
-            // Поиск кода страны в объекте или его внутренних записях
+            // Извлекаем значение из всех возможных полей (на уровне объекта или рекордов)
             let rawNation = player.nationality || player.nation || player.country;
-            
+
             if (!rawNation && player.records && player.records.length > 0) {
                 const rec = player.records.find(r => r.nationality || r.nation || r.country);
                 if (rec) rawNation = rec.nationality || rec.nation || rec.country;
             }
 
-            if (!rawNation) return null;
+            // Если страна нигде не прописана в JSON, ставим по умолчанию RU (или замените при необходимости)
+            if (!rawNation) {
+                rawNation = 'ru';
+            }
 
             let str = String(rawNation).trim().toLowerCase();
-            let code = COUNTRY_CODES[str] || str;
+            let code = COUNTRY_MAP[str] || str;
 
-            // Если передана полная ссылка на картинку
             if (code.startsWith('http') || code.startsWith('/')) {
                 return rawNation;
             }
 
-            // Извлечение чистого 2-буквенного кода (например, 'ru')
             if (code.length >= 2) {
                 code = code.substring(0, 2);
                 return `https://flagcdn.com/w40/${code}.png`;
