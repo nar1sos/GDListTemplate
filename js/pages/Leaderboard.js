@@ -4,82 +4,119 @@ import Spinner from "../components/Spinner.js";
 export default {
     components: { Spinner },
     template: `
-        <main v-if="loading">
+        <main v-if="loading" class="leaderboard-wrapper">
             <Spinner></Spinner>
         </main>
-        <div v-else class="board-container">
-            <!-- Список игроков (слева) -->
-            <div class="board">
+        
+        <div v-else class="leaderboard-wrapper">
+            <!-- ЛЕВАЯ КОЛОНКА (СПИСОК ИГРОКОВ) -->
+            <div class="sidebar-list">
                 <div 
                     v-for="(player, index) in leaderboard" 
                     :key="player.user || index"
-                    class="player"
+                    class="sidebar-item"
                     :class="{ 'active': selectedPlayer?.user === player.user }"
                     @click="selectedPlayer = player"
                 >
-                    <span class="rank">#{{ index + 1 }}</span>
+                    <span class="rank-num">#{{ index + 1 }}</span>
                     
-                    <img 
-                        :src="player.avatar || '/assets/no-avatar.png'" 
-                        alt="avatar" 
-                        class="avatar"
-                        @error="handleAvatarError"
-                    />
-
-                    <div class="player-info">
-                        <div class="name-row">
-                            <span class="name">{{ player.user }}</span>
-                            <span v-if="player.nationality" class="flag" :title="player.nationality">
-                                {{ getFlagEmoji(player.nationality) }}
-                            </span>
-                        </div>
-                        <span class="score">{{ (player.totalScore || 0).toFixed(2) }} pts</span>
+                    <div class="user-block">
+                        <span v-if="player.nationality" class="flag" :title="player.nationality">
+                            {{ getFlagEmoji(player.nationality) }}
+                        </span>
+                        <span class="username">{{ player.user }}</span>
                     </div>
+
+                    <span class="user-score">{{ Math.round(player.totalScore || 0) }}</span>
                 </div>
 
-                <div v-if="leaderboard.length === 0" class="empty-list">
-                    Список игроков пуст
+                <div v-if="leaderboard.length === 0" style="padding: 12px; color: #8b9bb4;">
+                    Список пуст
                 </div>
             </div>
 
-            <!-- Детали игрока (справа) -->
-            <div class="meta-container" v-if="selectedPlayer">
-                <div class="meta">
-                    <div class="meta-header">
-                        <img 
-                            :src="selectedPlayer.avatar || '/assets/no-avatar.png'" 
-                            alt="avatar" 
-                            class="meta-avatar"
-                            @error="handleAvatarError"
-                        />
-                        <div class="meta-user">
-                            <h2>
-                                {{ selectedPlayer.user }}
-                                <span v-if="selectedPlayer.nationality">
-                                    {{ getFlagEmoji(selectedPlayer.nationality) }}
-                                </span>
-                            </h2>
-                            <p class="score-total">Total Score: <strong>{{ (selectedPlayer.totalScore || 0).toFixed(2) }} pts</strong></p>
+            <!-- ПРАВАЯ КОЛОНКА (ПРОФИЛЬ ИГРОКА) -->
+            <div class="profile-card" v-if="selectedPlayer">
+                <!-- Шапка профиля -->
+                <div class="profile-title">
+                    <span v-if="selectedPlayer.nationality" class="flag-main">
+                        {{ getFlagEmoji(selectedPlayer.nationality) }}
+                    </span>
+                    <h1>{{ selectedPlayer.user }}</h1>
+                </div>
+
+                <!-- Статистика: RANK и SCORE -->
+                <div class="grid-stats">
+                    <div class="card-stat">
+                        <div class="icon">🏆</div>
+                        <div class="info">
+                            <span class="val">#{{ selectedRank }}</span>
+                            <span class="lbl">RANK</span>
                         </div>
                     </div>
 
-                    <div class="meta-section" v-if="selectedPlayer.hardest">
-                        <h3>Hardest Demon</h3>
-                        <p>#{{ selectedPlayer.hardestRank }} — {{ selectedPlayer.hardest }}</p>
+                    <div class="card-stat">
+                        <div class="icon">⚡</div>
+                        <div class="info">
+                            <span class="val">{{ (selectedPlayer.totalScore || 0).toFixed(2) }}</span>
+                            <span class="lbl">SCORE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок Hardest level -->
+                <div class="card-hardest" v-if="selectedPlayer.hardest">
+                    <div class="hardest-title">
+                        <span>🔥</span> HARDEST DEMON
+                    </div>
+                    <div class="hardest-value">
+                        #{{ selectedPlayer.hardestRank }} — {{ selectedPlayer.hardest }}
+                    </div>
+                </div>
+
+                <!-- Блок Пройденных уровней (Main levels / Records) -->
+                <div class="section-levels">
+                    <div class="section-top">
+                        <div class="title">
+                            <span>🎮</span> COMPLETED DEMONS
+                        </div>
+                        <span class="count-badge">
+                            {{ completedRecords.length }}
+                        </span>
                     </div>
 
-                    <div class="meta-section" v-if="selectedPlayer.records && selectedPlayer.records.length">
-                        <h3>Records ({{ selectedPlayer.records.length }})</h3>
-                        <div class="records-grid">
-                            <div 
-                                v-for="(rec, rIdx) in selectedPlayer.records" 
-                                :key="rIdx" 
-                                class="record-card"
-                            >
-                                <span class="rec-rank">#{{ rec.rank }}</span>
-                                <span class="rec-name">{{ rec.levelName }}</span>
-                                <span class="rec-percent">{{ rec.percent }}%</span>
-                            </div>
+                    <div class="pills-grid" v-if="completedRecords.length">
+                        <div 
+                            v-for="(rec, rIdx) in completedRecords" 
+                            :key="rIdx" 
+                            class="level-pill"
+                        >
+                            #{{ rec.rank }} {{ rec.levelName }} {{ rec.percent < 100 ? '(' + rec.percent + '%)' : '' }}
+                        </div>
+                    </div>
+                    <div v-else style="color: #8b9bb4; font-size: 0.9rem;">
+                        У игрока пока нет подтвержденных рекордов
+                    </div>
+                </div>
+
+                <!-- Блок Заверифицированных уровней (если есть) -->
+                <div class="section-levels" v-if="selectedPlayer.verified && selectedPlayer.verified.length">
+                    <div class="section-top">
+                        <div class="title">
+                            <span>👑</span> VERIFIED LEVELS
+                        </div>
+                        <span class="count-badge">
+                            {{ selectedPlayer.verified.length }}
+                        </span>
+                    </div>
+
+                    <div class="pills-grid">
+                        <div 
+                            v-for="(ver, vIdx) in selectedPlayer.verified" 
+                            :key="vIdx" 
+                            class="level-pill"
+                        >
+                            {{ ver }}
                         </div>
                     </div>
                 </div>
@@ -93,6 +130,18 @@ export default {
         selectedPlayer: null
     }),
 
+    computed: {
+        selectedRank() {
+            if (!this.selectedPlayer || !this.leaderboard.length) return '-';
+            const index = this.leaderboard.findIndex(p => p.user === this.selectedPlayer.user);
+            return index !== -1 ? index + 1 : '-';
+        },
+        completedRecords() {
+            if (!this.selectedPlayer || !Array.isArray(this.selectedPlayer.records)) return [];
+            return this.selectedPlayer.records;
+        }
+    },
+
     async mounted() {
         const data = await fetchLeaderboard();
         this.leaderboard = Array.isArray(data) ? data : [];
@@ -103,11 +152,12 @@ export default {
     },
 
     methods: {
-        handleAvatarError(e) {
-            e.target.src = 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg';
-        },
         getFlagEmoji(countryCode) {
-            if (!countryCode || countryCode.length !== 2) return countryCode || '';
+            if (!countryCode) return '';
+            // Если передан готовый эмодзи флага
+            if (countryCode.length > 2) return countryCode;
+            
+            // Преобразование двубуквенного ISO кода (напр. 'RU', 'UA', 'KZ') в флаг Emoji
             const codePoints = countryCode
                 .toUpperCase()
                 .split('')
