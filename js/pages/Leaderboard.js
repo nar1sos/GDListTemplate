@@ -1,6 +1,9 @@
 import { fetchLeaderboard } from "../content.js";
 import Spinner from "../components/Spinner.js";
 
+// Код страны по умолчанию, если у игрока вообще нигде нет флага (например, 'ru', 'mn', 'us')
+const DEFAULT_COUNTRY = 'ru';
+
 export default {
     components: { Spinner },
     template: `
@@ -20,10 +23,9 @@ export default {
                             @error="onAvatarError"
                         />
                     </div>
-                    <!-- Имя и флаг ПЕРЕД ником -->
+                    <!-- Имя с флагом СЛЕВА -->
                     <div class="profile-title">
                         <img 
-                            v-if="getPlayerFlag(selectedPlayer)" 
                             :src="getPlayerFlag(selectedPlayer)" 
                             class="flag-img" 
                             @error="onFlagError"
@@ -32,21 +34,13 @@ export default {
                     </div>
                 </div>
 
-                <!-- Статистика: RANK и SCORE -->
-                <div class="grid-stats">
+                <!-- Статистика: ОСТАЛСЯ ТОЛЬКО RANK (SCORE УБРАН) -->
+                <div class="single-stat-container">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
                         <div class="stat-info">
                             <span class="val">#{{ selectedRank }}</span>
                             <span class="lbl">RANK</span>
-                        </div>
-                    </div>
-
-                    <div class="card-stat">
-                        <span class="stat-icon">✦</span>
-                        <div class="stat-info">
-                            <span class="val">{{ formatScore(selectedPlayer.totalScore) }}</span>
-                            <span class="lbl">SCORE</span>
                         </div>
                     </div>
                 </div>
@@ -119,7 +113,7 @@ export default {
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ -->
+            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ (БЕЗ SCORE ВООБЩЕ) -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, index) in leaderboard" 
@@ -137,7 +131,6 @@ export default {
                             @error="onAvatarError"
                         />
                         <img 
-                            v-if="getPlayerFlag(player)" 
                             :src="getPlayerFlag(player)" 
                             class="list-flag-img" 
                             @error="onFlagError"
@@ -194,31 +187,33 @@ export default {
     },
 
     methods: {
-        formatScore(score) {
-            if (score === undefined || score === null) return '0';
-            return Math.round(Number(score)).toLocaleString('ru-RU');
-        },
         getPlayerFlag(player) {
-            if (!player) return null;
+            if (!player) return `https://flagcdn.com/w40/${DEFAULT_COUNTRY}.png`;
 
-            // Берутся любые поля страны (в объекте игрока или его записях)
+            // 1. Пытаемся взять флаг напрямую
             let raw = player.nationality || player.nation || player.country;
+
+            // 2. Если у игрока пусто, ищем в его верифицированных уровнях или рекордах
+            if (!raw && player.verified && player.verified.length > 0) {
+                const ver = player.verified.find(v => v.nationality || v.nation || v.country);
+                if (ver) raw = ver.nationality || ver.nation || ver.country;
+            }
 
             if (!raw && player.records && player.records.length > 0) {
                 const rec = player.records.find(r => r.nationality || r.nation || r.country);
                 if (rec) raw = rec.nationality || rec.nation || rec.country;
             }
 
-            if (!raw) return null;
+            // 3. Если нигде не нашли, ставим дефолтную страну
+            if (!raw) raw = DEFAULT_COUNTRY;
 
             let code = String(raw).trim().toLowerCase();
 
-            // Если уже полноценный URL
             if (code.startsWith('http') || code.startsWith('/')) {
                 return raw;
             }
 
-            // Прямой запрос к FlagCDN по двум буквам страны (mn, ru, ua, us и т.д.)
+            // FlagCDN берет 2-буквенный ISO код страны (ru, mn, ua, us и т.д.)
             return `https://flagcdn.com/w40/${code.slice(0, 2)}.png`;
         },
         getAvatarUrl(player) {
@@ -230,7 +225,7 @@ export default {
             e.target.src = this.defaultAvatar;
         },
         onFlagError(e) {
-            e.target.style.display = 'none';
+            e.target.src = `https://flagcdn.com/w40/${DEFAULT_COUNTRY}.png`;
         }
     }
 };
