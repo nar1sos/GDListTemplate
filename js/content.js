@@ -198,7 +198,7 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (ТОЛЬКО 100% ПРОХОЖДЕНИЯ)
+        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (ТОЛЬКО 100%)
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
@@ -229,7 +229,6 @@ export async function fetchLeaderboard() {
 
                     total += pts;
 
-                    // Учитываем в Hardest ТОЛЬКО если 100%
                     if (percent === 100) {
                         if (!hardestItem || rank < hardestItem.rank) {
                             hardestItem = { levelName, rank };
@@ -240,9 +239,9 @@ export async function fetchLeaderboard() {
 
             p.totalScore = total;
 
-            // Форматируем без встроенной решётки (выдаёт формат "1 Astrahell")
+            // Возвращаем ТОЛЬКО название уровня без цифр и знаков #
             if (hardestItem) {
-                p.hardest = `${hardestItem.rank} ${hardestItem.levelName}`;
+                p.hardest = hardestItem.levelName;
             } else {
                 p.hardest = 'None';
             }
