@@ -1,115 +1,236 @@
-/* Перестановка колонок: Профиль слева, список справа */
-.leaderboard-wrapper {
+/* Основная сетка лидерборда */
+.leaderboard {
     display: flex;
-    flex-direction: row;
-    gap: 20px;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
-.profile-card {
+/* Слева — профиль игрока */
+.player-container {
     flex: 1;
 }
 
-.sidebar-list {
-    width: 320px;
+.player {
+    background: #0d1117;
+    border: 1px solid #161b22;
+    border-radius: 12px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-/* Шапка профиля и аватарка */
-.profile-header {
+/* Шапка профиля */
+.player-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
 }
 
-.avatar-wrapper {
-    width: 120px;
-    height: 120px;
+.player-header .avatar {
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
-    border: 3px solid #1e293b;
-    overflow: hidden;
-    background: #1e293b;
-}
-
-.profile-avatar {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
+    border: 3px solid #21262d;
 }
 
-.profile-title {
+.player-title {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.flag-img {
-    width: 28px;
-    height: auto;
-    border-radius: 2px;
+.player-title h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
 }
 
-.flag-img-sm {
-    width: 18px;
-    height: auto;
-    border-radius: 2px;
+.player-title .flag {
+    font-size: 1.8rem;
+}
+
+/* Статистика (Rank и Score) */
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.stat-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stat-icon {
+    font-size: 1.6rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #8b949e;
+    font-weight: 700;
+}
+
+/* Блоки карточек */
+.card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card-header {
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header.red { color: #ff5555; }
+.card-header.blue { color: #58a6ff; }
+.card-header.green { color: #2ea043; }
+
+.hardest-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+/* Кнопки уровней */
+.levels-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.level-btn {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.progress-btn {
+    border-color: #1f6beb;
+}
+
+.percent {
+    color: #58a6ff;
+}
+
+/* Блок Verified (Зеленая подложка) */
+.verified-card {
+    background: #09231b;
+    border: 1px solid #114735;
+}
+
+.green-badge {
+    background: #114735 !important;
+    color: #3fb950 !important;
+}
+
+.green-btn {
+    background: #0d1117;
+    border: 1px solid #238636;
+    color: #e6edf3;
+}
+
+.badge {
+    background: #21262d;
+    color: #8b949e;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+}
+
+/* Справа — список игроков */
+.board {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.board-item {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.board-item:hover, .board-item.active {
+    background: #161b22;
+    border-color: #388bfd;
+}
+
+.rank-id {
+    color: #58a6ff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    width: 28px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
 }
 
 .list-avatar {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-/* Секции заголовков */
-.main-title {
-    color: #ff4d4d !important;
+.list-flag {
+    font-size: 1rem;
 }
 
-.progress-title {
-    color: #60a5fa !important;
+.user-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #ffffff;
 }
 
-.percent-text {
-    color: #60a5fa;
-    font-size: 0.85em;
-}
-
-/* ЗЕЛЕНЫЙ БЛОК VERIFIED */
-.verified-section {
-    background: #091c18 !important;
-    border: 1px solid #103a31 !important;
-    border-radius: 12px;
-    padding: 16px;
-}
-
-.verified-title {
-    color: #10b981 !important;
-}
-
-.check-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #10b981;
-    border-radius: 50%;
-    font-size: 11px;
-}
-
-.verified-badge {
-    background: #0d2d25 !important;
-    color: #10b981 !important;
-}
-
-.verified-pill {
-    background: #0c2721 !important;
-    border: 1px solid #144e40 !important;
-    color: #e2e8f0 !important;
-}
-
-.verified-pill:hover {
-    background: #11382f !important;
+.user-score {
+    color: #8b949e;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
