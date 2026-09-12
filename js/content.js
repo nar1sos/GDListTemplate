@@ -1,8 +1,52 @@
+// Загрузка списка уровней (_list.json)
+export async function fetchList() {
+    try {
+        const listReq = await fetch('./data/_list.json');
+        if (!listReq.ok) return [];
+        const levelFiles = await listReq.json();
+
+        const list = await Promise.all(
+            levelFiles.map(async (file, index) => {
+                try {
+                    const res = await fetch(`./data/${file}.json`);
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return {
+                        ...data,
+                        rank: index + 1,
+                        path: file
+                    };
+                } catch (e) {
+                    console.error(`Error loading level ${file}:`, e);
+                    return null;
+                }
+            })
+        );
+
+        return list.filter(item => item !== null);
+    } catch (e) {
+        console.error("Error in fetchList:", e);
+        return [];
+    }
+}
+
+// Загрузка редакторов (_editors.json)
+export async function fetchEditors() {
+    try {
+        const res = await fetch('./data/_editors.json');
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        console.warn("Файл _editors.json не найден:", e);
+        return [];
+    }
+}
+
+// Генерация лидерборда игроков
 export async function fetchLeaderboard() {
     try {
         const playersMap = {};
 
-        // 1. СПИСОК ВОЗМОЖНЫХ ИМЕН ФАЙЛА ИГРОКОВ
         const possiblePlayerFiles = [
             './data/_players.json',
             './data/_leaderboard.json',
@@ -13,21 +57,16 @@ export async function fetchLeaderboard() {
 
         let staticPlayers = [];
 
-        // Пробуем по очереди загрузить файл игроков
         for (const filePath of possiblePlayerFiles) {
             try {
                 const res = await fetch(filePath);
                 if (res.ok) {
                     staticPlayers = await res.json();
-                    console.log(`Успешно загружен файл игроков: ${filePath}`);
-                    break; // Нашли файл — выходим из цикла
+                    break;
                 }
-            } catch (err) {
-                // Игнорируем 404 и пробуем следующий
-            }
+            } catch (err) {}
         }
 
-        // Заносим игроков из файла в общую базу
         if (Array.isArray(staticPlayers)) {
             staticPlayers.forEach(p => {
                 const name = p.name || p.user || p.username;
@@ -44,7 +83,6 @@ export async function fetchLeaderboard() {
             });
         }
 
-        // 2. ДОБАВЛЯЕМ ДАННЫЕ ИЗ ФАЙЛОВ УРОВНЕЙ (_list.json)
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -56,7 +94,6 @@ export async function fetchLeaderboard() {
                         if (!res.ok) continue;
                         const levelData = await res.json();
 
-                        // А. Верификатор
                         if (levelData.verifier) {
                             const vName = levelData.verifier;
                             if (!playersMap[vName]) {
@@ -76,7 +113,6 @@ export async function fetchLeaderboard() {
                             }
                         }
 
-                        // Б. Рекорды из уровня
                         if (Array.isArray(levelData.records)) {
                             for (const rec of levelData.records) {
                                 const pName = rec.user || rec.name;
@@ -112,25 +148,19 @@ export async function fetchLeaderboard() {
                                 }
                             }
                         }
-                    } catch (err) {
-                        console.error(`Ошибка обработки ${file}:`, err);
-                    }
+                    } catch (err) {}
                 }
             }
-        } catch (err) {
-            console.error("Ошибка загрузки _list.json в лидерборде:", err);
-        }
+        } catch (err) {}
 
         const leaderboard = Object.values(playersMap);
 
-        // Сортировка игроков по количеству зачтенных уровней/рекордов
         leaderboard.sort((a, b) => {
             const scoreA = (a.verified ? a.verified.length * 2 : 0) + (a.records ? a.records.length : 0);
             const scoreB = (b.verified ? b.verified.length * 2 : 0) + (b.records ? b.records.length : 0);
             return scoreB - scoreA;
         });
 
-        // Определяем Hardest level
         leaderboard.forEach(p => {
             if (p.verified && p.verified.length > 0) {
                 p.hardest = typeof p.verified[0] === 'string' ? p.verified[0] : p.verified[0].levelName;
@@ -141,7 +171,7 @@ export async function fetchLeaderboard() {
 
         return leaderboard;
     } catch (e) {
-        console.error("Ошибка генерации лидерборда:", e);
+        console.error("Error in fetchLeaderboard:", e);
         return [];
     }
 }
