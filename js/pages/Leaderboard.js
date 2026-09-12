@@ -1,6 +1,16 @@
 import { fetchLeaderboard } from "../content.js";
 import Spinner from "../components/Spinner.js";
 
+// Карта стран для обработки любых форматов из JSON
+const COUNTRY_MAP = {
+    'russia': 'ru', 'russian': 'ru', 'россия': 'ru', 'ru': 'ru',
+    'ukraine': 'ua', 'ukrainian': 'ua', 'украина': 'ua', 'ua': 'ua',
+    'kazakhstan': 'kz', 'казахстан': 'kz', 'kz': 'kz',
+    'usa': 'us', 'united states': 'us', 'us': 'us',
+    'germany': 'de', 'de': 'de',
+    'japan': 'jp', 'jp': 'jp'
+};
+
 export default {
     components: { Spinner },
     template: `
@@ -22,10 +32,9 @@ export default {
                     </div>
                     <div class="profile-title">
                         <img 
-                            v-if="selectedPlayer.nationality" 
-                            :src="getFlagUrl(selectedPlayer.nationality)" 
+                            v-if="getPlayerNationality(selectedPlayer)" 
+                            :src="getFlagUrl(getPlayerNationality(selectedPlayer))" 
                             class="flag-img" 
-                            :alt="selectedPlayer.nationality"
                             @error="onFlagError"
                         />
                         <h1>{{ selectedPlayer.user }}</h1>
@@ -61,7 +70,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- Main levels (включает рекорды 100% и верифицированные уровни) -->
+                <!-- Main levels -->
                 <div class="section-box" v-if="mainLevels.length">
                     <div class="box-header">
                         <div class="box-title red-title">
@@ -99,7 +108,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- Which are verified (ПОЛНОСТЬЮ ЗЕЛЕНЫЙ БЛОК) -->
+                <!-- Which are verified -->
                 <div class="section-box verified-box" v-if="verifiedLevels.length">
                     <div class="box-header">
                         <div class="box-title green-title">
@@ -137,8 +146,8 @@ export default {
                             @error="onAvatarError"
                         />
                         <img 
-                            v-if="player.nationality" 
-                            :src="getFlagUrl(player.nationality)" 
+                            v-if="getPlayerNationality(player)" 
+                            :src="getFlagUrl(getPlayerNationality(player))" 
                             class="list-flag-img" 
                             @error="onFlagError"
                         />
@@ -167,16 +176,13 @@ export default {
         mainLevels() {
             if (!this.selectedPlayer) return [];
             
-            // Фильтруем обычные рекорды 100%
             const records = (this.selectedPlayer.records || [])
                 .filter(r => !r.percent || r.percent === 100)
                 .map(r => r.levelName || r);
                 
-            // Берём верифицированные уровни
             const verified = (this.selectedPlayer.verified || [])
                 .map(v => v.levelName || v);
 
-            // Объединяем их без дублирования
             return [...new Set([...records, ...verified])];
         },
         progresses() {
@@ -203,6 +209,10 @@ export default {
             if (score === undefined || score === null) return '0';
             return Math.round(Number(score)).toLocaleString('ru-RU');
         },
+        getPlayerNationality(player) {
+            if (!player) return null;
+            return player.nationality || player.nation || player.country || null;
+        },
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
             if (player?.icon) return player.icon;
@@ -210,7 +220,9 @@ export default {
         },
         getFlagUrl(nationality) {
             if (!nationality) return '';
-            let code = String(nationality).trim().toLowerCase();
+            let raw = String(nationality).trim().toLowerCase();
+            
+            let code = COUNTRY_MAP[raw] || raw;
             
             if (code.length === 2) {
                 return `https://flagcdn.com/w40/${code}.png`;
