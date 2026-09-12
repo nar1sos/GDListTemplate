@@ -86,7 +86,7 @@ export default {
                             :key="idx" 
                             class="pill-btn progress-pill"
                         >
-                            {{ prog.levelName }} <span class="blue-text">({{ prog.percent }}%)</span>
+                            {{ prog.levelName || prog }} <span v-if="prog.percent" class="blue-text">({{ prog.percent }}%)</span>
                         </div>
                     </div>
                 </div>
@@ -189,7 +189,6 @@ export default {
         getPlayerFlag(player) {
             if (!player) return null;
 
-            // Берутся поля страны игрока или из его рекордов
             let raw = player.country || player.nationality || player.nation;
 
             if (!raw && Array.isArray(player.records)) {
@@ -215,7 +214,7 @@ export default {
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
             if (player?.icon) return player.icon;
-            return `https://github.com/${player?.user}.png`;
+            return `https://github.com/${player?.user || 'ghost'}.png`;
         },
 
         onAvatarError(e) {
