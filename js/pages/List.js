@@ -210,25 +210,16 @@ export default {
     },
 
     methods: {
-        getYoutubeId(url) {
-            if (!url) return null;
-            const regExp = /^.*(?:youtu.be\/|v\/|e\/|u\/\w\/|embed\/|v=)([^#&?]*).*/;
-            const match = String(url).match(regExp);
-            return (match && match[1].length === 11) ? match[1] : null;
-        },
-
         embed(ytid) {
-            const id = this.getYoutubeId(ytid) || ytid;
-            if (!id) return '';
-            return `https://www.youtube.com/embed/${id}`;
+            if (!ytid) return '';
+            return `https://www.youtube.com/embed/${ytid}`;
         },
 
         getThumbnail(ytid) {
-            const id = this.getYoutubeId(ytid) || (typeof ytid === 'string' && ytid.length === 11 ? ytid : null);
-            if (!id) {
-                return 'https://i.imgur.com/6VBx3io.png';
+            if (!ytid) {
+                return 'https://img.youtube.com/vi/3547192841/hqdefault.jpg';
             }
-            return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+            return `https://i.ytimg.com/vi/${ytid}/hqdefault.jpg`;
         },
 
         onThumbError(e) {
