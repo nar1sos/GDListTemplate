@@ -99,7 +99,7 @@ export default {
                     </div>
                 </div>
 
-                <!-- Блок Заверифицированных уровней (если есть) -->
+                <!-- Блок Заверифицированных уровней -->
                 <div class="section-levels" v-if="selectedPlayer.verified && selectedPlayer.verified.length">
                     <div class="section-top">
                         <div class="title">
@@ -153,12 +153,12 @@ export default {
 
     methods: {
         getFlagEmoji(countryCode) {
-            if (!countryCode) return '';
-            // Если передан готовый эмодзи флага
-            if (countryCode.length > 2) return countryCode;
-            
-            // Преобразование двубуквенного ISO кода (напр. 'RU', 'UA', 'KZ') в флаг Emoji
-            const codePoints = countryCode
+            if (countryCode === null || countryCode === undefined) return '';
+            const codeStr = String(countryCode).trim();
+            if (codeStr.length !== 2) return codeStr;
+            if (!/^[a-zA-Z]{2}$/.test(codeStr)) return codeStr;
+
+            const codePoints = codeStr
                 .toUpperCase()
                 .split('')
                 .map(char => 127397 + char.charCodeAt(0));
