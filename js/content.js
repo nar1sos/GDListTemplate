@@ -198,14 +198,14 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисление очков и поиск НАИБОЛЕЕ СЛОЖНОГО уровня (ТОЛЬКО 100%)
+        // 3. Вычисление очков и Hardest (ТОЛЬКО 100%)
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
             let total = p.score || 0;
             let hardestItem = null;
 
-            // Верифицированные уровни (100%)
+            // Верификации (100%)
             if (Array.isArray(p.verified)) {
                 p.verified.forEach(v => {
                     const pts = typeof v === 'object' && v.pts ? v.pts : 50;
@@ -239,7 +239,7 @@ export async function fetchLeaderboard() {
 
             p.totalScore = total;
 
-            // Возвращаем ТОЛЬКО название уровня без цифр и знаков #
+            // ТОЛЬКО НАЗВАНИЕ УРОВНЯ
             if (hardestItem) {
                 p.hardest = hardestItem.levelName;
             } else {
