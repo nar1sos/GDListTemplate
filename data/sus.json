@@ -22,6 +22,12 @@
             "percent": 100,
             "country": "ua",
             "hz": 60
+        },
+        {
+            "user": "L1steN",
+            "link": "",
+            "percent": 100,
+            "hz": 240
         }
     ]
 }
