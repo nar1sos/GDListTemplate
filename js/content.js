@@ -64,33 +64,43 @@ export async function fetchEditors() {
 export async function fetchLeaderboard() {
     try {
         const playersMap = {};
-        const playerOrder = []; // Строгий порядок из файлов игроков
+        const playerOrder = [];
 
-        const registerPlayer = (rawName, pData = {}) => {
+        const registerPlayer = (rawName, pData = {}, isMainFile = false) => {
             if (!rawName) return null;
             const name = String(rawName).trim();
             if (!name) return null;
 
+            const extractedAvatar = pData.avatar || pData.icon || pData.photo || null;
+            const extractedCountry = pData.country || pData.nationality || pData.nation || null;
+
             if (!playersMap[name]) {
                 playersMap[name] = {
                     user: name,
-                    country: pData.country || pData.nationality || pData.nation || null,
-                    avatar: pData.avatar || pData.icon || pData.photo || null,
+                    country: extractedCountry,
+                    avatar: extractedAvatar,
                     verified: Array.isArray(pData.verified) ? pData.verified : [],
                     records: Array.isArray(pData.records) ? pData.records : []
                 };
             } else {
-                if (!playersMap[name].country && (pData.country || pData.nationality || pData.nation)) {
-                    playersMap[name].country = pData.country || pData.nationality || pData.nation;
-                }
-                if (!playersMap[name].avatar && (pData.avatar || pData.icon || pData.photo)) {
-                    playersMap[name].avatar = pData.avatar || pData.icon || pData.photo;
+                // Если данные прищли из main файла (players.json / profiles.json), они главного приоритета
+                if (isMainFile) {
+                    if (extractedAvatar) playersMap[name].avatar = extractedAvatar;
+                    if (extractedCountry) playersMap[name].country = extractedCountry;
+                } else {
+                    // Если данных в объекте ещё нет, берем их
+                    if (!playersMap[name].country && extractedCountry) {
+                        playersMap[name].country = extractedCountry;
+                    }
+                    if (!playersMap[name].avatar && extractedAvatar) {
+                        playersMap[name].avatar = extractedAvatar;
+                    }
                 }
             }
             return playersMap[name];
         };
 
-        // 1. Читаем точные файлы: сначала players.json (топ), затем profiles.json
+        // 1. Читаем точные файлы: players.json (топ) и profiles.json (без рекордов)
         const targetFiles = [
             './data/players.json',
             './data/profiles.json'
@@ -106,7 +116,7 @@ export async function fetchLeaderboard() {
                     list.forEach(p => {
                         const name = typeof p === 'string' ? p : (p.name || p.user || p.username || p.player);
                         if (name) {
-                            registerPlayer(name, typeof p === 'object' ? p : {});
+                            registerPlayer(name, typeof p === 'object' ? p : {}, true);
                             if (!playerOrder.includes(name)) {
                                 playerOrder.push(name);
                             }
@@ -118,7 +128,7 @@ export async function fetchLeaderboard() {
             }
         }
 
-        // 2. Сканируем уровни для привязки рекордов и верификаций
+        // 2. Сканируем уровни только для привязки рекордов и верификаций
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -172,7 +182,7 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Собираем массив строго в порядке из players.json и profiles.json
+        // 3. Вычисляем Hardest и собираем результат
         return playerOrder.map(name => {
             const p = playersMap[name];
             let hardestItem = null;
