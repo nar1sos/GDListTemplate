@@ -76,8 +76,7 @@ export async function fetchLeaderboard() {
                     country: pData.country || pData.nationality || pData.nation || null,
                     avatar: pData.avatar || pData.icon || pData.photo || null,
                     verified: Array.isArray(pData.verified) ? pData.verified : [],
-                    records: Array.isArray(pData.records) ? pData.records : [],
-                    score: pData.score || pData.points || 0
+                    records: Array.isArray(pData.records) ? pData.records : []
                 };
             } else {
                 if (!playersMap[name].country && (pData.country || pData.nationality || pData.nation)) {
@@ -85,9 +84,6 @@ export async function fetchLeaderboard() {
                 }
                 if (!playersMap[name].avatar && (pData.avatar || pData.icon || pData.photo)) {
                     playersMap[name].avatar = pData.avatar || pData.icon || pData.photo;
-                }
-                if (pData.score || pData.points) {
-                    playersMap[name].score = Math.max(playersMap[name].score, pData.score || pData.points || 0);
                 }
             }
             return playersMap[name];
@@ -136,7 +132,6 @@ export async function fetchLeaderboard() {
                 for (let index = 0; index < levelFiles.length; index++) {
                     const file = levelFiles[index];
                     const rank = index + 1;
-                    const levelPoints = Math.max(100 - (rank - 1) * 2, 5);
 
                     try {
                         const res = await fetch(`./data/${file}.json`);
@@ -157,8 +152,7 @@ export async function fetchLeaderboard() {
                                 if (!exists) {
                                     pObj.verified.push({
                                         levelName: levelName,
-                                        rank: rank,
-                                        pts: levelPoints
+                                        rank: rank
                                     });
                                 }
                             }
@@ -186,8 +180,7 @@ export async function fetchLeaderboard() {
                                             percent: rec.percent || 100,
                                             hz: rec.hz || 60,
                                             link: rec.link || rec.video || '',
-                                            rank: rank,
-                                            pts: Math.round((levelPoints * (rec.percent || 100)) / 100)
+                                            rank: rank
                                         });
                                     }
                                 }
@@ -198,20 +191,17 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисление очков и Hardest (ТОЛЬКО 100%)
+        // 3. Вычисление Hardest и логика ранжирования
         const leaderboard = Object.values(playersMap);
 
         leaderboard.forEach(p => {
-            let total = p.score || 0;
             let hardestItem = null;
 
             // Верификации (100%)
             if (Array.isArray(p.verified)) {
                 p.verified.forEach(v => {
-                    const pts = typeof v === 'object' && v.pts ? v.pts : 50;
-                    const rank = typeof v === 'object' && v.rank ? v.rank : 999;
+                    const rank = typeof v === 'object' && v.rank ? v.rank : 9999;
                     const levelName = typeof v === 'object' ? v.levelName : v;
-                    total += pts;
 
                     if (!hardestItem || rank < hardestItem.rank) {
                         hardestItem = { levelName, rank };
@@ -219,15 +209,12 @@ export async function fetchLeaderboard() {
                 });
             }
 
-            // Рекорды (фильтруем: ТОЛЬКО 100%)
+            // Рекорды (ТОЛЬКО 100% учитываются для Hardest)
             if (Array.isArray(p.records)) {
                 p.records.forEach(r => {
-                    const pts = typeof r === 'object' && r.pts ? r.pts : 10;
-                    const rank = typeof r === 'object' && r.rank ? r.rank : 999;
+                    const rank = typeof r === 'object' && r.rank ? r.rank : 9999;
                     const levelName = typeof r === 'object' ? r.levelName : r;
                     const percent = typeof r === 'object' && r.percent !== undefined ? r.percent : 100;
-
-                    total += pts;
 
                     if (percent === 100) {
                         if (!hardestItem || rank < hardestItem.rank) {
@@ -237,16 +224,32 @@ export async function fetchLeaderboard() {
                 });
             }
 
-            p.totalScore = total;
-
-            // ТОЛЬКО НАЗВАНИЕ УРОВНЯ
             if (hardestItem) {
                 p.hardest = hardestItem.levelName;
+                p.hardestRank = hardestItem.rank;
             } else {
                 p.hardest = 'None';
+                p.hardestRank = 9999;
             }
         });
 
+        // СОРТИРОВКА: Сначала по рангу самого сложного уровня (чем меньше rank, тем выше в топе).
+        // Если у игроков одинаковый Hardest, выше тот, у кого больше пройденных на 100% уровней.
+        leaderboard.sort((a, b) => {
+            if (a.hardestRank !== b.hardestRank) {
+                return a.hardestRank - b.hardestRank;
+            }
+            const aCompleted = (a.verified?.length || 0) + (a.records?.filter(r => (typeof r === 'object' ? r.percent : 100) === 100).length || 0);
+            const bCompleted = (b.verified?.length || 0) + (b.records?.filter(r => (typeof r === 'object' ? r.percent : 100) === 100).length || 0);
+            return bCompleted - aCompleted;
+        });
+
+        return leaderboard;
+    } catch (e) {
+        console.error("Error in fetchLeaderboard:", e);
+        return [];
+    }
+}
         leaderboard.sort((a, b) => b.totalScore - a.totalScore);
 
         return leaderboard;
