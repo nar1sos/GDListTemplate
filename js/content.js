@@ -64,6 +64,7 @@ export async function fetchEditors() {
 export async function fetchLeaderboard() {
     try {
         const playersMap = {};
+        const playerOrder = []; // Сохраняем исходный порядок из JSON файла
 
         const registerPlayer = (rawName, pData = {}) => {
             if (!rawName) return null;
@@ -78,6 +79,7 @@ export async function fetchLeaderboard() {
                     verified: Array.isArray(pData.verified) ? pData.verified : [],
                     records: Array.isArray(pData.records) ? pData.records : []
                 };
+                playerOrder.push(name);
             } else {
                 if (!playersMap[name].country && (pData.country || pData.nationality || pData.nation)) {
                     playersMap[name].country = pData.country || pData.nationality || pData.nation;
@@ -89,7 +91,7 @@ export async function fetchLeaderboard() {
             return playersMap[name];
         };
 
-        // 1. Читаем файлы игроков
+        // 1. Читаем файлы игроков (порядок берется строго отсюда)
         const possiblePlayerFiles = [
             './data/players.json',
             './data/profiles.json',
@@ -123,7 +125,7 @@ export async function fetchLeaderboard() {
             } catch (err) {}
         }
 
-        // 2. Сканируем уровни
+        // 2. Сканируем уровни для привязки рекордов и верификации
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -191,13 +193,11 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисление Hardest и логика ранжирования
-        const leaderboard = Object.values(playersMap);
-
-        leaderboard.forEach(p => {
+        // 3. Формирование списка без сортировки (сохраняется порядок файлов)
+        const leaderboard = playerOrder.map(name => {
+            const p = playersMap[name];
             let hardestItem = null;
 
-            // Верификации (100%)
             if (Array.isArray(p.verified)) {
                 p.verified.forEach(v => {
                     const rank = typeof v === 'object' && v.rank ? v.rank : 9999;
@@ -209,7 +209,6 @@ export async function fetchLeaderboard() {
                 });
             }
 
-            // Рекорды (ТОЛЬКО 100% учитываются для Hardest)
             if (Array.isArray(p.records)) {
                 p.records.forEach(r => {
                     const rank = typeof r === 'object' && r.rank ? r.rank : 9999;
@@ -224,33 +223,9 @@ export async function fetchLeaderboard() {
                 });
             }
 
-            if (hardestItem) {
-                p.hardest = hardestItem.levelName;
-                p.hardestRank = hardestItem.rank;
-            } else {
-                p.hardest = 'None';
-                p.hardestRank = 9999;
-            }
+            p.hardest = hardestItem ? hardestItem.levelName : 'None';
+            return p;
         });
-
-        // СОРТИРОВКА: Сначала по рангу самого сложного уровня (чем меньше rank, тем выше в топе).
-        // Если у игроков одинаковый Hardest, выше тот, у кого больше пройденных на 100% уровней.
-        leaderboard.sort((a, b) => {
-            if (a.hardestRank !== b.hardestRank) {
-                return a.hardestRank - b.hardestRank;
-            }
-            const aCompleted = (a.verified?.length || 0) + (a.records?.filter(r => (typeof r === 'object' ? r.percent : 100) === 100).length || 0);
-            const bCompleted = (b.verified?.length || 0) + (b.records?.filter(r => (typeof r === 'object' ? r.percent : 100) === 100).length || 0);
-            return bCompleted - aCompleted;
-        });
-
-        return leaderboard;
-    } catch (e) {
-        console.error("Error in fetchLeaderboard:", e);
-        return [];
-    }
-}
-        leaderboard.sort((a, b) => b.totalScore - a.totalScore);
 
         return leaderboard;
     } catch (e) {
