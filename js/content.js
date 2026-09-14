@@ -66,69 +66,71 @@ export async function fetchLeaderboard() {
         const playersMap = {};
         const playerOrder = [];
 
-        const registerPlayer = (rawName, pData = {}, isMainFile = false) => {
+        const registerPlayer = (rawName) => {
             if (!rawName) return null;
             const name = String(rawName).trim();
             if (!name) return null;
 
-            const extractedAvatar = pData.avatar || pData.icon || pData.photo || null;
-            const extractedCountry = pData.country || pData.nationality || pData.nation || null;
-
             if (!playersMap[name]) {
                 playersMap[name] = {
                     user: name,
-                    country: extractedCountry,
-                    avatar: extractedAvatar,
-                    verified: Array.isArray(pData.verified) ? pData.verified : [],
-                    records: Array.isArray(pData.records) ? pData.records : []
+                    name: name,
+                    country: null,
+                    avatar: null,
+                    verified: [],
+                    records: []
                 };
-            } else {
-                // Если данные прищли из main файла (players.json / profiles.json), они главного приоритета
-                if (isMainFile) {
-                    if (extractedAvatar) playersMap[name].avatar = extractedAvatar;
-                    if (extractedCountry) playersMap[name].country = extractedCountry;
-                } else {
-                    // Если данных в объекте ещё нет, берем их
-                    if (!playersMap[name].country && extractedCountry) {
-                        playersMap[name].country = extractedCountry;
-                    }
-                    if (!playersMap[name].avatar && extractedAvatar) {
-                        playersMap[name].avatar = extractedAvatar;
-                    }
-                }
             }
             return playersMap[name];
         };
 
-        // 1. Читаем точные файлы: players.json (топ) и profiles.json (без рекордов)
-        const targetFiles = [
-            './data/players.json',
-            './data/profiles.json'
-        ];
-
-        for (const filePath of targetFiles) {
-            try {
-                const res = await fetch(filePath);
-                if (res.ok) {
-                    const data = await res.json();
-                    const list = Array.isArray(data) ? data : (data.players || data.users || []);
-                    
-                    list.forEach(p => {
-                        const name = typeof p === 'string' ? p : (p.name || p.user || p.username || p.player);
-                        if (name) {
-                            registerPlayer(name, typeof p === 'object' ? p : {}, true);
-                            if (!playerOrder.includes(name)) {
-                                playerOrder.push(name);
-                            }
+        // 1. Загружаем главный файл с топом (players.json) — фиксируем строгий порядок
+        try {
+            const res = await fetch('./data/players.json');
+            if (res.ok) {
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : (data.players || data.users || []);
+                
+                list.forEach(p => {
+                    const name = typeof p === 'string' ? p : (p.name || p.user || p.username || p.player);
+                    if (name) {
+                        registerPlayer(name);
+                        if (!playerOrder.includes(name)) {
+                            playerOrder.push(name);
                         }
-                    });
-                }
-            } catch (err) {
-                console.error(`Error loading ${filePath}:`, err);
+                    }
+                });
             }
+        } catch (err) {
+            console.error(" Ошибка загрузки players.json:", err);
         }
 
-        // 2. Сканируем уровни только для привязки рекордов и верификаций
+        // 2. Читаем profiles.json для игроков без рекордов (подтягиваем их аватарки и страны)
+        try {
+            const res = await fetch('./data/profiles.json');
+            if (res.ok) {
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : (data.players || data.users || []);
+                
+                list.forEach(p => {
+                    const name = typeof p === 'string' ? p : (p.name || p.user || p.username || p.player);
+                    if (name) {
+                        const pObj = registerPlayer(name);
+                        if (!playerOrder.includes(name)) {
+                            playerOrder.push(name);
+                        }
+                        if (typeof p === 'object' && p !== null) {
+                            if (!pObj.avatar) pObj.avatar = p.avatar || p.icon || p.photo || null;
+                            if (!pObj.country) pObj.country = p.country || p.nationality || p.nation || null;
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Ошибка загрузки profiles.json:", err);
+        }
+
+        // 3. Сканируем файлы уровней и забираем аватарки/рекорды оттуда
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -144,23 +146,38 @@ export async function fetchLeaderboard() {
                         const levelData = await res.json();
                         const levelName = levelData.name || file;
 
-                        // Верификатор
-                        if (levelData.verifier && playersMap[levelData.verifier]) {
-                            const pObj = playersMap[levelData.verifier];
-                            const exists = pObj.verified.some(
-                                v => (typeof v === 'string' ? v : v.levelName) === levelName
-                            );
-                            if (!exists) {
-                                pObj.verified.push({ levelName, rank });
+                        // Верификатор уровня
+                        if (levelData.verifier) {
+                            const pObj = registerPlayer(levelData.verifier);
+                            if (pObj) {
+                                if (!pObj.avatar) pObj.avatar = levelData.verifierAvatar || levelData.avatar || levelData.icon || null;
+                                if (!pObj.country) pObj.country = levelData.verifierCountry || levelData.country || null;
+
+                                const exists = pObj.verified.some(
+                                    v => (typeof v === 'string' ? v : v.levelName) === levelName
+                                );
+                                if (!exists) {
+                                    pObj.verified.push({ levelName, rank });
+                                }
                             }
                         }
 
-                        // Рекорды
+                        // Рекорды на уровне
                         if (Array.isArray(levelData.records)) {
                             for (const rec of levelData.records) {
                                 const recUser = rec.user || rec.name || rec.username;
-                                if (recUser && playersMap[recUser]) {
-                                    const pObj = playersMap[recUser];
+                                if (!recUser) continue;
+
+                                const pObj = registerPlayer(recUser);
+                                if (pObj) {
+                                    // Записываем аватарку и страну из рекорда, если их еще нет
+                                    if (!pObj.avatar && (rec.avatar || rec.icon || rec.photo)) {
+                                        pObj.avatar = rec.avatar || rec.icon || rec.photo;
+                                    }
+                                    if (!pObj.country && (rec.country || rec.nationality)) {
+                                        pObj.country = rec.country || rec.nationality;
+                                    }
+
                                     const exists = pObj.records.some(
                                         r => (typeof r === 'string' ? r : r.levelName) === levelName
                                     );
@@ -182,7 +199,7 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Вычисляем Hardest и собираем результат
+        // 4. Формируем итоговый список игроков строго по порядку из players.json и profiles.json
         return playerOrder.map(name => {
             const p = playersMap[name];
             let hardestItem = null;
