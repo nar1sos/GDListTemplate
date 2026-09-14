@@ -64,7 +64,7 @@ export async function fetchEditors() {
 export async function fetchLeaderboard() {
     try {
         const playersMap = {};
-        const playerOrder = []; // Сохраняем исходный порядок из JSON файла
+        const playerOrder = [];
 
         const registerPlayer = (rawName, pData = {}) => {
             if (!rawName) return null;
@@ -79,7 +79,6 @@ export async function fetchLeaderboard() {
                     verified: Array.isArray(pData.verified) ? pData.verified : [],
                     records: Array.isArray(pData.records) ? pData.records : []
                 };
-                playerOrder.push(name);
             } else {
                 if (!playersMap[name].country && (pData.country || pData.nationality || pData.nation)) {
                     playersMap[name].country = pData.country || pData.nationality || pData.nation;
@@ -91,11 +90,11 @@ export async function fetchLeaderboard() {
             return playersMap[name];
         };
 
-        // 1. Читаем файлы игроков (порядок берется строго отсюда)
+        // 1. Читаем файл игроков
         const possiblePlayerFiles = [
+            './data/_players.json',
             './data/players.json',
             './data/profiles.json',
-            './data/_players.json',
             './data/_leaderboard.json'
         ];
 
@@ -104,28 +103,24 @@ export async function fetchLeaderboard() {
                 const res = await fetch(filePath);
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data)) {
-                        data.forEach(p => registerPlayer(p.name || p.user || p.username || p.player, p));
-                    } else if (typeof data === 'object' && data !== null) {
-                        const innerArray = data.players || data.users || data.profiles || data.leaderboard;
-                        if (Array.isArray(innerArray)) {
-                            innerArray.forEach(p => registerPlayer(p.name || p.user || p.username || p.player, p));
-                        } else {
-                            Object.keys(data).forEach(key => {
-                                const item = data[key];
-                                if (typeof item === 'object' && item !== null) {
-                                    registerPlayer(item.name || item.user || item.username || key, item);
-                                } else if (typeof item === 'string') {
-                                    registerPlayer(item, {});
-                                }
-                            });
+                    const list = Array.isArray(data) ? data : (data.players || data.users || []);
+                    
+                    list.forEach(p => {
+                        const name = p.name || p.user || p.username || p.player;
+                        if (name) {
+                            registerPlayer(name, p);
+                            if (!playerOrder.includes(name)) {
+                                playerOrder.push(name);
+                            }
                         }
-                    }
+                    });
+                    
+                    if (playerOrder.length > 0) break;
                 }
             } catch (err) {}
         }
 
-        // 2. Сканируем уровни для привязки рекордов и верификации
+        // 2. Сканируем уровни
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -141,26 +136,22 @@ export async function fetchLeaderboard() {
                         const levelData = await res.json();
                         const levelName = levelData.name || file;
 
-                        // Верификатор (всегда 100%)
                         if (levelData.verifier) {
                             const pObj = registerPlayer(levelData.verifier, {
                                 country: levelData.verifierCountry || levelData.country
                             });
 
                             if (pObj) {
+                                if (!playerOrder.includes(pObj.user)) playerOrder.push(pObj.user);
                                 const exists = pObj.verified.some(
                                     v => (typeof v === 'string' ? v : v.levelName) === levelName
                                 );
                                 if (!exists) {
-                                    pObj.verified.push({
-                                        levelName: levelName,
-                                        rank: rank
-                                    });
+                                    pObj.verified.push({ levelName, rank });
                                 }
                             }
                         }
 
-                        // Рекорды
                         if (Array.isArray(levelData.records)) {
                             for (const rec of levelData.records) {
                                 const recUser = rec.user || rec.name || rec.username;
@@ -172,17 +163,18 @@ export async function fetchLeaderboard() {
                                 });
 
                                 if (pObj) {
+                                    if (!playerOrder.includes(pObj.user)) playerOrder.push(pObj.user);
                                     const exists = pObj.records.some(
                                         r => (typeof r === 'string' ? r : r.levelName) === levelName
                                     );
 
                                     if (!exists) {
                                         pObj.records.push({
-                                            levelName: levelName,
+                                            levelName,
                                             percent: rec.percent || 100,
                                             hz: rec.hz || 60,
                                             link: rec.link || rec.video || '',
-                                            rank: rank
+                                            rank
                                         });
                                     }
                                 }
@@ -193,8 +185,8 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 3. Формирование списка без сортировки (сохраняется порядок файлов)
-        const leaderboard = playerOrder.map(name => {
+        // 3. Вычисление Hardest
+        return playerOrder.map(name => {
             const p = playersMap[name];
             let hardestItem = null;
 
@@ -202,10 +194,7 @@ export async function fetchLeaderboard() {
                 p.verified.forEach(v => {
                     const rank = typeof v === 'object' && v.rank ? v.rank : 9999;
                     const levelName = typeof v === 'object' ? v.levelName : v;
-
-                    if (!hardestItem || rank < hardestItem.rank) {
-                        hardestItem = { levelName, rank };
-                    }
+                    if (!hardestItem || rank < hardestItem.rank) hardestItem = { levelName, rank };
                 });
             }
 
@@ -214,11 +203,8 @@ export async function fetchLeaderboard() {
                     const rank = typeof r === 'object' && r.rank ? r.rank : 9999;
                     const levelName = typeof r === 'object' ? r.levelName : r;
                     const percent = typeof r === 'object' && r.percent !== undefined ? r.percent : 100;
-
-                    if (percent === 100) {
-                        if (!hardestItem || rank < hardestItem.rank) {
-                            hardestItem = { levelName, rank };
-                        }
+                    if (percent === 100 && (!hardestItem || rank < hardestItem.rank)) {
+                        hardestItem = { levelName, rank };
                     }
                 });
             }
@@ -226,8 +212,6 @@ export async function fetchLeaderboard() {
             p.hardest = hardestItem ? hardestItem.levelName : 'None';
             return p;
         });
-
-        return leaderboard;
     } catch (e) {
         console.error("Error in fetchLeaderboard:", e);
         return [];
