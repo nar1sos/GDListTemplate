@@ -84,7 +84,7 @@ export async function fetchLeaderboard() {
             return playersMap[name];
         };
 
-        // 1. Загружаем главный файл с топом (players.json) — фиксируем строгий порядок
+        // 1. Загружаем главный файл с топом (players.json) — фиксируем порядок
         try {
             const res = await fetch('./data/players.json');
             if (res.ok) {
@@ -102,35 +102,32 @@ export async function fetchLeaderboard() {
                 });
             }
         } catch (err) {
-            console.error(" Ошибка загрузки players.json:", err);
+            console.error("Ошибка загрузки players.json:", err);
         }
 
-        // 2. Читаем profiles.json для игроков без рекордов (подтягиваем их аватарки и страны)
+        // 2. Читаем profiles.json (формат объекта {"CAWET": {avatar, nationality}})
         try {
             const res = await fetch('./data/profiles.json');
             if (res.ok) {
                 const data = await res.json();
-                const list = Array.isArray(data) ? data : (data.players || data.users || []);
-                
-                list.forEach(p => {
-                    const name = typeof p === 'string' ? p : (p.name || p.user || p.username || p.player);
-                    if (name) {
-                        const pObj = registerPlayer(name);
-                        if (!playerOrder.includes(name)) {
-                            playerOrder.push(name);
+                if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+                    Object.keys(data).forEach(playerName => {
+                        const pData = data[playerName];
+                        const pObj = registerPlayer(playerName);
+                        if (pObj && pData) {
+                            if (pData.avatar) pObj.avatar = pData.avatar;
+                            if (pData.nationality || pData.country || pData.nation) {
+                                pObj.country = pData.nationality || pData.country || pData.nation;
+                            }
                         }
-                        if (typeof p === 'object' && p !== null) {
-                            if (!pObj.avatar) pObj.avatar = p.avatar || p.icon || p.photo || null;
-                            if (!pObj.country) pObj.country = p.country || p.nationality || p.nation || null;
-                        }
-                    }
-                });
+                    });
+                }
             }
         } catch (err) {
             console.error("Ошибка загрузки profiles.json:", err);
         }
 
-        // 3. Сканируем файлы уровней и забираем аватарки/рекорды оттуда
+        // 3. Сканируем файлы уровней и забираем рекорды и недостающие аватарки
         try {
             const listReq = await fetch('./data/_list.json');
             if (listReq.ok) {
@@ -150,8 +147,12 @@ export async function fetchLeaderboard() {
                         if (levelData.verifier) {
                             const pObj = registerPlayer(levelData.verifier);
                             if (pObj) {
-                                if (!pObj.avatar) pObj.avatar = levelData.verifierAvatar || levelData.avatar || levelData.icon || null;
-                                if (!pObj.country) pObj.country = levelData.verifierCountry || levelData.country || null;
+                                if (!pObj.avatar && (levelData.verifierAvatar || levelData.avatar)) {
+                                    pObj.avatar = levelData.verifierAvatar || levelData.avatar;
+                                }
+                                if (!pObj.country && (levelData.verifierCountry || levelData.country)) {
+                                    pObj.country = levelData.verifierCountry || levelData.country;
+                                }
 
                                 const exists = pObj.verified.some(
                                     v => (typeof v === 'string' ? v : v.levelName) === levelName
@@ -170,9 +171,8 @@ export async function fetchLeaderboard() {
 
                                 const pObj = registerPlayer(recUser);
                                 if (pObj) {
-                                    // Записываем аватарку и страну из рекорда, если их еще нет
-                                    if (!pObj.avatar && (rec.avatar || rec.icon || rec.photo)) {
-                                        pObj.avatar = rec.avatar || rec.icon || rec.photo;
+                                    if (!pObj.avatar && rec.avatar) {
+                                        pObj.avatar = rec.avatar;
                                     }
                                     if (!pObj.country && (rec.country || rec.nationality)) {
                                         pObj.country = rec.country || rec.nationality;
@@ -199,7 +199,7 @@ export async function fetchLeaderboard() {
             }
         } catch (err) {}
 
-        // 4. Формируем итоговый список игроков строго по порядку из players.json и profiles.json
+        // 4. Формируем итоговый список игроков в порядке из players.json
         return playerOrder.map(name => {
             const p = playersMap[name];
             let hardestItem = null;
